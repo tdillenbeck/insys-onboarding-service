@@ -1,0 +1,76 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: insys-onboarding
+  namespace: insys
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Values.image.tag | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: insys-onboarding
+      annotations:
+        prometheus.io.scrape: "true"
+        prometheus.io.path: "/metrics"
+        prometheus.io.port: "7777"
+    spec:
+      containers:
+      - image: registry.gitlab.getweave.com/weave-lab/internal/insys-onboarding:{{ .Values.image.tag }}
+        name: insys-onboarding
+        resources:
+          requests:
+            cpu: {{ .Values.requests.cpu }}
+            memory: {{ .Values.requests.memory }}
+          limits:
+            cpu: 100m
+            memory: 256Mi
+        ports:
+        - name: grpc
+          containerPort: 8000
+
+      - image: registry.gitlab.getweave.com/weave-lab/platform/wmetricsd:1.0.853-sha.fe1de2c
+        name: wmetricsd
+        env:
+        - name: ENABLE_PROM
+          value: 'true'
+        - name: ENABLE_STATSD
+          value: 'true'
+        resources:
+          requests:
+            cpu: 15m
+            memory: 32Mi   
+            
+      - name: wlogd
+        image: registry.gitlab.getweave.com/weave-lab/platform/wlogd:1.0.860-sha.fe3748a
+        resources:
+          requests:
+            cpu: 15m
+            memory: 32Mi   
+        env:
+        - name: SENTRY
+          value: 'true'
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+
+      - name: tracing-agent
+        image: weavelab/jaeger-agent:5d5a16b7
+        command:
+        - /go/bin/agent-linux
+        - --collector.host-port=jaeger-collector.data:14267
+        resources:
+          requests:
+            cpu: 15m
+            memory: 16Mi
+
+      imagePullSecrets:
+      - name: gitlabregistry

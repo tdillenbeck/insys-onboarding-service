@@ -1,0 +1,5 @@
+(io.Closer).Close
+(*os.File).Close
+
+(*database/sql.Rows).Close
+(*github.com/jmoiron/sqlx.Rows).Close
