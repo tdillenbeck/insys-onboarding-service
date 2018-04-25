@@ -1,22 +1,9 @@
 image:
-tag: v0.0.37
+  tag: 1.0.4048-sha.fbfdc9d-zt-categories
 
 replicas: 1
 
 requests:
   cpu: 100m
   memory: 128Mi
-logDNA: insys-onboarding-dev
-
-logLevel: debug
-
-postgres:
-  connMaxLifetime: 10m
-  idleConnections: 0
-  openConnections: 10
-
-logQueries: true
-
-dbPrimaryAddr: dev-pgsql-service-1a:5432
-dbReplicaAddr: dev-pgsql-service-1a:5432
 

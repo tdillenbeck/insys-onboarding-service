@@ -25,6 +25,14 @@ spec:
       containers:
       - image: registry.gitlab.getweave.com/weave-lab/internal/insys-onboarding:{{ .Values.image.tag }}
         name: insys-onboarding
+        livenessProbe:
+          httpGet:
+            path: /liveness
+            port: {{ .Values.probes.port }}
+        readinessProbe:
+          httpGet:
+            path: /readiness
+            port: {{ .Values.probes.port }}
         resources:
           requests:
             cpu: {{ .Values.requests.cpu }}
@@ -34,7 +42,7 @@ spec:
             memory: 256Mi
         ports:
         - name: grpc
-          containerPort: 8000
+          containerPort: 9000
 
       - image: registry.gitlab.getweave.com/weave-lab/platform/wmetricsd:1.0.853-sha.fe1de2c
         name: wmetricsd
@@ -74,3 +82,4 @@ spec:
 
       imagePullSecrets:
       - name: gitlabregistry
+
