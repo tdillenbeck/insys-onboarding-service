@@ -16,10 +16,9 @@ govet:
 goerror:
 	./dev/errcheck.sh
 
-deployprod:
+deploydev:
+	helm upgrade --kube-context dev-ut  insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-dev.yaml --namespace=insys
 
+deployprod:
 	helm upgrade --kube-context prod-ut insys-onboarding ./charts/insys-onboarding --reset-values --namespace=insys
 
-deploydev:
-
-	helm upgrade --kube-context dev-ut  insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-dev.yaml --namespace=insys
