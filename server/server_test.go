@@ -6,69 +6,62 @@ import (
 	"testing"
 	"time"
 
-	"weavelab.xyz/insys-onboarding/exampleproto"
+	"github.com/golang/protobuf/ptypes"
+	"weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto"
+	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/wgrpc/wgrpcproto"
 )
 
-func TestServerImpl_ExampleRequest(t *testing.T) {
-	type fields struct {
-		Delay time.Duration
-	}
+func TestOnboardingService_Categories(t *testing.T) {
+	id, _ := uuid.Parse("6ba7b8149dad11d180b400c04fd430c8")
+	expectedID := sharedproto.UUIDToProto(id)
+
+	createdAt, _ := ptypes.TimestampProto(time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC))
+	updatedAt, _ := ptypes.TimestampProto(time.Date(2009, 11, 17, 20, 34, 58, 651387237, time.UTC))
+
 	type args struct {
 		ctx context.Context
-		in  *exampleproto.ExampleRequestMessage
+		req *onboardingproto.CategoriesRequest
 	}
-	id := uuid.NewV4()
-
 	tests := []struct {
 		name    string
-		fields  fields
+		s       *OnboardingService
 		args    args
-		want    *exampleproto.ExampleResponseMessage
+		want    *onboardingproto.CategoriesResponse
 		wantErr bool
 	}{
 		{
-			"hey",
-			fields{
-				Delay: time.Second,
-			},
+			// Add test cases.
+			"hello world",
+			&OnboardingService{},
 			args{
-				ctx: context.TODO(),
-				in: &exampleproto.ExampleRequestMessage{
-					SomeID: wgrpcproto.UUIDProto(id),
+				ctx: context.Background(),
+				req: &onboardingproto.CategoriesRequest{},
+			},
+			&onboardingproto.CategoriesResponse{
+				Categories: []*onboardingproto.Category{
+					&onboardingproto.Category{
+						ID:           expectedID,
+						DisplayText:  "testing categories",
+						DisplayOrder: int32(1),
+						CreatedAt:    createdAt,
+						UpdatedAt:    updatedAt,
+					},
 				},
 			},
-			&exampleproto.ExampleResponseMessage{
-				Message: "hey",
-			},
 			false,
-		},
-		{
-			"pass no ID get error",
-			fields{
-				Delay: time.Second,
-			},
-			args{
-				ctx: context.TODO(),
-				in:  &exampleproto.ExampleRequestMessage{},
-			},
-			nil,
-			true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			e := &ServerImpl{
-				Delay: tt.fields.Delay,
-			}
-			got, err := e.ExampleRequest(tt.args.ctx, tt.args.in)
+			s := &OnboardingService{}
+			got, err := s.Categories(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ServerImpl.ExampleRequest() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("OnboardingService.Categories() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("ServerImpl.ExampleRequest() = %v, want %v", got, tt.want)
+				t.Errorf("OnboardingService.Categories() = %v, want %v", got, tt.want)
 			}
 		})
 	}

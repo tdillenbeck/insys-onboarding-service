@@ -1,21 +1,12 @@
 image:
-  tag: v0.0.37
+  tag: v0.0.1
 
 replicas: 1
 
 requests:
   cpu: 100m
   memory: 128Mi
-logDNA: insys-onboarding
 
-logLevel: info
+probes:
+  port: 4444
 
-postgres:
-  connMaxLifetime: 30m
-  idleConnections: 0
-  openConnections: 15
-
-logQueries: false
-
-dbPrimaryAddr: pgsql-service-1a:5432
-dbReplicaAddr: pgsql-service-1b:5432
