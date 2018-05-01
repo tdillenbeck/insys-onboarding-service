@@ -1,0 +1,63 @@
+#!/bin/bash
+# use this script to run client-location-features on your local computer
+# options 
+# -d = DEV
+# -p = PROD
+# ./run -d
+
+options_found=0
+env=0
+while getopts ":dp" opt; do
+  case $opt in
+    d)
+        ((options_found++))
+        ((env=1))
+        ;;
+    p)
+        ((options_found++))
+        ((env=2))
+        ;;
+    \?)
+        echo "Invalid option: -$OPTARG.  Valid option is either -d or -p" >&2
+        exit 1
+        ;;
+  esac  
+done
+
+# check if someone passed -d AND -p
+if (($options_found != 1)); then
+    echo "Invalid options passed.  Did you pass an environment option -d OR -p" >&2
+    exit 1
+fi
+
+case $env in
+    1)
+        echo "Starting in DEV" >&2
+        #======================= DEV ==============================
+        export PG_PRIMARY_CONNECT_STRING=postgres://insys_onboarding:insertpasswordhere@dev-pgsql-service-1a/services?sslmode=disable
+        export PG_REPLICA_CONNECT_STRING=postgres://insys_onboarding:insertpasswordhere@dev-pgsql-service-1a/services?sslmode=disable
+
+        export MAX_IDLE_CONNECTIONS=0
+        export MAX_OPEN_CONNECTIONS=10
+        export CONN_MAX_LIFETIME=15m
+        export LOG_QUERIES=true
+        ;;
+    2)
+        echo "Starting in PROD" >&2
+        #======================= PROD ==============================
+        export PG_PRIMARY_CONNECT_STRING=postgres://insys_onboarding:insertpasswordhere@pgsql-service-1a/services?sslmode=disable
+        export PG_REPLICA_CONNECT_STRING=postgres://insys_onboarding:insertpasswordhere@pgsql-service-1a/services?sslmode=disable
+
+        export MAX_IDLE_CONNECTIONS=0
+        export MAX_OPEN_CONNECTIONS=15
+        export CONN_MAX_LIFETIME=30m
+        export LOG_QUERIES=false
+        export DATA_LOCATION_ADDRESS=kube-load:30106
+        ;;
+    *)
+        echo "Unable to set runtime environment. Did you pass an environment option -d OR -p" >&2
+        exit 1
+        ;;
+esac
+
+go build && ./insys-onboarding

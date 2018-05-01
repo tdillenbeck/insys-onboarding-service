@@ -5,6 +5,7 @@ import (
 
 	"google.golang.org/grpc"
 	"weavelab.xyz/insys-onboarding/config"
+	"weavelab.xyz/insys-onboarding/db"
 	"weavelab.xyz/insys-onboarding/server"
 	"weavelab.xyz/protorepo/dist/go/services/insys/onboarding"
 	"weavelab.xyz/wlib/wapp"
@@ -18,6 +19,24 @@ func main() {
 	err := config.Init()
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error initializing config values"))
+	}
+
+	ctx := context.Background()
+
+	dbOptions := &db.DatabaseConnectionOptions{
+		MaxOpenConnections:    config.MaxOpenConnections,
+		MaxIdleConnections:    config.MaxIdleConnections,
+		MaxConnectionLifetime: config.MaxConnectionLifetime,
+		LogQueries:            config.LogQueries,
+	}
+
+	if config.PrimaryConnString != "" && config.ReplicaConnString != "" {
+		err = db.InitConnectionFromConnString(ctx, config.PrimaryConnString, config.ReplicaConnString, dbOptions)
+	} else {
+		err = db.InitConnectionFromVault(ctx, config.DBPrimaryAddr, config.DBReplicaAddr, config.DBName, dbOptions)
+	}
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap())

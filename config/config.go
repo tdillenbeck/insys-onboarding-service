@@ -1,48 +1,52 @@
 package config
 
 import (
-	"strings"
 	"time"
 
 	"weavelab.xyz/wlib/config"
 	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wlog"
 )
 
 const (
-	nsqLookupdAddrsConfig = "nsq-lookupd-addrs"
-	nsqTopicConfig        = "nsq-listen-topic"
-	nsqChannelConfig      = "nsq-listen-channel"
+	primaryConnString = "pg-primary-connect-string"
+	replicaConnString = "pg-replica-connect-string"
 
-	maxInFlightConfig        = "max-in-flight"
-	concurrentHandlersConfig = "concurrent-handlers"
+	dbPrimaryAddr = "db-primary-addr"
+	dbReplicaAddr = "db-replica-addr"
+	dbName        = "db-name"
 
-	nsqdAddrConfig = "nsqd-addr"
-
-	delayConfig = "delay" //just for example servers
+	maxIdleConnections    = "max-idle-connections"
+	maxOpenConnections    = "max-open-connections"
+	maxConnectionLifetime = "max-connection-lifetime"
+	logQueries            = "log-queries"
 )
 
 var (
-	NSQLookupdAddrs []string
-	NSQTopic        string
-	NSQChannel      string
+	PrimaryConnString string
+	ReplicaConnString string
 
-	MaxInFlight        int
-	ConcurrentHandlers int
+	DBPrimaryAddr string
+	DBReplicaAddr string
+	DBName        string
 
-	DelayConfig time.Duration
-	NSQdAddr    string
+	MaxIdleConnections    int
+	MaxOpenConnections    int
+	MaxConnectionLifetime time.Duration
+	LogQueries            bool
 )
 
 func init() {
-	config.Add(delayConfig, "1s", "amount of time to delay before responding")
+	config.Add(primaryConnString, "", "connection string to the primary db")
+	config.Add(replicaConnString, "", "connection string to the replica db")
 
-	config.Add(nsqTopicConfig, "WebsocketManagerEvents", "The topic NSQ to consume")
-	config.Add(nsqChannelConfig, "ClientWebsocketWatcher#ephemeral", "The channel on which to consume")
-	config.Add(nsqLookupdAddrsConfig, "", "NSQ lookupd addresses")
+	config.Add(dbPrimaryAddr, "", "primary database server host:port")
+	config.Add(dbReplicaAddr, "", "replica database server host:port")
+	config.Add(dbName, "", "database name")
 
-	config.Add(maxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
-	config.Add(concurrentHandlersConfig, "100", "Number of concurrent handlers")
+	config.Add(maxIdleConnections, "0", "maximum number of connections in the idle connection pool")
+	config.Add(maxOpenConnections, "10", "maximum number of open connections to the database")
+	config.Add(maxConnectionLifetime, "15m", "maximum amount of time a connection may be reused")
+	config.Add(logQueries, "false", "include query logging")
 
 }
 
@@ -51,31 +55,45 @@ func Init() error {
 
 	var err error
 
-	NSQLookupdAddrs, err = config.GetAddressArray(nsqLookupdAddrsConfig, false)
-	if err != nil {
-		return werror.Wrap(err, "error getting lookupd-addrs")
+	PrimaryConnString = config.Get(primaryConnString)
+	ReplicaConnString = config.Get(replicaConnString)
+
+	primaryAddr := config.Get(dbPrimaryAddr)
+	if primaryAddr != "" {
+		DBPrimaryAddr, err = config.GetAddress(dbPrimaryAddr, false)
+		if err != nil {
+			return werror.Wrap(err, "unable to get primary database address")
+		}
 	}
 
-	NSQTopic = config.Get(nsqTopicConfig)
-
-	NSQChannel = config.Get(nsqChannelConfig)
-	if !strings.Contains(NSQChannel, "#ephemeral") {
-		wlog.Info("Looks like you aren't using an ephemeral channel for listening... oh boy you're gutsy")
+	replicaAddr := config.Get(dbReplicaAddr)
+	if replicaAddr != "" {
+		DBReplicaAddr, err = config.GetAddress(dbReplicaAddr, false)
+		if err != nil {
+			return werror.Wrap(err, "unable to get replica database address")
+		}
 	}
 
-	MaxInFlight, err = config.GetInt(maxInFlightConfig, false)
+	DBName = config.Get(dbName)
+
+	MaxIdleConnections, err = config.GetInt(maxIdleConnections, false)
 	if err != nil {
-		return werror.Wrap(err, "error getting max attempts")
+		return werror.Wrap(err, "error getting maxIdleConnections")
 	}
 
-	ConcurrentHandlers, err = config.GetInt(concurrentHandlersConfig, false)
+	MaxOpenConnections, err = config.GetInt(maxOpenConnections, false)
 	if err != nil {
-		return werror.Wrap(err, "error getting concurrent handlers")
+		return werror.Wrap(err, "error getting maxOpenConnections")
 	}
 
-	DelayConfig, err = config.GetDuration(delayConfig, false)
+	MaxConnectionLifetime, err = config.GetDuration(maxConnectionLifetime, false)
 	if err != nil {
-		return werror.Wrap(err, "error getting delay")
+		return werror.Wrap(err, "error getting maxConnectionLifetime")
+	}
+
+	LogQueries, err = config.GetBool(logQueries, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting logQueries")
 	}
 
 	return nil

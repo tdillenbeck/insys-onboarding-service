@@ -7,3 +7,12 @@ requests:
   cpu: 100m
   memory: 128Mi
 
+logLevel: debug
+
+postgres:
+  maxConnectionLifetime: 10m
+  maxIdleConnections: 0
+  maxOpenConnections: 10
+  logQueries: true
+  dbPrimaryAddr: dev-pgsql-service-1a:5432
+  dbReplicaAddr: dev-pgsql-service-1a:5432
