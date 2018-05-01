@@ -25,6 +25,27 @@ spec:
       containers:
       - image: registry.gitlab.getweave.com/weave-lab/internal/insys-onboarding:{{ .Values.image.tag }}
         name: insys-onboarding
+        env:
+          - name: VAULT_ADDR
+            value: "http://vault.ops:8200"
+
+          - name: DB_PRIMARY_ADDR
+            value: {{ .Values.postgres.dbPrimaryAddr }}
+          - name: DB_REPLICA_ADDR
+            value: {{ .Values.postgres.dbReplicaAddr }}
+
+          - name: DB_NAME
+            value: services
+          - name: MAX_IDLE_CONNECTIONS
+            value: "{{ .Values.postgres.maxIdleConnections }}"
+          - name: MAX_OPEN_CONNECTIONS
+            value: "{{ .Values.postgres.maxOpenConnections }}"
+          - name: MAX_CONNECTION_LIFETIME
+            value: "{{ .Values.postgres.maxConnectionLifetime }}"
+          - name: LOG_QUERIES
+            value: "{{ .Values.postgres.logQueries }}"
+          - name: LOG_LEVEL
+            value: "{{ .Values.logLevel }}"
         livenessProbe:
           httpGet:
             path: /liveness
@@ -79,6 +100,8 @@ spec:
           requests:
             cpu: 15m
             memory: 16Mi
+
+      serviceAccountName: insys-onboarding
 
       imagePullSecrets:
       - name: gitlabregistry

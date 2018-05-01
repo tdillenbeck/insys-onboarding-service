@@ -61,6 +61,34 @@
 			"revisionTime": "2018-03-28T16:31:53Z"
 		},
 		{
+			"checksumSHA1": "SEZulQ/Gm4f6P6/c3waZjXxvl0g=",
+			"origin": "weavelab.xyz/wlib/vendor/github.com/jmoiron/sqlx",
+			"path": "github.com/jmoiron/sqlx",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "xXjxKqs3ECyWO5zjIVb2qgj9rcU=",
+			"origin": "weavelab.xyz/wlib/vendor/github.com/jmoiron/sqlx/reflectx",
+			"path": "github.com/jmoiron/sqlx/reflectx",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "A3ymiEhz0WaT+sfK1aJhlqhf41o=",
+			"origin": "weavelab.xyz/wlib/vendor/github.com/lib/pq",
+			"path": "github.com/lib/pq",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "q5SZBWFVC3wOIzftf+l/h5WLG1k=",
+			"origin": "weavelab.xyz/wlib/vendor/github.com/lib/pq/oid",
+			"path": "github.com/lib/pq/oid",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
 			"checksumSHA1": "IwuaGWkq9sh9hzmmgkyHvCEMGzM=",
 			"origin": "weavelab.xyz/wlib/vendor/github.com/mreiferson/go-snappystream",
 			"path": "github.com/mreiferson/go-snappystream",
@@ -85,6 +113,13 @@
 			"checksumSHA1": "yujmpVvIXpf6DEsVy5BJr2nCtp8=",
 			"origin": "weavelab.xyz/wlib/vendor/github.com/nsqio/go-nsq",
 			"path": "github.com/nsqio/go-nsq",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "c3phx+BWGWXSSlbAZ5K4tGn0WS4=",
+			"origin": "weavelab.xyz/wlib/vendor/github.com/opentracing-contrib/go-stdlib/nethttp",
+			"path": "github.com/opentracing-contrib/go-stdlib/nethttp",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
@@ -417,6 +452,13 @@
 			"revisionTime": "2018-04-20T00:17:21Z"
 		},
 		{
+			"checksumSHA1": "/zSS/bzzJPgmj8gevXL7tyQH3SQ=",
+			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/go-utilities/null",
+			"path": "weavelab.xyz/go-utilities/null",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
 			"checksumSHA1": "yGz98p7mHpWhwmJs7NKSpW+1SBA=",
 			"path": "weavelab.xyz/go-utilities/responsewrapper",
 			"revision": "4ef65a2e387162cf0f9a008c7ccad6c28de4ac8f",
@@ -609,6 +651,12 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
+			"checksumSHA1": "Z+UZ04YZMvIzX2L9dIs4+0xs9cQ=",
+			"path": "weavelab.xyz/wlib/whttp/whttpclient",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
 			"checksumSHA1": "MfjQUPbG68q9jiRraNVRLGQshdU=",
 			"path": "weavelab.xyz/wlib/wlog",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
@@ -669,8 +717,38 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
+			"checksumSHA1": "pxbYnJpo4Yvr+6aTAMQy8qHsIVI=",
+			"path": "weavelab.xyz/wlib/wsql",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
 			"checksumSHA1": "Pb27b7G9vck4BOYja5EVcSX9Cfc=",
 			"path": "weavelab.xyz/wlib/wtracer",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "93UTeXoIQ+64Q3lRGHpCJ7prDoQ=",
+			"path": "weavelab.xyz/wlib/wvault",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "sDNZvdzHR6AgIXk9M6eBtF8NMV8=",
+			"path": "weavelab.xyz/wlib/wvault/wvaultauth",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "J5X4chPrdnku2IIzlyQQvFOY/88=",
+			"path": "weavelab.xyz/wlib/wvault/wvaultdb",
+			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
+			"revisionTime": "2018-04-12T21:29:02Z"
+		},
+		{
+			"checksumSHA1": "olyBE3W460gVybWhyfs4OIr0v9w=",
+			"path": "weavelab.xyz/wlib/wvault/wvaulttypes",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},

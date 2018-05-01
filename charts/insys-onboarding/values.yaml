@@ -10,3 +10,12 @@ requests:
 probes:
   port: 4444
 
+logLevel: info
+
+postgres:
+  maxConnectionLifetime: 30m
+  maxIdleConnections: 0
+  maxOpenConnections: 15
+  logQueries: false
+  dbPrimaryAddr: pgsql-service-1a:5432
+  dbReplicaAddr: pgsql-service-1a:5432
