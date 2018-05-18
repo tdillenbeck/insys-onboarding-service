@@ -24,41 +24,41 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "WX1+2gktHcBmE9MGwFSGs7oqexU=",
+			"checksumSHA1": "Pyou8mceOASSFxc7GeXZuVdSMi0=",
 			"path": "github.com/golang/protobuf/proto",
-			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
-			"revisionTime": "2018-03-28T16:31:53Z"
+			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
+			"revisionTime": "2018-04-30T18:52:41Z"
 		},
 		{
 			"checksumSHA1": "juNiTc9bfhQYo4BkWc83sW4Z5gw=",
 			"origin": "weavelab.xyz/wlib/vendor/github.com/golang/protobuf/protoc-gen-go/descriptor",
 			"path": "github.com/golang/protobuf/protoc-gen-go/descriptor",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
+			"revision": "ea687d7d24d4b953c470ae693000c242f2ceb5c7",
+			"revisionTime": "2018-05-03T19:10:28Z"
 		},
 		{
-			"checksumSHA1": "VfkiItDBFFkZluaAMAzJipDXNBY=",
+			"checksumSHA1": "/s0InJhSrxhTpqw5FIKgSMknCfM=",
 			"path": "github.com/golang/protobuf/ptypes",
-			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
-			"revisionTime": "2018-03-28T16:31:53Z"
+			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
+			"revisionTime": "2018-04-30T18:52:41Z"
 		},
 		{
-			"checksumSHA1": "yusEaGMuL7OWZSXKJzPEwVC0WqI=",
+			"checksumSHA1": "3eqU9o+NMZSLM/coY5WDq7C1uKg=",
 			"path": "github.com/golang/protobuf/ptypes/any",
-			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
-			"revisionTime": "2018-03-28T16:31:53Z"
+			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
+			"revisionTime": "2018-04-30T18:52:41Z"
 		},
 		{
-			"checksumSHA1": "hUjAj0dheFVDl84BAnSWj9qy2iY=",
+			"checksumSHA1": "ZIF0rnVzNLluFPqUebtJrVonMr4=",
 			"path": "github.com/golang/protobuf/ptypes/duration",
-			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
-			"revisionTime": "2018-03-28T16:31:53Z"
+			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
+			"revisionTime": "2018-04-30T18:52:41Z"
 		},
 		{
-			"checksumSHA1": "O2ItP5rmfrgxPufhjJXbFlXuyL8=",
+			"checksumSHA1": "1FJvuT0UllZaaS43kmPlx8oNiCs=",
 			"path": "github.com/golang/protobuf/ptypes/timestamp",
-			"revision": "e09c5db296004fbe3f74490e84dcd62c3c5ddb1b",
-			"revisionTime": "2018-03-28T16:31:53Z"
+			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
+			"revisionTime": "2018-04-30T18:52:41Z"
 		},
 		{
 			"checksumSHA1": "SEZulQ/Gm4f6P6/c3waZjXxvl0g=",
@@ -500,34 +500,28 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "40e1T1jBMNPI0clJtFDkNtvb54Y=",
-			"path": "weavelab.xyz/protorepo/dist/go/messages/client/onboardingproto",
-			"revision": "b4c35ab8dbc6239a01c32fc1e2ffd56cc4478474",
-			"revisionTime": "2018-04-20T17:43:25Z"
+			"checksumSHA1": "JtN5mZGK2d9cpsmSo4RNcPDwdQo=",
+			"path": "weavelab.xyz/protorepo/dist/go/enums/insysenums",
+			"revision": "d1fc7c6bb5d3ee81bbcdce5bf97282aadbe45618",
+			"revisionTime": "2018-05-17T21:37:24Z"
 		},
 		{
-			"checksumSHA1": "XShhnoIgWOJsW/eBvMeHz0RhrS8=",
+			"checksumSHA1": "5BdO7DUHWDBjvMQfB8Ypb4PGo8U=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto",
-			"revision": "73b85ed0e1513a7531ab044ad2e665060f4132a4",
-			"revisionTime": "2018-04-23T17:10:39Z"
+			"revision": "d1fc7c6bb5d3ee81bbcdce5bf97282aadbe45618",
+			"revisionTime": "2018-05-17T21:37:24Z"
 		},
 		{
-			"checksumSHA1": "lv8HI8mzHPz90+hTw6TiAyfwd1M=",
+			"checksumSHA1": "IpvU6rpcAxLZ5w/xl4UkedvmKD0=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/sharedproto",
-			"revision": "73b85ed0e1513a7531ab044ad2e665060f4132a4",
-			"revisionTime": "2018-04-23T17:10:39Z"
+			"revision": "d1fc7c6bb5d3ee81bbcdce5bf97282aadbe45618",
+			"revisionTime": "2018-05-17T21:37:24Z"
 		},
 		{
-			"checksumSHA1": "iR5LgSXVmuPuGVoj/7F6lzGi6vg=",
+			"checksumSHA1": "+m7hYE0qoUmSxu+/cx5D1dGrcew=",
 			"path": "weavelab.xyz/protorepo/dist/go/services/insys/onboarding",
-			"revision": "73b85ed0e1513a7531ab044ad2e665060f4132a4",
-			"revisionTime": "2018-04-23T17:10:39Z"
-		},
-		{
-			"checksumSHA1": "kwWiH07DrURsLAeAXW64o3is00Y=",
-			"path": "weavelab.xyz/protorepo/dist/go/services/onboardingservice",
-			"revision": "b4c35ab8dbc6239a01c32fc1e2ffd56cc4478474",
-			"revisionTime": "2018-04-20T17:43:25Z"
+			"revision": "d1fc7c6bb5d3ee81bbcdce5bf97282aadbe45618",
+			"revisionTime": "2018-05-17T21:37:24Z"
 		},
 		{
 			"checksumSHA1": "/w1ysC2c/cmZtqOWVIDzNOzoxws=",
