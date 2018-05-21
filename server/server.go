@@ -128,6 +128,7 @@ func convertToTaskProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInsta
 		CompletedBy:     t.CompletedBy.String(),
 		VerifiedAt:      verifiedAt,
 		VerifiedBy:      t.VerifiedBy.String(),
+		ButtonContent:   t.ButtonContent.String(),
 		Content:         t.Content,
 		DisplayOrder:    int32(t.DisplayOrder),
 		Status:          insysenums.OnboardingTaskStatus(t.Status),

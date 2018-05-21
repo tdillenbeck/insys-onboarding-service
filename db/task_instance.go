@@ -17,6 +17,7 @@ type OnboardingTaskInstance struct {
 	CategoryID uuid.UUID
 	TaskID     uuid.UUID
 
+	ButtonContent   null.String
 	CompletedAt     null.Time
 	CompletedBy     null.String
 	VerifiedAt      null.Time
@@ -36,7 +37,7 @@ func TaskInstances(ctx context.Context, locationID uuid.UUID) ([]OnboardingTaskI
 	var tasks []OnboardingTaskInstance
 
 	query := `SELECT
-		id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at
+		id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at
 	FROM insys_onboarding.onboarding_task_instances
 	WHERE location_id = $1`
 
@@ -59,6 +60,7 @@ func TaskInstances(ctx context.Context, locationID uuid.UUID) ([]OnboardingTaskI
 			&task.CompletedBy,
 			&task.VerifiedAt,
 			&task.VerifiedBy,
+			&task.ButtonContent,
 			&task.Content,
 			&task.DisplayOrder,
 			&task.Status,
@@ -103,9 +105,9 @@ func TaskInstances(ctx context.Context, locationID uuid.UUID) ([]OnboardingTaskI
 }
 
 const (
-	defaultUpdateQuery   = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at, status_updated_by=$2 WHERE id = $2 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
-	completedUpdateQuery = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, completed_at=$2, completed_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
-	verifiedUpdateQuery  = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, verified_at=$2, verified_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
+	defaultUpdateQuery   = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at, status_updated_by=$2 WHERE id = $2 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
+	completedUpdateQuery = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, completed_at=$2, completed_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
+	verifiedUpdateQuery  = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, verified_at=$2, verified_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
 )
 
 func UpdateTaskInstance(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (OnboardingTaskInstance, error) {
@@ -136,6 +138,7 @@ func UpdateTaskInstance(ctx context.Context, id uuid.UUID, status insysenums.Onb
 		&task.CompletedBy,
 		&task.VerifiedAt,
 		&task.VerifiedBy,
+		&task.ButtonContent,
 		&task.Content,
 		&task.DisplayOrder,
 		&task.Status,

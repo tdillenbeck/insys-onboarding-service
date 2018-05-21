@@ -17,3 +17,11 @@ This service uses the [goose](https://github.com/pressly/goose) library for runn
 Before using goose, the use is responsible for setting up the database:
   1. CREATE DATABASE "insys-onboarding_dev"
   2. CREATE SCHEMA insys_onboarding;
+
+### Creating a new migration
+
+  ```
+  goose -dir dbconfig/migrations/ create MIGRATEION_NAME sql
+  ```
+
+  Add the SQL for up under the `-- +goose Up` comment. Add the SQL for the down under the `-- +goose Down` comment.
