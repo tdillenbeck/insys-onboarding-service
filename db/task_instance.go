@@ -122,9 +122,9 @@ func UpdateTaskInstance(ctx context.Context, id uuid.UUID, status insysenums.Onb
 	case 1: // waiting on weave
 		row = Conn.QueryRowContext(ctx, defaultUpdateQuery, status, id.String())
 	case 2: // completed
-		row = Conn.QueryRowContext(ctx, completedUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
+		row = Conn.QueryRowContext(ctx, completedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
 	case 3: // verified
-		row = Conn.QueryRowContext(ctx, verifiedUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
+		row = Conn.QueryRowContext(ctx, verifiedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
 	default:
 		return task, werror.New("Cannot update task instance. Not a valid status. Valid paremeters are 0, 1, 2, or 3")
 	}
@@ -177,4 +177,75 @@ func UpdateTaskInstance(ctx context.Context, id uuid.UUID, status insysenums.Onb
 	task.TaskID = taskUUID
 
 	return task, nil
+}
+
+func CreateTaskInstancesFromTasks(ctx context.Context, locationID uuid.UUID) ([]OnboardingTaskInstance, error) {
+	var taskInstances []OnboardingTaskInstance
+
+	query := `INSERT INTO insys_onboarding.onboarding_task_instances
+		(id, location_id, title, content, button_content, display_order, status, status_updated_at, status_updated_by, created_at, updated_at, onboarding_category_id, onboarding_task_id )
+		SELECT $1, $2, title, content, button_content, display_order, 0, $3, 'Weave - default', $3, $3, onboarding_category_id, id FROM insys_onboarding.onboarding_tasks
+		RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at;`
+
+	rows, err := Conn.QueryContext(ctx, query, uuid.NewV4().String(), locationID.String(), time.Now().UTC())
+	if err != nil {
+		return nil, werror.Wrap(err, "error exectuting create task instances from tasks query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var taskInstanceID, locationID, categoryID, taskID string
+		var taskInstance OnboardingTaskInstance
+
+		err := rows.Scan(
+			&taskInstanceID,
+			&locationID,
+			&categoryID,
+			&taskID,
+			&taskInstance.CompletedAt,
+			&taskInstance.CompletedBy,
+			&taskInstance.VerifiedAt,
+			&taskInstance.VerifiedBy,
+			&taskInstance.ButtonContent,
+			&taskInstance.Content,
+			&taskInstance.DisplayOrder,
+			&taskInstance.Status,
+			&taskInstance.StatusUpdatedAt,
+			&taskInstance.StatusUpdatedBy,
+			&taskInstance.Title,
+			&taskInstance.CreatedAt,
+			&taskInstance.UpdatedAt,
+		)
+		if err != nil {
+			return nil, werror.Wrap(err, "failed to scan onboarding taskInstances")
+		}
+
+		taskInstanceUUID, err := uuid.Parse(taskInstanceID)
+		if err != nil {
+			return nil, werror.Wrap(err, "failed to parse task instance id into uuid")
+		}
+		taskInstance.ID = taskInstanceUUID
+
+		locationUUID, err := uuid.Parse(locationID)
+		if err != nil {
+			return nil, werror.Wrap(err, "failed to parse location id into uuid")
+		}
+		taskInstance.LocationID = locationUUID
+
+		categoryUUID, err := uuid.Parse(categoryID)
+		if err != nil {
+			return nil, werror.Wrap(err, "failed to parse category id into uuid")
+		}
+		taskInstance.CategoryID = categoryUUID
+
+		taskUUID, err := uuid.Parse(taskID)
+		if err != nil {
+			return nil, werror.Wrap(err, "failed to parse task id into uuid")
+		}
+		taskInstance.TaskID = taskUUID
+
+		taskInstances = append(taskInstances, taskInstance)
+	}
+
+	return taskInstances, nil
 }

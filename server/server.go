@@ -35,6 +35,28 @@ func (s *OnboardingService) Category(ctx context.Context, req *onboardingproto.C
 	}, nil
 }
 
+//  rpc CreateTaskInstancesFromTasks(onboardingproto.CreateTaskInstancesFromTasksRequest) returns (onboardingproto.TaskInstancesResponse) {}
+func (s *OnboardingService) CreateTaskInstancesFromTasks(ctx context.Context, req *onboardingproto.CreateTaskInstancesFromTasksRequest) (*onboardingproto.TaskInstancesResponse, error) {
+	locationUUID, err := req.LocationID.UUID()
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request location id into a uuid").Add("req.LocationID", req.LocationID))
+	}
+
+	onboardingTasks, err := db.CreateTaskInstancesFromTasks(ctx, locationUUID)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error creating task instances from tasks in the database"))
+	}
+
+	taskInstances, err := convertToTaskInstancesProto(onboardingTasks)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database tasks to protobuf tasks"))
+	}
+
+	return &onboardingproto.TaskInstancesResponse{
+		TaskInstances: taskInstances,
+	}, nil
+}
+
 func (s *OnboardingService) TaskInstances(ctx context.Context, req *onboardingproto.TaskInstancesRequest) (*onboardingproto.TaskInstancesResponse, error) {
 	locationUUID, err := req.LocationID.UUID()
 	if err != nil {
@@ -46,13 +68,13 @@ func (s *OnboardingService) TaskInstances(ctx context.Context, req *onboardingpr
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error retrieving tasks from database"))
 	}
 
-	tasks, err := convertToTasksProto(onboardingTasks)
+	taskInstances, err := convertToTaskInstancesProto(onboardingTasks)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database tasks to protobuf tasks"))
 	}
 
 	return &onboardingproto.TaskInstancesResponse{
-		TaskInstances: tasks,
+		TaskInstances: taskInstances,
 	}, nil
 }
 
@@ -67,7 +89,7 @@ func (s *OnboardingService) UpdateTaskInstance(ctx context.Context, req *onboard
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error updating task database record"))
 	}
 
-	task, err := convertToTaskProto(onboardingTaskInstance)
+	task, err := convertToTaskInstanceProto(onboardingTaskInstance)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database task record to protobuf task format"))
 	}
@@ -95,7 +117,7 @@ func convertToCategoryProto(oc db.OnboardingCategory) (*onboardingproto.Category
 	}, nil
 }
 
-func convertToTaskProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInstance, error) {
+func convertToTaskInstanceProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInstance, error) {
 
 	completedAt, err := ptypes.TimestampProto(t.CompletedAt.Time)
 	if err != nil {
@@ -118,7 +140,7 @@ func convertToTaskProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInsta
 		return nil, werror.Wrap(err, "could not convert task updated at time")
 	}
 
-	task := &onboardingproto.TaskInstance{
+	taskInstance := &onboardingproto.TaskInstance{
 		ID:         sharedproto.UUIDToProto(t.ID),
 		LocationID: sharedproto.UUIDToProto(t.LocationID),
 		CategoryID: sharedproto.UUIDToProto(t.CategoryID),
@@ -139,19 +161,19 @@ func convertToTaskProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInsta
 		UpdatedAt: updatedAt,
 	}
 
-	return task, nil
+	return taskInstance, nil
 }
 
-func convertToTasksProto(onboardingTasks []db.OnboardingTaskInstance) ([]*onboardingproto.TaskInstance, error) {
-	var tasks []*onboardingproto.TaskInstance
+func convertToTaskInstancesProto(onboardingTasks []db.OnboardingTaskInstance) ([]*onboardingproto.TaskInstance, error) {
+	var taskInstances []*onboardingproto.TaskInstance
 
 	for _, t := range onboardingTasks {
-		task, err := convertToTaskProto(t)
+		taskInstance, err := convertToTaskInstanceProto(t)
 		if err != nil {
-			return tasks, err
+			return nil, err
 		}
-		tasks = append(tasks, task)
+		taskInstances = append(taskInstances, taskInstance)
 	}
 
-	return tasks, nil
+	return taskInstances, nil
 }
