@@ -184,10 +184,10 @@ func CreateTaskInstancesFromTasks(ctx context.Context, locationID uuid.UUID) ([]
 
 	query := `INSERT INTO insys_onboarding.onboarding_task_instances
 		(id, location_id, title, content, button_content, display_order, status, status_updated_at, status_updated_by, created_at, updated_at, onboarding_category_id, onboarding_task_id )
-		SELECT $1, $2, title, content, button_content, display_order, 0, $3, 'Weave - default', $3, $3, onboarding_category_id, id FROM insys_onboarding.onboarding_tasks
+		SELECT overlay(overlay(md5(random()::text || ':' || clock_timestamp()::text) placing '4' from 13) placing '8' from 17)::uuid, $1, title, content, button_content, display_order, 0, $2, 'Weave - default', $2, $2, onboarding_category_id, id FROM insys_onboarding.onboarding_tasks
 		RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at;`
 
-	rows, err := Conn.QueryContext(ctx, query, uuid.NewV4().String(), locationID.String(), time.Now().UTC())
+	rows, err := Conn.QueryContext(ctx, query, locationID.String(), time.Now().UTC())
 	if err != nil {
 		return nil, werror.Wrap(err, "error exectuting create task instances from tasks query")
 	}
