@@ -105,7 +105,7 @@ func TaskInstances(ctx context.Context, locationID uuid.UUID) ([]OnboardingTaskI
 }
 
 const (
-	defaultUpdateQuery   = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at, status_updated_by=$2 WHERE id = $2 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
+	defaultUpdateQuery   = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
 	completedUpdateQuery = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, completed_at=$2, completed_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
 	verifiedUpdateQuery  = `UPDATE insys_onboarding.onboarding_task_instances SET status=$1, status_updated_at=$2, status_updated_by=$3, verified_at=$2, verified_by=$3 WHERE id = $4 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, content, display_order, status, status_updated_at, status_updated_by, title, created_at, updated_at`
 )
@@ -118,9 +118,9 @@ func UpdateTaskInstance(ctx context.Context, id uuid.UUID, status insysenums.Onb
 
 	switch status {
 	case 0: // waiting on customer
-		row = Conn.QueryRowContext(ctx, defaultUpdateQuery, status, id.String())
+		row = Conn.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
 	case 1: // waiting on weave
-		row = Conn.QueryRowContext(ctx, defaultUpdateQuery, status, id.String())
+		row = Conn.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
 	case 2: // completed
 		row = Conn.QueryRowContext(ctx, completedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
 	case 3: // verified
