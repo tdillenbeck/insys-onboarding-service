@@ -155,6 +155,7 @@ func convertToTaskInstanceProto(t db.OnboardingTaskInstance) (*onboardingproto.T
 		DisplayOrder:    int32(t.DisplayOrder),
 		Status:          insysenums.OnboardingTaskStatus(t.Status),
 		StatusUpdatedAt: statusUpdatedAt,
+		StatusUpdatedBy: t.StatusUpdatedBy,
 		Title:           t.Title,
 
 		CreatedAt: createdAt,
