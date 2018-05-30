@@ -25,3 +25,11 @@ Before using goose, the use is responsible for setting up the database:
   ```
 
   Add the SQL for up under the `-- +goose Up` comment. Add the SQL for the down under the `-- +goose Down` comment.
+
+### Seed the database
+  The dbconfig/seed.sql contains the seed data for the existing database tables.
+
+  Example running against local database.
+  ```
+  $ psql postgres://postgres@localhost:5432/insys_onboarding_local?sslmode=disable -f dbconfig/seed.sql
+  ```
