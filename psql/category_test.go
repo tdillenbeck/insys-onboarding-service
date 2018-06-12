@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	app "weavelab.xyz/insys-onboarding"
+	"weavelab.xyz/insys-onboarding/app"
 	"weavelab.xyz/wlib/uuid"
 	"weavelab.xyz/wlib/wsql"
 )

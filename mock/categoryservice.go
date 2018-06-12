@@ -3,8 +3,7 @@ package mock
 import (
 	"context"
 
-	app "weavelab.xyz/insys-onboarding"
-
+	"weavelab.xyz/insys-onboarding/app"
 	"weavelab.xyz/wlib/uuid"
 )
 
