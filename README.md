@@ -10,18 +10,23 @@ go get weavelab.xyz/insys-onboarding
 
 For more information on `weavelab.xyz`, see the projects [readme](https://gitlab.getweave.com/weave-lab/ops/xyz/blob/master/README.md).
 
+## Project Layout
 
-## Database
-This service uses the [goose](https://github.com/pressly/goose) library for running migrations. Mainly because it works with schema and doesn't pollute the public namespace.
+This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1). The `models.go` file in the top level directory contains the domain types and the `datastores.go` file containts the interfaces to interact with to domain types from the datastore.
 
-Before using goose, the use is responsible for setting up the database:
-  1. CREATE DATABASE "insys-onboarding_dev"
-  2. CREATE SCHEMA insys_onboarding;
+The main package can be found under the `cmd/` folder.
+
+## Database Migrations
+  This service uses the [goose](https://github.com/pressly/goose) library for running migrations. Mainly because it works with schema and doesn't pollute the public namespace.
+
+  Before using goose, the use is responsible for setting up the database:
+    1. CREATE DATABASE "insys-onboarding_dev"
+    2. CREATE SCHEMA insys_onboarding;
 
 ### Creating a new migration
 
   ```
-  goose -dir dbconfig/migrations/ create MIGRATEION_NAME sql
+  goose -dir dbconfig/migrations/ create MIGRATION_NAME sql
   ```
 
   Add the SQL for up under the `-- +goose Up` comment. Add the SQL for the down under the `-- +goose Down` comment.
