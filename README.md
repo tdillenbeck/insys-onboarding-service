@@ -12,9 +12,7 @@ For more information on `weavelab.xyz`, see the projects [readme](https://gitlab
 
 ## Project Layout
 
-This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1). The `models.go` file in the top level directory contains the domain types and the `datastores.go` file containts the interfaces to interact with to domain types from the datastore.
-
-The main package can be found under the `cmd/` folder.
+This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1). The domain logic is defined in the `app/` package instead of in the top level directory.
 
 ## Database Migrations
   This service uses the [goose](https://github.com/pressly/goose) library for running migrations. Mainly because it works with schema and doesn't pollute the public namespace.

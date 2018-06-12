@@ -5,8 +5,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 
-	app "weavelab.xyz/insys-onboarding"
-
+	"weavelab.xyz/insys-onboarding/app"
 	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto"
 	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
@@ -30,7 +29,7 @@ func New(cs app.CategoryService, tis app.TaskInstanceService) *OnboardingServer 
 	}
 }
 
-// CreateTaskInstanceFromTasks is the grpc method to handle creating task instances from the tasks database table.
+// CreateTaskInstancesFromTasks is the grpc method to handle creating task instances from the tasks database table.
 func (s *OnboardingServer) CreateTaskInstancesFromTasks(ctx context.Context, req *onboardingproto.CreateTaskInstancesFromTasksRequest) (*onboardingproto.TaskInstancesResponse, error) {
 	locationUUID, err := req.LocationID.UUID()
 	if err != nil {

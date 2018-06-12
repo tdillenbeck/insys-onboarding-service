@@ -63,5 +63,5 @@ case $env in
         ;;
 esac
 
-go build -o insys-onboarding cmd/server.go  && ./insys-onboarding
+go build -o insys-onboarding main.go  && ./insys-onboarding
 

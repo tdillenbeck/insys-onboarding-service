@@ -8,7 +8,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"weavelab.xyz/go-utilities/null"
-	app "weavelab.xyz/insys-onboarding"
+	"weavelab.xyz/insys-onboarding/app"
 	"weavelab.xyz/insys-onboarding/mock"
 	"weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto"
 	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"

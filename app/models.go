@@ -1,4 +1,4 @@
-// pacakge app defines all of our domain types. Things like our representation of a category, task instance, and
+// package app defines all of our domain types. Things like our representation of a category, task instance, and
 // anything else specific to our domain.
 //
 // This does not include anything specific to the underlying technology. For instance, if we wanted to define
