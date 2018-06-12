@@ -1,5 +1,5 @@
 #!/bin/bash
-# use this script to run client-location-features on your local computer
+# use this script to run insys-onboarding on your local computer
 # options 
 # -d = DEV
 # -p = PROD
@@ -63,4 +63,5 @@ case $env in
         ;;
 esac
 
-go build && ./insys-onboarding
+go build -o insys-onboarding cmd/server.go  && ./insys-onboarding
+

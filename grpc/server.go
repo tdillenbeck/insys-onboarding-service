@@ -1,48 +1,43 @@
-package server
+package grpc
 
 import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes"
-	"weavelab.xyz/insys-onboarding/db"
+
+	app "weavelab.xyz/insys-onboarding"
+
 	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto"
 	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/protorepo/dist/go/services/insys/onboarding"
 	"weavelab.xyz/wlib/werror"
 	"weavelab.xyz/wlib/wgrpc"
 )
 
-type OnboardingService struct{}
+// verify that the OnboardingService struct implements all methods required in the proto definition
+var _ onboarding.OnboardingServer = &OnboardingServer{}
 
-func (s *OnboardingService) Category(ctx context.Context, req *onboardingproto.CategoryRequest) (*onboardingproto.CategoryResponse, error) {
-	categoryUUID, err := req.ID.UUID()
-	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request category id into a uuid").Add("req.ID", req.ID))
-	}
-
-	onboardingCategory, err := db.Category(ctx, categoryUUID)
-	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error retrieving categories from database"))
-	}
-
-	category, err := convertToCategoryProto(onboardingCategory)
-	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database category to protobuf category"))
-	}
-
-	return &onboardingproto.CategoryResponse{
-		Category: category,
-	}, nil
+type OnboardingServer struct {
+	categoryService     app.CategoryService
+	taskInstanceService app.TaskInstanceService
 }
 
-//  rpc CreateTaskInstancesFromTasks(onboardingproto.CreateTaskInstancesFromTasksRequest) returns (onboardingproto.TaskInstancesResponse) {}
-func (s *OnboardingService) CreateTaskInstancesFromTasks(ctx context.Context, req *onboardingproto.CreateTaskInstancesFromTasksRequest) (*onboardingproto.TaskInstancesResponse, error) {
+func New(cs app.CategoryService, tis app.TaskInstanceService) *OnboardingServer {
+	return &OnboardingServer{
+		categoryService:     cs,
+		taskInstanceService: tis,
+	}
+}
+
+// CreateTaskInstanceFromTasks is the grpc method to handle creating task instances from the tasks database table.
+func (s *OnboardingServer) CreateTaskInstancesFromTasks(ctx context.Context, req *onboardingproto.CreateTaskInstancesFromTasksRequest) (*onboardingproto.TaskInstancesResponse, error) {
 	locationUUID, err := req.LocationID.UUID()
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request location id into a uuid").Add("req.LocationID", req.LocationID))
 	}
 
-	onboardingTasks, err := db.CreateTaskInstancesFromTasks(ctx, locationUUID)
+	onboardingTasks, err := s.taskInstanceService.CreateFromTasks(ctx, locationUUID)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error creating task instances from tasks in the database"))
 	}
@@ -57,13 +52,35 @@ func (s *OnboardingService) CreateTaskInstancesFromTasks(ctx context.Context, re
 	}, nil
 }
 
-func (s *OnboardingService) TaskInstances(ctx context.Context, req *onboardingproto.TaskInstancesRequest) (*onboardingproto.TaskInstancesResponse, error) {
+// Category is the grpc method to retrieve a category from the database
+func (s *OnboardingServer) Category(ctx context.Context, req *onboardingproto.CategoryRequest) (*onboardingproto.CategoryResponse, error) {
+	categoryUUID, err := req.ID.UUID()
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request category id into a uuid").Add("req.ID", req.ID))
+	}
+
+	onboardingCategory, err := s.categoryService.ByID(ctx, categoryUUID)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error retrieving categories from database"))
+	}
+
+	category, err := convertToCategoryProto(onboardingCategory)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database category to protobuf category"))
+	}
+
+	return &onboardingproto.CategoryResponse{
+		Category: category,
+	}, nil
+}
+
+func (s *OnboardingServer) TaskInstances(ctx context.Context, req *onboardingproto.TaskInstancesRequest) (*onboardingproto.TaskInstancesResponse, error) {
 	locationUUID, err := req.LocationID.UUID()
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request location id into a uuid").Add("req.LocationID", req.LocationID))
 	}
 
-	onboardingTasks, err := db.TaskInstances(ctx, locationUUID)
+	onboardingTasks, err := s.taskInstanceService.ByLocationID(ctx, locationUUID)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error retrieving tasks from database"))
 	}
@@ -78,18 +95,18 @@ func (s *OnboardingService) TaskInstances(ctx context.Context, req *onboardingpr
 	}, nil
 }
 
-func (s *OnboardingService) UpdateTaskInstance(ctx context.Context, req *onboardingproto.UpdateTaskInstanceRequest) (*onboardingproto.UpdateTaskInstanceResponse, error) {
+func (s *OnboardingServer) UpdateTaskInstance(ctx context.Context, req *onboardingproto.UpdateTaskInstanceRequest) (*onboardingproto.UpdateTaskInstanceResponse, error) {
 	taskInstanceUUID, err := req.ID.UUID()
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request task instance id into a uuid").Add("req.ID", req.ID))
 	}
 
-	onboardingTaskInstance, err := db.UpdateTaskInstance(ctx, taskInstanceUUID, req.Status, req.StatusUpdatedBy)
+	onboardingTaskInstance, err := s.taskInstanceService.Update(ctx, taskInstanceUUID, req.Status, req.StatusUpdatedBy)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error updating task database record"))
 	}
 
-	task, err := convertToTaskInstanceProto(onboardingTaskInstance)
+	task, err := convertToTaskInstanceProto(*onboardingTaskInstance)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database task record to protobuf task format"))
 	}
@@ -99,7 +116,7 @@ func (s *OnboardingService) UpdateTaskInstance(ctx context.Context, req *onboard
 	}, nil
 }
 
-func convertToCategoryProto(oc db.OnboardingCategory) (*onboardingproto.Category, error) {
+func convertToCategoryProto(oc *app.Category) (*onboardingproto.Category, error) {
 	createdAt, err := ptypes.TimestampProto(oc.CreatedAt)
 	if err != nil {
 		return nil, werror.Wrap(err, "could not convert category created at time")
@@ -117,7 +134,7 @@ func convertToCategoryProto(oc db.OnboardingCategory) (*onboardingproto.Category
 	}, nil
 }
 
-func convertToTaskInstanceProto(t db.OnboardingTaskInstance) (*onboardingproto.TaskInstance, error) {
+func convertToTaskInstanceProto(t app.TaskInstance) (*onboardingproto.TaskInstance, error) {
 
 	completedAt, err := ptypes.TimestampProto(t.CompletedAt.Time)
 	if err != nil {
@@ -166,7 +183,7 @@ func convertToTaskInstanceProto(t db.OnboardingTaskInstance) (*onboardingproto.T
 	return taskInstance, nil
 }
 
-func convertToTaskInstancesProto(onboardingTasks []db.OnboardingTaskInstance) ([]*onboardingproto.TaskInstance, error) {
+func convertToTaskInstancesProto(onboardingTasks []app.TaskInstance) ([]*onboardingproto.TaskInstance, error) {
 	var taskInstances []*onboardingproto.TaskInstance
 
 	for _, t := range onboardingTasks {
