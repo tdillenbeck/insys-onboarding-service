@@ -6,10 +6,10 @@ import (
 
 	cgrpc "google.golang.org/grpc"
 
-	"weavelab.xyz/insys-onboarding/config"
-	"weavelab.xyz/insys-onboarding/grpc"
-	"weavelab.xyz/insys-onboarding/psql"
-	"weavelab.xyz/protorepo/dist/go/services/insys/onboarding"
+	"weavelab.xyz/insys-onboarding/internal/config"
+	"weavelab.xyz/insys-onboarding/internal/grpc"
+	"weavelab.xyz/insys-onboarding/internal/psql"
+	"weavelab.xyz/protorepo/dist/go/services/insys"
 	"weavelab.xyz/wlib/wapp"
 	"weavelab.xyz/wlib/wapp/grpcwapp"
 	"weavelab.xyz/wlib/werror"
@@ -72,7 +72,7 @@ func grpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs := wgrpcserver.NewDefault()
 
-		onboarding.RegisterOnboardingServer(gs, s)
+		insys.RegisterOnboardingServer(gs, s)
 
 		return gs, nil
 	}
