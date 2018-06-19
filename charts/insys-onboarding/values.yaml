@@ -1,5 +1,5 @@
 image:
-  tag: 1.0.9804-sha.9ae106d
+  tag: 1.0.10578-sha.fae4b67
 
 replicas: 1
 
