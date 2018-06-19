@@ -89,30 +89,9 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "IwuaGWkq9sh9hzmmgkyHvCEMGzM=",
-			"origin": "weavelab.xyz/wlib/vendor/github.com/mreiferson/go-snappystream",
-			"path": "github.com/mreiferson/go-snappystream",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "5mGTJWVBk+2KdbBQoJWMtGoJJgU=",
-			"origin": "weavelab.xyz/wlib/vendor/github.com/mreiferson/go-snappystream/snappy-go",
-			"path": "github.com/mreiferson/go-snappystream/snappy-go",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
 			"checksumSHA1": "5h8cJQQ8Vs/Rrk0yZNB9JLhJkaE=",
 			"origin": "weavelab.xyz/wlib/vendor/github.com/mwitkow/go-grpc-middleware",
 			"path": "github.com/mwitkow/go-grpc-middleware",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "yujmpVvIXpf6DEsVy5BJr2nCtp8=",
-			"origin": "weavelab.xyz/wlib/vendor/github.com/nsqio/go-nsq",
-			"path": "github.com/nsqio/go-nsq",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
@@ -272,13 +251,6 @@
 			"path": "golang.org/x/text/unicode/norm",
 			"revision": "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1",
 			"revisionTime": "2018-02-04T03:07:25Z"
-		},
-		{
-			"checksumSHA1": "vGfePfr0+weQUeTM/71mu+LCFuE=",
-			"origin": "weavelab.xyz/wlib/vendor/golang.org/x/time/rate",
-			"path": "golang.org/x/time/rate",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
 			"checksumSHA1": "Tc3BU26zThLzcyqbVtiSEp7EpU8=",
@@ -459,69 +431,28 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "yGz98p7mHpWhwmJs7NKSpW+1SBA=",
-			"path": "weavelab.xyz/go-utilities/responsewrapper",
-			"revision": "4ef65a2e387162cf0f9a008c7ccad6c28de4ac8f",
-			"revisionTime": "2018-04-10T21:20:32Z"
-		},
-		{
-			"checksumSHA1": "xUu69boiGRHt3QwM9TKLXk7p3AI=",
-			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/goji",
-			"path": "weavelab.xyz/goji",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "1Q2u70SgQXiPrrwq5bluEa4MJN4=",
-			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/goji/internal",
-			"path": "weavelab.xyz/goji/internal",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "F7x41Hd9WORZ5olK5MB7ruKUVSE=",
-			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/goji/middleware",
-			"path": "weavelab.xyz/goji/middleware",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "zCFDhT17dtZLbSbKWLWZMSgEKRg=",
-			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/goji/pat",
-			"path": "weavelab.xyz/goji/pat",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "RmmTfzfC0B17o0JrCTHr1KRKJvQ=",
-			"origin": "weavelab.xyz/wlib/vendor/weavelab.xyz/goji/pattern",
-			"path": "weavelab.xyz/goji/pattern",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
 			"checksumSHA1": "JtN5mZGK2d9cpsmSo4RNcPDwdQo=",
 			"path": "weavelab.xyz/protorepo/dist/go/enums/insysenums",
-			"revision": "3d3d27268102ea335491f10e59573620ed6d8ba7",
-			"revisionTime": "2018-05-30T15:24:38Z"
+			"revision": "deb72a2b1fe2c7c516c5b127b7a8633ad73f49a9",
+			"revisionTime": "2018-06-14T16:59:47Z"
 		},
 		{
-			"checksumSHA1": "T3XflyyGSC0Ho6vIqsS7xr7NpT8=",
-			"path": "weavelab.xyz/protorepo/dist/go/messages/insys/onboardingproto",
-			"revision": "3d3d27268102ea335491f10e59573620ed6d8ba7",
-			"revisionTime": "2018-05-30T15:24:38Z"
+			"checksumSHA1": "UysGfAgcA1lFW5rlPLXWpi0gnwM=",
+			"path": "weavelab.xyz/protorepo/dist/go/messages/insysproto",
+			"revision": "deb72a2b1fe2c7c516c5b127b7a8633ad73f49a9",
+			"revisionTime": "2018-06-14T16:59:47Z"
 		},
 		{
 			"checksumSHA1": "IpvU6rpcAxLZ5w/xl4UkedvmKD0=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/sharedproto",
-			"revision": "3d3d27268102ea335491f10e59573620ed6d8ba7",
-			"revisionTime": "2018-05-30T15:24:38Z"
+			"revision": "deb72a2b1fe2c7c516c5b127b7a8633ad73f49a9",
+			"revisionTime": "2018-06-14T16:59:47Z"
 		},
 		{
-			"checksumSHA1": "FISAdG60QbpIESh4/jhDwKzlULc=",
-			"path": "weavelab.xyz/protorepo/dist/go/services/insys/onboarding",
-			"revision": "3d3d27268102ea335491f10e59573620ed6d8ba7",
-			"revisionTime": "2018-05-30T15:24:38Z"
+			"checksumSHA1": "7z6/lQan8c8q0iKBLwG+GyFfHNQ=",
+			"path": "weavelab.xyz/protorepo/dist/go/services/insys",
+			"revision": "deb72a2b1fe2c7c516c5b127b7a8633ad73f49a9",
+			"revisionTime": "2018-06-14T16:59:47Z"
 		},
 		{
 			"checksumSHA1": "/w1ysC2c/cmZtqOWVIDzNOzoxws=",
@@ -567,18 +498,6 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "M19APTqeoLhsyX6H0XQ+ncNX/CA=",
-			"path": "weavelab.xyz/wlib/wapp/httpwapp",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "tOdoCKFGI+HdnT0xEtYqBhtRgY4=",
-			"path": "weavelab.xyz/wlib/wapp/nsqwapp",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
 			"checksumSHA1": "yRfL9aE3qAGPDBIVLhpJQwupYIw=",
 			"path": "weavelab.xyz/wlib/wcontext",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
@@ -597,38 +516,8 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
-			"checksumSHA1": "6OyzGXH+8b5Nzn/MKcl5fwrNlTM=",
-			"path": "weavelab.xyz/wlib/wgoji",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "HDrbIzSauJv5lor8NkQHPtoQ8gk=",
-			"path": "weavelab.xyz/wlib/wgoji/httpheaders",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "s4N0O+rL0wJi+3AYTsndFV4hNTA=",
-			"path": "weavelab.xyz/wlib/wgoji/whttptracing",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
 			"checksumSHA1": "jLLsdl8QgCOUbsIX0WNWG0jdg/s=",
 			"path": "weavelab.xyz/wlib/wgrpc",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "mHeoWvytcRtenzSLxfxAM67GBdA=",
-			"path": "weavelab.xyz/wlib/wgrpc/wgrpcproto",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "dU0L8o8kq97S0nHy/G+xmeb3DzU=",
-			"path": "weavelab.xyz/wlib/wgrpc/wgrpcproto/wgrpcprotouuid",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
@@ -695,18 +584,6 @@
 		{
 			"checksumSHA1": "G0lyVkji7olXOon82Txc+Y88URI=",
 			"path": "weavelab.xyz/wlib/wmetrics/wmetricslog",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "J/5TspLmZrUXSP78FKz8XClU0vs=",
-			"path": "weavelab.xyz/wlib/wnsq",
-			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
-			"revisionTime": "2018-04-12T21:29:02Z"
-		},
-		{
-			"checksumSHA1": "0II1UCFtUuTxJmqP2UBqpypHLvg=",
-			"path": "weavelab.xyz/wlib/wnsq/wnsqproto",
 			"revision": "52f86a4cc366ba41d9bb39985c526e468e4870ef",
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
