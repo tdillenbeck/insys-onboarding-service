@@ -14,11 +14,19 @@ For more information on `weavelab.xyz`, see the projects [readme](https://gitlab
 
 This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1). The domain logic is defined in the `app/` package instead of in the top level directory.
 
+## Testing
+
+  This project contains tests that rely on a test database. Here are the setups to setup your local postgres:
+
+  1. psql: CREATE DATABASE "insys-onboarding_test"
+  2. psql: CREATE SCHEMA insys_onboarding;
+  3.`$ make migratetest`
+
 ## Database Migrations
   This service uses the [goose](https://github.com/pressly/goose) library for running migrations. Mainly because it works with schema and doesn't pollute the public namespace.
 
   Before using goose, the use is responsible for setting up the database:
-    1. CREATE DATABASE "insys-onboarding_dev"
+    1. CREATE DATABASE "insys-onboarding_local"
     2. CREATE SCHEMA insys_onboarding;
 
 ### Creating a new migration
