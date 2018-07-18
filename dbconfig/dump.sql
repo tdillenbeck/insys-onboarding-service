@@ -102,7 +102,8 @@ CREATE TABLE onboarding_task_instances (
     onboarding_category_id uuid NOT NULL,
     onboarding_task_id uuid NOT NULL,
     button_content text,
-    button_external_url text
+    button_external_url text,
+    explanation text
 );
 
 

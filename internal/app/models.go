@@ -43,8 +43,9 @@ type TaskInstance struct {
 	DisplayOrder      int
 	Status            int
 	StatusUpdatedAt   time.Time
-	StatusUpdatedBy   string
+	StatusUpdatedBy   null.String
 	Title             string
+	Explanation       null.String
 
 	CreatedAt time.Time
 	UpdatedAt time.Time
