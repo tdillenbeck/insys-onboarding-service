@@ -115,6 +115,27 @@ func (s *OnboardingServer) UpdateTaskInstance(ctx context.Context, req *insyspro
 	}, nil
 }
 
+func (s *OnboardingServer) UpdateTaskInstanceExplanation(ctx context.Context, req *insysproto.UpdateTaskInstanceExplanationRequest) (*insysproto.UpdateTaskInstanceResponse, error) {
+	taskInstanceUUID, err := req.ID.UUID()
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request task instance id into a uuid").Add("req.ID", req.ID))
+	}
+
+	onboardingTaskInstance, err := s.taskInstanceService.UpdateExplanation(ctx, taskInstanceUUID, req.Explanation)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error updating task database record"))
+	}
+
+	task, err := convertToTaskInstanceProto(*onboardingTaskInstance)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database task record to protobuf task format"))
+	}
+
+	return &insysproto.UpdateTaskInstanceResponse{
+		TaskInstance: task,
+	}, nil
+}
+
 func convertToCategoryProto(oc *app.Category) (*insysproto.Category, error) {
 	createdAt, err := ptypes.TimestampProto(oc.CreatedAt)
 	if err != nil {
@@ -172,8 +193,9 @@ func convertToTaskInstanceProto(t app.TaskInstance) (*insysproto.TaskInstance, e
 		DisplayOrder:      int32(t.DisplayOrder),
 		Status:            insysenums.OnboardingTaskStatus(t.Status),
 		StatusUpdatedAt:   statusUpdatedAt,
-		StatusUpdatedBy:   t.StatusUpdatedBy,
+		StatusUpdatedBy:   t.StatusUpdatedBy.String(),
 		Title:             t.Title,
+		Explanation:       t.Explanation.String(),
 
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,

@@ -118,8 +118,9 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 		DisplayOrder:      0,
 		Status:            2,
 		StatusUpdatedAt:   now,
-		StatusUpdatedBy:   "Donald Duck",
+		StatusUpdatedBy:   null.NewString("Donald Duck"),
 		Title:             "Test Title",
+		Explanation:       null.NewString("Test Explanation"),
 		VerifiedAt:        null.Time{Time: time.Time{}, Valid: false},
 		VerifiedBy:        null.String{Str: "", Valid: false},
 
@@ -175,6 +176,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 						StatusUpdatedAt:   expectedStatusUpdatedAt,
 						StatusUpdatedBy:   "Donald Duck",
 						Title:             "Test Title",
+						Explanation:       "Test Explanation",
 						VerifiedAt:        expectedVerifiedAt,
 						VerifiedBy:        "",
 
@@ -229,8 +231,9 @@ func TestOnboardingServer_TaskInstances(t *testing.T) {
 		DisplayOrder:      0,
 		Status:            2,
 		StatusUpdatedAt:   now,
-		StatusUpdatedBy:   "Donald Duck",
+		StatusUpdatedBy:   null.NewString("Donald Duck"),
 		Title:             "Test Title",
+		Explanation:       null.NewString("Test Explanation"),
 		VerifiedAt:        null.Time{Time: time.Time{}, Valid: false},
 		VerifiedBy:        null.String{Str: "", Valid: false},
 
@@ -286,6 +289,7 @@ func TestOnboardingServer_TaskInstances(t *testing.T) {
 						StatusUpdatedAt:   expectedStatusUpdatedAt,
 						StatusUpdatedBy:   "Donald Duck",
 						Title:             "Test Title",
+						Explanation:       "Test Explanation",
 						VerifiedAt:        expectedVerifiedAt,
 						VerifiedBy:        "",
 
