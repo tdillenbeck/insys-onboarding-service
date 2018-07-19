@@ -96,7 +96,7 @@ func (t *TaskInstanceService) CreateFromTasks(ctx context.Context, locationID uu
 	query := `INSERT INTO insys_onboarding.onboarding_task_instances
 							(id, location_id, title, content, button_content, button_external_url, display_order, status, status_updated_at, status_updated_by, created_at, updated_at, onboarding_category_id, onboarding_task_id )
 						SELECT overlay(overlay(md5(random()::text || ':' || clock_timestamp()::text) placing '4' from 13) placing '8' from 17)::uuid, $1, title, content, button_content, button_external_url, display_order, 0, $2, 'Weave - default', $2, $2, onboarding_category_id, id FROM insys_onboarding.onboarding_tasks
-						RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation created_at, updated_at;`
+						RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at;`
 
 	rows, err := t.DB.QueryContext(ctx, query, locationID.String(), time.Now().UTC())
 	if err != nil {
@@ -125,6 +125,7 @@ func (t *TaskInstanceService) CreateFromTasks(ctx context.Context, locationID uu
 			&taskInstance.StatusUpdatedAt,
 			&taskInstance.StatusUpdatedBy,
 			&taskInstance.Title,
+			&taskInstance.Explanation,
 			&taskInstance.CreatedAt,
 			&taskInstance.UpdatedAt,
 		)
