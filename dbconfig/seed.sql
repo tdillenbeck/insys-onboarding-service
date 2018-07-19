@@ -1,15 +1,46 @@
 -- How to run:
 -- psql -U postgres -h localhost -p 5432 -d insys_onboarding_local -f dbconfig/seed.sql
 
--- Clear all existing data previous data
-DELETE FROM insys_onboarding.onboarding_tasks;
-DELETE FROM insys_onboarding.onboarding_categories;
-
 -- Categories
 -- INSERT INTO insys_onboarding.onboarding_categories VALUES (id, display_text, display_order, created_at, updated_at);
-  INSERT INTO insys_onboarding.onboarding_categories VALUES ('26ba2237-c452-42dd-95ca-a5e59dd2853b', 'Software', 1, default, default);
-  INSERT INTO insys_onboarding.onboarding_categories VALUES ('ebc72a11-f1b3-40d5-888e-5b6aba66e871', 'Phones', 2, default, default);
-  INSERT INTO insys_onboarding.onboarding_categories VALUES ('d0da53a9-fbdb-4d22-85c6-ed521f237349', 'Porting', 3, default, default);
+  INSERT INTO insys_onboarding.onboarding_categories VALUES (
+    '26ba2237-c452-42dd-95ca-a5e59dd2853b',
+    'Software',
+    1,
+    default,
+    default
+  )
+  ON CONFLICT(id) DO UPDATE SET (display_text, display_order, updated_at) = (
+    'Software',
+    1,
+    default
+  );
+
+  INSERT INTO insys_onboarding.onboarding_categories VALUES (
+    'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
+    'Phones',
+    2,
+    default,
+    default
+  )
+  ON CONFLICT(id) DO UPDATE SET (display_text, display_order, updated_at) = (
+    'Phones',
+    2,
+    default
+  );
+
+  INSERT INTO insys_onboarding.onboarding_categories VALUES (
+    'd0da53a9-fbdb-4d22-85c6-ed521f237349',
+    'Porting',
+    3,
+    default,
+    default
+  )
+  ON CONFLICT(id) DO UPDATE SET (display_text, display_order, updated_at) = (
+    'Porting',
+    3,
+    default
+  );
 
 -- Tasks
 -- INSERT INTO insys_onboarding.onboarding_tasks VALUES (id, title, content, display_order, created_at, updated_at, onboarding_category_id, button_content, button_external_url);
