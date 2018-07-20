@@ -9,6 +9,8 @@ requests:
 
 logLevel: debug
 
+useConnectString: false
+
 postgres:
   maxConnectionLifetime: 10m
   maxIdleConnections: 0
