@@ -29,6 +29,19 @@ spec:
           - name: VAULT_ADDR
             value: "http://vault.ops:8200"
 
+          {{ if .Values.useConnectString }}
+          - name: PG_PRIMARY_CONNECT_STRING
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Chart.Name }}-db"
+                key: primaryconnectstring
+          - name: PG_REPLICA_CONNECT_STRING
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Chart.Name }}-db"
+                key: replicaconnectstring
+          {{ end }}
+
           - name: DB_PRIMARY_ADDR
             value: {{ .Values.postgres.dbPrimaryAddr }}
           - name: DB_REPLICA_ADDR

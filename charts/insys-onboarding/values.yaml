@@ -12,6 +12,8 @@ probes:
 
 logLevel: info
 
+useConnectString: true
+
 postgres:
   maxConnectionLifetime: 30m
   maxIdleConnections: 0
