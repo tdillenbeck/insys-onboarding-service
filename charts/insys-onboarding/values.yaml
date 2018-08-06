@@ -1,5 +1,5 @@
 image:
-  tag: 1.0.16427-sha.29a1fbb
+  tag: 1.0.16475-sha.9548070
 
 replicas: 1
 
@@ -13,6 +13,7 @@ probes:
 logLevel: info
 
 useConnectString: false
+useConnectString2: true
 
 postgres:
   maxConnectionLifetime: 30m
@@ -20,4 +21,4 @@ postgres:
   maxOpenConnections: 15
   logQueries: false
   dbPrimaryAddr: pgsql-service-1a:5432
-  dbReplicaAddr: pgsql-service-1a:5432
+  dbReplicaAddr: pgsql-service-1b:5432
