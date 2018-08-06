@@ -19,3 +19,13 @@ type TaskInstanceService interface {
 	Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*TaskInstance, error)
 	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
 }
+
+type OnboarderService interface {
+	CreateOrUpdate(ctx context.Context, onboarder *Onboarder) (*Onboarder, error)
+	ReadByUserID(ctx context.Context, userID uuid.UUID) (*Onboarder, error)
+}
+
+type OnboardersLocationService interface {
+	CreateOrUpdate(ctx context.Context, onboardersLocation *OnboardersLocation) (*OnboardersLocation, error)
+	ReadByLocationID(ctx context.Context, locationID uuid.UUID) (*OnboardersLocation, error)
+}

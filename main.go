@@ -54,10 +54,15 @@ func main() {
 
 	categoryService := &psql.CategoryService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
+	onboarderService := &psql.OnboarderService{DB: db}
+	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
-	server := grpc.New(categoryService, taskInstanceService)
+	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService)
+	onboarderServer := grpc.NewOnboarderServer(onboarderService)
+	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService)
 
-	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(server))
+	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(onboardingServer, onboarderServer, onboardersLocationServer))
+
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
 		ctx,
@@ -68,11 +73,23 @@ func main() {
 	wlog.Info("done")
 }
 
-func grpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
+func onboardingGrpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs := wgrpcserver.NewDefault()
 
 		insys.RegisterOnboardingServer(gs, s)
+
+		return gs, nil
+	}
+}
+
+func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
+	return func() (*cgrpc.Server, error) {
+		gs := wgrpcserver.NewDefault()
+
+		insys.RegisterOnboardingServer(gs, onboardingServer)
+		insys.RegisterOnboarderServer(gs, onboarderServer)
+		insys.RegisterOnboardersLocationServer(gs, onboardersLocationServer)
 
 		return gs, nil
 	}

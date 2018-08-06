@@ -22,7 +22,7 @@ type OnboardingServer struct {
 	taskInstanceService app.TaskInstanceService
 }
 
-func New(cs app.CategoryService, tis app.TaskInstanceService) *OnboardingServer {
+func NewOnboardingServer(cs app.CategoryService, tis app.TaskInstanceService) *OnboardingServer {
 	return &OnboardingServer{
 		categoryService:     cs,
 		taskInstanceService: tis,

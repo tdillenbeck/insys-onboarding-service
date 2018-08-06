@@ -15,13 +15,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: postgres
+-- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: zach.toolsongetweave.com
 --
 
 CREATE SCHEMA insys_onboarding;
 
 
-ALTER SCHEMA insys_onboarding OWNER TO postgres;
+ALTER SCHEMA insys_onboarding OWNER TO "zach.toolsongetweave.com";
 
 SET search_path = insys_onboarding, pg_catalog;
 
@@ -64,6 +64,42 @@ ALTER TABLE goose_db_version_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE goose_db_version_id_seq OWNED BY goose_db_version.id;
 
+
+--
+-- Name: onboarders; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE TABLE onboarders (
+    id uuid NOT NULL,
+    user_id uuid NOT NULL,
+    schedule_custimization_link text,
+    schedule_porting_link text,
+    schedule_network_link text,
+    schedule_software_install_link text,
+    schedule_phone_install_link text,
+    schedule_software_training_link text,
+    schedule_phone_training_link text,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE onboarders OWNER TO postgres;
+
+--
+-- Name: onboarders_location; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE TABLE onboarders_location (
+    id uuid NOT NULL,
+    onboarder_id uuid NOT NULL,
+    location_id uuid NOT NULL,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE onboarders_location OWNER TO postgres;
 
 --
 -- Name: onboarding_categories; Type: TABLE; Schema: insys_onboarding; Owner: postgres
@@ -144,6 +180,22 @@ ALTER TABLE ONLY goose_db_version
 
 
 --
+-- Name: onboarders_location onboarders_location_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY onboarders_location
+    ADD CONSTRAINT onboarders_location_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: onboarders onboarders_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY onboarders
+    ADD CONSTRAINT onboarders_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: onboarding_categories onboarding_categories_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
 --
 
@@ -165,6 +217,28 @@ ALTER TABLE ONLY onboarding_task_instances
 
 ALTER TABLE ONLY onboarding_tasks
     ADD CONSTRAINT onboarding_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_onboarders_location_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE UNIQUE INDEX index_onboarders_location_on_location_id ON onboarders_location USING btree (location_id);
+
+
+--
+-- Name: index_onboarders_on_user_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE UNIQUE INDEX index_onboarders_on_user_id ON onboarders USING btree (user_id);
+
+
+--
+-- Name: onboarders_location onboarders_location_onboarder_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY onboarders_location
+    ADD CONSTRAINT onboarders_location_onboarder_id_fkey FOREIGN KEY (onboarder_id) REFERENCES onboarders(id);
 
 
 --
