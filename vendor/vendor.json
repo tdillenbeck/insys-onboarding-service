@@ -24,6 +24,12 @@
 			"revisionTime": "2018-04-12T21:29:02Z"
 		},
 		{
+			"checksumSHA1": "SFNJCGTNFHf7DQzOF6nL7cjvmEg=",
+			"path": "github.com/golang/protobuf/jsonpb",
+			"revision": "5831880292e721c76b58a16ecc60adc27d8e6355",
+			"revisionTime": "2018-06-12T18:59:29Z"
+		},
+		{
 			"checksumSHA1": "Pyou8mceOASSFxc7GeXZuVdSMi0=",
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
@@ -53,6 +59,12 @@
 			"path": "github.com/golang/protobuf/ptypes/duration",
 			"revision": "b4deda0973fb4c70b50d226b1af49f3da59f5265",
 			"revisionTime": "2018-04-30T18:52:41Z"
+		},
+		{
+			"checksumSHA1": "dWNJ8UVhDf9NqNOUDtgx2XwRwVg=",
+			"path": "github.com/golang/protobuf/ptypes/struct",
+			"revision": "5831880292e721c76b58a16ecc60adc27d8e6355",
+			"revisionTime": "2018-06-12T18:59:29Z"
 		},
 		{
 			"checksumSHA1": "1FJvuT0UllZaaS43kmPlx8oNiCs=",
@@ -457,26 +469,26 @@
 		{
 			"checksumSHA1": "y2DFuG7wOeCXHpCzLSmsCHXQP14=",
 			"path": "weavelab.xyz/protorepo/dist/go/enums/insysenums",
-			"revision": "6703ad18f90d786291d12b09971fbd511d1bca0b",
-			"revisionTime": "2018-07-18T19:47:34Z"
+			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
+			"revisionTime": "2018-08-06T15:08:18Z"
 		},
 		{
-			"checksumSHA1": "6x/2M4yMaZPmSRUZ/WBcra+ufWo=",
+			"checksumSHA1": "S2+0HZprDtIgav0j6M3wfSt3JWk=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/insysproto",
-			"revision": "6703ad18f90d786291d12b09971fbd511d1bca0b",
-			"revisionTime": "2018-07-18T19:47:34Z"
+			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
+			"revisionTime": "2018-08-06T15:08:18Z"
 		},
 		{
-			"checksumSHA1": "IpvU6rpcAxLZ5w/xl4UkedvmKD0=",
+			"checksumSHA1": "hi31JnOrtDiuJM9lLzWURe38/oQ=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/sharedproto",
-			"revision": "6703ad18f90d786291d12b09971fbd511d1bca0b",
-			"revisionTime": "2018-07-18T19:47:34Z"
+			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
+			"revisionTime": "2018-08-06T15:08:18Z"
 		},
 		{
-			"checksumSHA1": "O6HeA7RriB2C2IHsarxrKepXkkU=",
+			"checksumSHA1": "WBk2DR5vK77Gi7H9SYqpEcdnl4w=",
 			"path": "weavelab.xyz/protorepo/dist/go/services/insys",
-			"revision": "6703ad18f90d786291d12b09971fbd511d1bca0b",
-			"revisionTime": "2018-07-18T19:47:34Z"
+			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
+			"revisionTime": "2018-08-06T15:08:18Z"
 		},
 		{
 			"checksumSHA1": "/w1ysC2c/cmZtqOWVIDzNOzoxws=",

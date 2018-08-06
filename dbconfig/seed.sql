@@ -1,6 +1,8 @@
 -- How to run:
 -- psql -U postgres -h localhost -p 5432 -d insys_onboarding_local -f dbconfig/seed.sql
 
+-- NOTE: The Task ID's are used in the creating task instances. Make sure to update the ID's in psql/taskinstance.go
+
 -- Categories
 -- INSERT INTO insys_onboarding.onboarding_categories VALUES (id, display_text, display_order, created_at, updated_at);
   INSERT INTO insys_onboarding.onboarding_categories VALUES (

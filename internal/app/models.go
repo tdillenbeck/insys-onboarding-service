@@ -50,3 +50,27 @@ type TaskInstance struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+// Onboarder represents a user's onboarding specific information
+type Onboarder struct {
+	ID                           uuid.UUID
+	UserID                       uuid.UUID
+	ScheduleCustimizationLink    null.String
+	SchedulePortingLink          null.String
+	ScheduleNetworkLink          null.String
+	ScheduleSoftwareInstallLink  null.String
+	SchedulePhoneInstallLink     null.String
+	ScheduleSoftwareTrainingLink null.String
+	SchedulePhoneTrainingLink    null.String
+	CreatedAt                    time.Time
+	UpdatedAt                    time.Time
+}
+
+// Assign an onboarder to a location
+type OnboardersLocation struct {
+	ID          uuid.UUID
+	OnboarderID uuid.UUID
+	LocationID  uuid.UUID
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
