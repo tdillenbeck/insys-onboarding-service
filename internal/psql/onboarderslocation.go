@@ -19,16 +19,24 @@ func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *ap
 	var id, onboarderID, location string
 	var onboardersLocation app.OnboardersLocation
 
-	query := `INSERT INTO insys_onboarding.onboarders_location
-		(id, onboarder_id, location_id, created_at, updated_at)
-		VALUES ($1, $2, $3, now(), now())
-		ON CONFLICT(location_id) DO UPDATE SET
-		(onboarder_id, updated_at)
-		= ($2, now())
-		RETURNING id, onboarder_id, location_id, created_at, updated_at;`
+	// Use a transaction to force the query to be performed against the primary database
+	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a database transaction")
+	}
+	defer tx.Commit()
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
-	err := row.Scan(
+	query := `
+INSERT INTO insys_onboarding.onboarders_location
+	(id, onboarder_id, location_id, created_at, updated_at)
+VALUES ($1, $2, $3, now(), now())
+ON CONFLICT(location_id) DO UPDATE SET
+	(onboarder_id, updated_at) = ($2, now())
+RETURNING id, onboarder_id, location_id, created_at, updated_at;
+`
+
+	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
+	err = row.Scan(
 		&id,
 		&onboarderID,
 		&location,
@@ -64,10 +72,12 @@ func (s *OnboardersLocationService) ReadByLocationID(ctx context.Context, locati
 	var id, onboarderID, location string
 	var onbl app.OnboardersLocation
 
-	query := `SELECT
-		id, onboarder_id, location_id, created_at, updated_at
-		FROM insys_onboarding.onboarders_location
-		WHERE location_id = $1`
+	query := `
+SELECT
+	id, onboarder_id, location_id, created_at, updated_at
+FROM insys_onboarding.onboarders_location
+WHERE location_id = $1
+`
 
 	row := s.DB.QueryRowContext(ctx, query, locationID.String())
 	err := row.Scan(

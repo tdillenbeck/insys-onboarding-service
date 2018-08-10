@@ -19,16 +19,23 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 	var id, userID string
 	var onboarder app.Onboarder
 
-	query := `INSERT INTO insys_onboarding.onboarders
-		(id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
-		ON CONFLICT(user_id) DO UPDATE SET
-		(schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, updated_at)
-		= ($3, $4, $5, $6, $7, $8, $9, now())
-		RETURNING id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;`
+	query := `
+INSERT INTO insys_onboarding.onboarders
+	(id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
+ON CONFLICT(user_id) DO UPDATE SET
+	(schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, updated_at)
+	= ($3, $4, $5, $6, $7, $8, $9, now())
+RETURNING id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;
+`
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustimizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
-	err := row.Scan(
+	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a transaction")
+	}
+	defer tx.Commit()
+	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustimizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
+	err = row.Scan(
 		&id,
 		&userID,
 		&onboarder.ScheduleCustimizationLink,
@@ -64,10 +71,11 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 	var id, user string
 	var onboarder app.Onboarder
 
-	query := `SELECT
-		id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
-		FROM insys_onboarding.onboarders
-		WHERE user_id = $1`
+	query := `
+SELECT
+	id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
+FROM insys_onboarding.onboarders
+WHERE user_id = $1`
 
 	row := s.DB.QueryRowContext(ctx, query, userID.String())
 	err := row.Scan(
