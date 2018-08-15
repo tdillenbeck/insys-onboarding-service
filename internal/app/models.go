@@ -55,7 +55,7 @@ type TaskInstance struct {
 type Onboarder struct {
 	ID                           uuid.UUID
 	UserID                       uuid.UUID
-	ScheduleCustimizationLink    null.String
+	ScheduleCustomizationLink    null.String
 	SchedulePortingLink          null.String
 	ScheduleNetworkLink          null.String
 	ScheduleSoftwareInstallLink  null.String

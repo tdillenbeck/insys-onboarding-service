@@ -72,7 +72,7 @@ ALTER SEQUENCE goose_db_version_id_seq OWNED BY goose_db_version.id;
 CREATE TABLE onboarders (
     id uuid NOT NULL,
     user_id uuid NOT NULL,
-    schedule_custimization_link text,
+    schedule_customization_link text,
     schedule_porting_link text,
     schedule_network_link text,
     schedule_software_install_link text,

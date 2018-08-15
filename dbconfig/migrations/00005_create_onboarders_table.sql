@@ -3,7 +3,7 @@
 CREATE TABLE insys_onboarding.onboarders (
   id uuid NOT NULL PRIMARY KEY,
   user_id uuid NOT NULL,
-  schedule_custimization_link text, -- task id: '2d2df285-9211-48fc-a057-74f7dee2d9a4'
+  schedule_customization_link text, -- task id: '2d2df285-9211-48fc-a057-74f7dee2d9a4'
   schedule_porting_link text, --task id: '9aec502b-f8b8-4f10-9748-1fe4050eacde'
   schedule_network_link text,-- task id: '7b15e061-8002-4edc-9bf4-f38c6eec6364'
   schedule_software_install_link text, -- task id: '16a6dc91-ec6b-4b09-b591-a5b0dfa92932'
