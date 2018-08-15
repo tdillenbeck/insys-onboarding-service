@@ -56,7 +56,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	// create an onboarder
 	onb := &app.Onboarder{
 		UserID: uuid.NewV4(),
-		ScheduleCustimizationLink:    null.NewString("schedule custimization link"),
+		ScheduleCustomizationLink:    null.NewString("schedule customization link"),
 		SchedulePortingLink:          null.NewString("schedule porting link"),
 		ScheduleNetworkLink:          null.NewString("schedule network link"),
 		ScheduleSoftwareInstallLink:  null.NewString("schedule software install link"),
@@ -464,7 +464,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					TaskID:     mustUUID(uuid.Parse("2d2df285-9211-48fc-a057-74f7dee2d9a4")),
 
 					ButtonContent:     null.NewString("Schedule Call"),
-					ButtonExternalURL: null.NewString("schedule custimization link"),
+					ButtonExternalURL: null.NewString("schedule customization link"),
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},

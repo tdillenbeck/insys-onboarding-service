@@ -34,11 +34,11 @@ RETURNING id, user_id, schedule_custimization_link, schedule_porting_link, sched
 		return nil, werror.Wrap(err, "error opening a transaction")
 	}
 	defer tx.Commit()
-	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustimizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
+	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustomizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
 	err = row.Scan(
 		&id,
 		&userID,
-		&onboarder.ScheduleCustimizationLink,
+		&onboarder.ScheduleCustomizationLink,
 		&onboarder.SchedulePortingLink,
 		&onboarder.ScheduleNetworkLink,
 		&onboarder.ScheduleSoftwareInstallLink,
@@ -81,7 +81,7 @@ WHERE user_id = $1`
 	err := row.Scan(
 		&id,
 		&user,
-		&onboarder.ScheduleCustimizationLink,
+		&onboarder.ScheduleCustomizationLink,
 		&onboarder.SchedulePortingLink,
 		&onboarder.ScheduleNetworkLink,
 		&onboarder.ScheduleSoftwareInstallLink,

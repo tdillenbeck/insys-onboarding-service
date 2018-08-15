@@ -469,26 +469,26 @@
 		{
 			"checksumSHA1": "y2DFuG7wOeCXHpCzLSmsCHXQP14=",
 			"path": "weavelab.xyz/protorepo/dist/go/enums/insysenums",
-			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
-			"revisionTime": "2018-08-06T15:08:18Z"
+			"revision": "337a2aebee511d1c6cac5c6fc1d7b0d6896e103e",
+			"revisionTime": "2018-08-15T17:41:25Z"
 		},
 		{
-			"checksumSHA1": "S2+0HZprDtIgav0j6M3wfSt3JWk=",
+			"checksumSHA1": "qpESPHV+cZvBd+lWNAuRcuuXUbY=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/insysproto",
-			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
-			"revisionTime": "2018-08-06T15:08:18Z"
+			"revision": "337a2aebee511d1c6cac5c6fc1d7b0d6896e103e",
+			"revisionTime": "2018-08-15T17:41:25Z"
 		},
 		{
 			"checksumSHA1": "hi31JnOrtDiuJM9lLzWURe38/oQ=",
 			"path": "weavelab.xyz/protorepo/dist/go/messages/sharedproto",
-			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
-			"revisionTime": "2018-08-06T15:08:18Z"
+			"revision": "337a2aebee511d1c6cac5c6fc1d7b0d6896e103e",
+			"revisionTime": "2018-08-15T17:41:25Z"
 		},
 		{
 			"checksumSHA1": "WBk2DR5vK77Gi7H9SYqpEcdnl4w=",
 			"path": "weavelab.xyz/protorepo/dist/go/services/insys",
-			"revision": "c2f2987cd7f24c7ab138b38d82bc413d5cfc9380",
-			"revisionTime": "2018-08-06T15:08:18Z"
+			"revision": "337a2aebee511d1c6cac5c6fc1d7b0d6896e103e",
+			"revisionTime": "2018-08-15T17:41:25Z"
 		},
 		{
 			"checksumSHA1": "/w1ysC2c/cmZtqOWVIDzNOzoxws=",
