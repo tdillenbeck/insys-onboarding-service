@@ -21,12 +21,12 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 
 	query := `
 INSERT INTO insys_onboarding.onboarders
-	(id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at)
+	(id, user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
 ON CONFLICT(user_id) DO UPDATE SET
-	(schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, updated_at)
+	(schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, updated_at)
 	= ($3, $4, $5, $6, $7, $8, $9, now())
-RETURNING id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;
+RETURNING id, user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;
 `
 
 	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
@@ -73,7 +73,7 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 
 	query := `
 SELECT
-	id, user_id, schedule_custimization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
+	id, user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
 FROM insys_onboarding.onboarders
 WHERE user_id = $1`
 
