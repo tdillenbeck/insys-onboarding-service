@@ -16,6 +16,119 @@ import (
 	"weavelab.xyz/wlib/wsql"
 )
 
+func TestTaskInstanceService_ByLocationID(t *testing.T) {
+	skipCI(t)
+
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+
+	// create a category
+	categoryID := uuid.NewV4()
+	query := `
+INSERT INTO insys_onboarding.onboarding_categories
+(id, display_text, display_order)
+VALUES ($1, 'testing display text', 0)
+`
+	_, err := db.ExecContext(context.Background(), query, categoryID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding category: %v\n", err)
+	}
+
+	// create a task
+	taskID := uuid.NewV4()
+	query = `
+INSERT INTO insys_onboarding.onboarding_tasks
+(id, title, content, display_order, onboarding_category_id)
+VALUES ($1, 'testing title', 'testing content', 0, $2)
+`
+	_, err = db.ExecContext(context.Background(), query, taskID.String(), categoryID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding task: %v\n", err)
+	}
+
+	// create a task instance
+	taskInstanceID := uuid.NewV4()
+	query = `
+INSERT INTO insys_onboarding.onboarding_task_instances
+(id, location_id, title, content, display_order, status, status_updated_at, onboarding_category_id, onboarding_task_id)
+VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
+`
+	_, err = db.ExecContext(context.Background(), query, taskInstanceID.String(), locationID.String(), categoryID.String(), taskID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding task instance: %v\n", err)
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx        context.Context
+		locationID uuid.UUID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []app.TaskInstance
+		wantErr bool
+	}{
+		{
+			name:   "finds existing task instances for a location id",
+			fields: fields{DB: db},
+			args:   args{ctx: context.Background(), locationID: locationID},
+			want: []app.TaskInstance{
+				app.TaskInstance{
+					LocationID: locationID,
+					CategoryID: categoryID,
+					TaskID:     taskID,
+
+					ButtonContent:     null.String{},
+					ButtonExternalURL: null.String{},
+					CompletedAt:       null.Time{},
+					CompletedBy:       null.String{},
+					VerifiedAt:        null.Time{},
+					VerifiedBy:        null.String{},
+					Content:           "testing content",
+					DisplayOrder:      0,
+					Status:            0,
+					StatusUpdatedAt:   time.Now(),
+					StatusUpdatedBy:   null.String{},
+					Title:             "testing title",
+					Explanation:       null.String{},
+
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name:    "attempts to to look up task instances that do not have the requested location id",
+			fields:  fields{DB: db},
+			args:    args{ctx: context.Background(), locationID: uuid.NewV4()},
+			want:    []app.TaskInstance{},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tis := &TaskInstanceService{
+				DB: tt.fields.DB,
+			}
+			got, err := tis.ByLocationID(tt.args.ctx, tt.args.locationID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("TaskInstanceService.ByLocationID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !compareTaskInstances(got, tt.want) {
+				t.Errorf("TaskInstanceService.CreateFromTasks() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
 func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	skipCI(t)
 
@@ -23,24 +136,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	onboarderService := &OnboarderService{DB: db}
 	onboardersLocationService := &OnboardersLocationService{DB: db}
 
-	assignedOnboarderLocationID := uuid.NewV4()
-	unassignedOnboarderLocationID := uuid.NewV4()
-
-	// Clear existing database values
-	clearOnboardersQuery := "DELETE FROM insys_onboarding.onboarders;"
-	db.ExecContext(context.Background(), clearOnboardersQuery)
-
-	clearOnboardersLocationQuery := "DELETE FROM insys_onboarding.onboarders_location;"
-	db.ExecContext(context.Background(), clearOnboardersLocationQuery)
-
-	clearOnboardingTaskInstancesQuery := "DELETE FROM insys_onboarding.onboarding_task_instances;"
-	db.ExecContext(context.Background(), clearOnboardingTaskInstancesQuery)
-
-	clearOnboardingTasksQuery := "DELETE FROM insys_onboarding.onboarding_tasks;"
-	db.ExecContext(context.Background(), clearOnboardingTasksQuery)
-
-	clearOnboardingCategoriesQuery := "DELETE FROM insys_onboarding.onboarding_categories;"
-	db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
+	clearExistingData(db)
 
 	// Setup Database values for test
 	absPath, err := filepath.Abs("../../dbconfig/seed.sql")
@@ -68,6 +164,9 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not create onboarder")
 	}
+
+	assignedOnboarderLocationID := uuid.NewV4()
+	unassignedOnboarderLocationID := uuid.NewV4()
 
 	// assign an onboarder to a location
 	onbl := &app.OnboardersLocation{
@@ -523,79 +622,6 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	}
 }
 
-// Helper function the handle uuid.Parse and throw away the error.
-func mustUUID(u uuid.UUID, err error) uuid.UUID {
-	return u
-}
-
-func compareTaskInstances(a, b []app.TaskInstance) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	sort.Slice(a, func(i, j int) bool { return a[i].DisplayOrder < a[j].DisplayOrder })
-	sort.Slice(b, func(i, j int) bool { return b[i].DisplayOrder < b[j].DisplayOrder })
-
-	for i, _ := range a {
-		if !compareTaskInstance(a[i], b[i]) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func compareTaskInstance(a, b app.TaskInstance) bool {
-	return a.LocationID == b.LocationID &&
-		a.CategoryID == b.CategoryID &&
-		a.TaskID == b.TaskID &&
-		a.ButtonContent == b.ButtonContent &&
-		a.ButtonExternalURL == b.ButtonExternalURL &&
-		a.CompletedBy == b.CompletedBy &&
-		a.VerifiedBy == b.VerifiedBy &&
-		a.Content == b.Content &&
-		a.DisplayOrder == b.DisplayOrder &&
-		a.StatusUpdatedBy == b.StatusUpdatedBy &&
-		a.Title == b.Title &&
-		a.Explanation == b.Explanation
-}
-
-func TestTaskInstanceService_ByLocationID(t *testing.T) {
-	t.Skip("Not implemented yet")
-
-	type fields struct {
-		DB *wsql.PG
-	}
-	type args struct {
-		ctx        context.Context
-		locationID uuid.UUID
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    []app.TaskInstance
-		wantErr bool
-	}{
-	// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			tis := &TaskInstanceService{
-				DB: tt.fields.DB,
-			}
-			got, err := tis.CreateFromTasks(tt.args.ctx, tt.args.locationID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TaskInstanceService.CreateFromTasks() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestTaskInstanceService_Update(t *testing.T) {
 	t.Skip("Not implemented yet")
 
@@ -632,4 +658,41 @@ func TestTaskInstanceService_Update(t *testing.T) {
 			}
 		})
 	}
+}
+
+// musUUID is a helper function that simply returns the value without checking the errors. This is usefule when using uuid.Parse directly in a struct definition.
+func mustUUID(u uuid.UUID, err error) uuid.UUID {
+	return u
+}
+
+func compareTaskInstances(a, b []app.TaskInstance) bool {
+	if len(a) != len(b) {
+		return false
+	}
+
+	sort.Slice(a, func(i, j int) bool { return a[i].DisplayOrder < a[j].DisplayOrder })
+	sort.Slice(b, func(i, j int) bool { return b[i].DisplayOrder < b[j].DisplayOrder })
+
+	for i, _ := range a {
+		if !compareTaskInstance(a[i], b[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func compareTaskInstance(a, b app.TaskInstance) bool {
+	return a.LocationID == b.LocationID &&
+		a.CategoryID == b.CategoryID &&
+		a.TaskID == b.TaskID &&
+		a.ButtonContent == b.ButtonContent &&
+		a.ButtonExternalURL == b.ButtonExternalURL &&
+		a.CompletedBy == b.CompletedBy &&
+		a.VerifiedBy == b.VerifiedBy &&
+		a.Content == b.Content &&
+		a.DisplayOrder == b.DisplayOrder &&
+		a.StatusUpdatedBy == b.StatusUpdatedBy &&
+		a.Title == b.Title &&
+		a.Explanation == b.Explanation
 }

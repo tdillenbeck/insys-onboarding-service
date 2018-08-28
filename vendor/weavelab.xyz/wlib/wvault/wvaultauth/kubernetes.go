@@ -55,7 +55,7 @@ func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token
 
 	if resp.StatusCode >= 300 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, werror.New("auth vault login - unexpected status code").Add("code", resp.StatusCode).Add("body", string(body)).Add("url", url)
+		return nil, werror.New("auth vault login - unexpected status code").Add("code", resp.StatusCode).Add("body", string(body)).Add("url", url).Add("role", role)
 	}
 
 	k := wvault.AuthLoginResponse{}

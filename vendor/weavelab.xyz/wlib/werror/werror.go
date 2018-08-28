@@ -8,28 +8,6 @@ import (
 	"strings"
 )
 
-// ErrorTemplate is a template error message, used to create comparible Errors
-type ErrorTemplate struct {
-	err error
-}
-
-// Template creates a new ErrorTemplate, use Here() to get an error
-func Template(msg string) *ErrorTemplate {
-	return &ErrorTemplate{
-		err: errors.New(msg),
-	}
-}
-
-// Here creates the error and records a stacktrace with optional tags
-func (t *ErrorTemplate) Here(msgs ...string) *Error {
-	return wrap(t.err, msgs)
-}
-
-// Is returns true if the error matches this Template
-func (t *ErrorTemplate) Is(err error) bool {
-	return Is(err, t.err)
-}
-
 // This is a magic error type, which records a stacktrace and optional Tags
 type Error struct {
 	err       error
@@ -198,26 +176,6 @@ func (e StackEntry) String() string {
 	return fmt.Sprintf("%s()\n\t%s:%v", e.Name, e.File, e.Line)
 }
 
-// Wrap wraps an existing error with stacktrace and optional Tags.
-// If the error is already wrapped, just adds tags to it.
-func Wrap(err error, msgs ...string) *Error {
-	if err == nil {
-		// This is BAD! Don't Wrap a nil!
-		// Always do something like:
-		//// if err != nil {
-		////   return werror.Wrap(err).Add(...)...
-		//// }
-
-		err = errors.New("werror.Wrap called with nil error!")
-	}
-	if berr, ok := err.(*Error); ok {
-		berr.messages = append(berr.messages, msgs...)
-		return berr
-	}
-
-	return wrap(err, msgs)
-}
-
 // FinalWrap is used as the last time an error gets wrapped before
 // being returned to the handler, and then the client
 func FinalWrap(err error, code Code, msg string) *Error {
@@ -236,7 +194,13 @@ func FinalWrap(err error, code Code, msg string) *Error {
 
 // New creates a new wrapped error.
 func New(msg string) *Error {
-	return wrap(errors.New(msg), nil)
+	e := &Error{
+		err: errors.New(msg),
+	}
+
+	e.addStack()
+
+	return e
 }
 
 // Is returns true if both unwrapped errors are the same.
@@ -251,16 +215,15 @@ func Cast(err error) *Error {
 	return berr
 }
 
-func wrap(err error, msgs []string) *Error {
+func (e *Error) addStack(offset ...int) {
 	stack := make([]uintptr, 16)
 	// skip 3: runtime.Callers, wrap(), New() or Wrap()
-	l := runtime.Callers(3, stack)
-
-	return &Error{
-		err:      err,
-		stack:    stack[:l],
-		messages: msgs,
+	n := 3
+	if len(offset) > 0 {
+		n += offset[0]
 	}
+	l := runtime.Callers(n, stack)
+	e.stack = stack[:l]
 }
 
 func unwrapError(err error) error {
@@ -270,7 +233,6 @@ func unwrapError(err error) error {
 			err = berr.err
 			continue
 		}
-
 		return err
 	}
 }

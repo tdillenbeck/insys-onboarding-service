@@ -14,6 +14,12 @@ type ConnectString struct {
 	Database string
 	Username string
 	Password string
+
+	DefaultSchema string // common options
+	SSLMode       string
+	Role          string
+
+	Params url.Values // allow arbitrary parameters
 }
 
 func (c *ConnectString) String() string {
@@ -22,16 +28,34 @@ func (c *ConnectString) String() string {
 		return c.connectString
 	}
 
-	applicationName := version.Info().Name
-	if applicationName == "" {
-		applicationName = "unknown"
+	if c.Params == nil {
+		c.Params = url.Values{}
 	}
 
-	v := url.Values{}
-	v.Add("sslmode", "disable")
-	v.Add("application_name", applicationName)
+	if c.DefaultSchema != "" {
+		c.Params.Set("search_path", c.DefaultSchema)
+	}
 
-	q := v.Encode()
+	if c.Params.Get("application_name") == "" {
+		applicationName := version.Info().Name
+		if applicationName == "" {
+			applicationName = "unknown"
+		}
+		c.Params.Set("application_name", applicationName)
+	}
+
+	if c.Params.Get("sslmode") == "" {
+		if c.SSLMode == "" {
+			c.SSLMode = "disable"
+		}
+		c.Params.Set("sslmode", c.SSLMode)
+	}
+
+	if c.Role != "" {
+		c.Params.Set("role", c.Role)
+	}
+
+	q := c.Params.Encode()
 
 	up := url.UserPassword(c.Username, c.Password)
 

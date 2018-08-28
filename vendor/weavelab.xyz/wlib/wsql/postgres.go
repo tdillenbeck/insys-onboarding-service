@@ -8,6 +8,7 @@ package wsql
 import (
 	"database/sql"
 	"math/rand"
+	"net/url"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -71,7 +72,15 @@ func New(s *Settings) (*PG, error) {
 		tracer:     t,
 	}
 
-	err = p.setupDatabase(s)
+	if s.PrimaryConnectString.Params == nil {
+		s.PrimaryConnectString.Params = url.Values{}
+	}
+
+	if s.ReplicaConnectString.Params == nil {
+		s.ReplicaConnectString.Params = url.Values{}
+	}
+
+	err = p.SetupDatabase(s)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +88,11 @@ func New(s *Settings) (*PG, error) {
 	return &p, nil
 }
 
-func (p *PG) setupDatabase(s *Settings) error {
+// SetupDatabase sets up wsql.PG and connects to the proper database and replicas
+// Most callers should use the New factory function as proper defaults will be set automatically
+// However, in order to embed and extend wsql.PG in another struct this function may be called manually
+// Settings must be constructed manually, improper settings are not checked and may cause a panic
+func (p *PG) SetupDatabase(s *Settings) error {
 	p.setupLock.Lock()
 	defer p.setupLock.Unlock()
 
@@ -255,7 +268,7 @@ func (p *PG) UpdateCredentials(username string, password string) error {
 	p.settings.ReplicaConnectString.Username = username
 	p.settings.ReplicaConnectString.Password = password
 
-	err := p.setupDatabase(p.settings)
+	err := p.SetupDatabase(p.settings)
 	if err != nil {
 		return werror.Wrap(err, "unable to update connection strings")
 	}

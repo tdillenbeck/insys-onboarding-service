@@ -49,7 +49,7 @@ func (p *PG) Insert(ctx context.Context, table string, record interface{}) error
 
 	_, err = p.ExecContext(ctx, query, values...)
 	if err != nil {
-		return werror.Wrap(err, "unable to insert")
+		return werror.Wrap(wrapError(err), "unable to insert")
 	}
 
 	return nil

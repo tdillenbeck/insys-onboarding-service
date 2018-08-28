@@ -25,13 +25,13 @@ func (p *PG) DeleteRow(ctx context.Context, table string, key string, id string)
 		result, err = tx.ExecContext(ctx, q, key, id)
 		if err != nil {
 			_ = tx.Rollback()
-			return 0, werror.Wrap(err, "error exec query")
+			return 0, werror.Wrap(wrapError(err), "error exec query")
 		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return 0, werror.Wrap(err, "error committing tx")
+		return 0, werror.Wrap(wrapError(err), "error committing tx")
 	}
 
 	return result.RowsAffected()

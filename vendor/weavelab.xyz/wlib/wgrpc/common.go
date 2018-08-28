@@ -2,12 +2,14 @@ package wgrpc
 
 import (
 	"context"
+	"reflect"
 
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wlog"
+	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"weavelab.xyz/wlib/werror"
+	"weavelab.xyz/wlib/wlog"
 )
 
 type direction int
@@ -135,14 +137,13 @@ func Error(code Code, werr *werror.Error) error {
 	class := ErrorClass(codes.Code(code))
 	switch class {
 	case Success, ClientError:
-		return status.Error(codes.Code(code), werr.Error())
-
+		// don't log
 	case ServerError:
+		// log the error
+		wlog.WError(werr.Add("code", code))
 	default:
+		wlog.WError(werr.Add("code", code))
 	}
-
-	// log the error and return
-	wlog.WError(werr.Add("code", code))
 
 	return status.Error(codes.Code(code), werr.Error())
 }
@@ -156,7 +157,16 @@ func IsCode(code Code, err error) bool {
 	return codes.Code(code) == status.Code()
 }
 
-func Wrap(err error, message string) *werror.Error {
+func init() {
+	werror.RegisterWrapper(reflect.TypeOf(&spb.Status{}), wrap)
+	werror.RegisterWrapperString("*status.statusError", wrap) // type returned from gRPC client
+}
+
+// this is deprecated, should use werror.Wrap
+var Wrap = werror.Wrap
+
+// convert a grpc error to a werror
+func wrap(werr *werror.Error, err error) *werror.Error {
 
 	code := codes.Unknown
 	status, ok := status.FromError(err)
@@ -164,7 +174,7 @@ func Wrap(err error, message string) *werror.Error {
 		code = status.Code()
 	}
 
-	w := werror.Wrap(err, message).SetCode(werror.Code(code))
+	w := werr.SetCode(werror.Code(code))
 
 	return w
 }

@@ -135,5 +135,9 @@ var isGoTest = func() bool {
 		return true
 	}
 
+	if strings.HasSuffix(os.Args[0], ".test") {
+		return true
+	}
+
 	return false
 }()

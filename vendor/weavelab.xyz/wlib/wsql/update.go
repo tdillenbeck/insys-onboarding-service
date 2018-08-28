@@ -31,7 +31,7 @@ func (p *PG) Update(ctx context.Context, table string, idCol string, id string, 
 
 	res, err := p.NamedExecContext(ctx, query, values)
 	if err != nil {
-		return 0, err
+		return 0, wrapError(err)
 	}
 
 	return res.RowsAffected()

@@ -33,14 +33,13 @@ WHERE location_id = $1
 	defer rows.Close()
 
 	for rows.Next() {
-		var taskInstanceID, locationID, categoryID, taskID string
 		var taskInstance app.TaskInstance
 
 		err := rows.Scan(
-			&taskInstanceID,
-			&locationID,
-			&categoryID,
-			&taskID,
+			&taskInstance.ID,
+			&taskInstance.LocationID,
+			&taskInstance.CategoryID,
+			&taskInstance.TaskID,
 			&taskInstance.CompletedAt,
 			&taskInstance.CompletedBy,
 			&taskInstance.VerifiedAt,
@@ -60,30 +59,6 @@ WHERE location_id = $1
 		if err != nil {
 			return nil, werror.Wrap(err, "failed to scan onboarding taskInstances")
 		}
-
-		taskInstanceUUID, err := uuid.Parse(taskInstanceID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse task instance id into uuid")
-		}
-		taskInstance.ID = taskInstanceUUID
-
-		locationUUID, err := uuid.Parse(locationID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse location id into uuid")
-		}
-		taskInstance.LocationID = locationUUID
-
-		categoryUUID, err := uuid.Parse(categoryID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse category id into uuid")
-		}
-		taskInstance.CategoryID = categoryUUID
-
-		taskUUID, err := uuid.Parse(taskID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse task id into uuid")
-		}
-		taskInstance.TaskID = taskUUID
 
 		taskInstances = append(taskInstances, taskInstance)
 	}
@@ -144,14 +119,13 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 	defer rows.Close()
 
 	for rows.Next() {
-		var taskInstanceID, locationID, categoryID, taskID string
 		var taskInstance app.TaskInstance
 
 		err := rows.Scan(
-			&taskInstanceID,
-			&locationID,
-			&categoryID,
-			&taskID,
+			&taskInstance.ID,
+			&taskInstance.LocationID,
+			&taskInstance.CategoryID,
+			&taskInstance.TaskID,
 			&taskInstance.CompletedAt,
 			&taskInstance.CompletedBy,
 			&taskInstance.VerifiedAt,
@@ -171,30 +145,6 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 		if err != nil {
 			return nil, werror.Wrap(err, "failed to scan onboarding taskInstances")
 		}
-
-		taskInstanceUUID, err := uuid.Parse(taskInstanceID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse task instance id into uuid")
-		}
-		taskInstance.ID = taskInstanceUUID
-
-		locationUUID, err := uuid.Parse(locationID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse location id into uuid")
-		}
-		taskInstance.LocationID = locationUUID
-
-		categoryUUID, err := uuid.Parse(categoryID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse category id into uuid")
-		}
-		taskInstance.CategoryID = categoryUUID
-
-		taskUUID, err := uuid.Parse(taskID)
-		if err != nil {
-			return nil, werror.Wrap(err, "failed to parse task id into uuid")
-		}
-		taskInstance.TaskID = taskUUID
 
 		taskInstances = append(taskInstances, taskInstance)
 	}

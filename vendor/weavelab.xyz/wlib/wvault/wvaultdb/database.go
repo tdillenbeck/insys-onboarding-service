@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -32,7 +33,7 @@ func init() {
 func New(ctx context.Context, role string, target string, s *wsql.Settings) (*wsql.PG, error) {
 
 	// get database credentials lease
-	c, err := CreateCredentials(ctx, role, target)
+	c, err := createCredentials(ctx, role, target)
 	if err != nil {
 		return nil, werror.Wrap(err)
 	}
@@ -43,6 +44,10 @@ func New(ctx context.Context, role string, target string, s *wsql.Settings) (*ws
 	s.PrimaryConnectString.Password = c.Password()
 	s.ReplicaConnectString.Username = c.Username()
 	s.ReplicaConnectString.Password = c.Password()
+
+	dbRole := strings.TrimPrefix(target, "db_")
+	s.PrimaryConnectString.Role = dbRole
+	s.ReplicaConnectString.Role = dbRole
 
 	db, err := wsql.New(s)
 	if err != nil {
@@ -57,7 +62,7 @@ func New(ctx context.Context, role string, target string, s *wsql.Settings) (*ws
 }
 
 // VaultDBCredentials looks up database credentials assigned to the given role
-func CreateCredentials(ctx context.Context, role string, target string) (*Creator, error) {
+func createCredentials(ctx context.Context, role string, target string) (*Creator, error) {
 
 	client, err := wvault.New(ctx)
 	if err != nil {
@@ -154,7 +159,7 @@ func (c *Creator) createCredentials(ctx context.Context) error {
 
 	if resp.StatusCode >= 300 {
 		body, _ := ioutil.ReadAll(resp.Body)
-		return werror.New("unable to load database credentials").Add("code", resp.StatusCode).Add("Body", string(body)).Add("url", url)
+		return werror.New("unable to load database credentials").Add("code", resp.StatusCode).Add("Body", string(body)).Add("url", url).Add("target", c.target)
 	}
 	cr := wvaulttypes.CredentialsResponse{}
 	err = json.NewDecoder(resp.Body).Decode(&cr)

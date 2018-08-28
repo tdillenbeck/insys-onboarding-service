@@ -18,8 +18,11 @@ const (
 	RequestIDTag      = "RequestID"
 	HTTPURLPatternTag = "Pattern"
 
+	MaxLogFieldSize = 64000
+
 	lowerBoundSamplingRate = 10.0 / 60 // at least once every a minute
 	samplingRate           = 0.001     // random sampling rate
+
 )
 
 type (
