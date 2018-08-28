@@ -23,6 +23,7 @@ package uuid
 
 import (
 	"bytes"
+	"database/sql/driver"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -259,4 +260,40 @@ func formatter(pUUID UUID, pFormat string) string {
 
 func (u UUID) IsEmpty() bool {
 	return u[6]&0xf0 == 0
+}
+
+func (u UUID) Value() (driver.Value, error) {
+	return u.String(), nil
+}
+
+func (u *UUID) Scan(src interface{}) error {
+	switch src := src.(type) {
+	case []byte:
+		if len(src) == 16 {
+			err := UnmarshalBinary(u, src)
+			if err != nil {
+				return err
+			}
+		} else {
+			tmp, err := Parse(string(src))
+			if err != nil {
+				return err
+			}
+
+			*u = tmp
+
+			return nil
+		}
+	case string:
+		tmp, err := Parse(src)
+		if err != nil {
+			return err
+		}
+
+		*u = tmp
+
+		return nil
+	}
+
+	return errors.New("unable to scan uuid")
 }

@@ -7,6 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
+	"weavelab.xyz/wlib/werror"
 )
 
 var (
@@ -23,37 +24,59 @@ var (
 	MaxConnectionIdle     = time.Minute * 10
 )
 
-var (
-	tracingMiddleware, _ = NewUnaryTracerInterceptor(nil)
+func defaultUnaryMiddleware() ([]grpc.UnaryServerInterceptor, error) {
 
-	defaultUnaryMiddleware = []grpc.UnaryServerInterceptor{
+	tracingMiddleware, err := NewUnaryTracerInterceptor(nil)
+	if err != nil {
+		return nil, werror.Wrap(err, "unable to load default unary middleware").SetCode(werror.CodeInternal)
+	}
+
+	m := []grpc.UnaryServerInterceptor{
 		UnaryPanicRecover,
 		UnaryRequestID,
 		UnaryLogging,
 		UnaryStats,
 		tracingMiddleware,
 	}
-	defaultStreamingMiddleware = []grpc.StreamServerInterceptor{
+
+	return m, nil
+}
+
+func defaultStreamingMiddleware() ([]grpc.StreamServerInterceptor, error) {
+	m := []grpc.StreamServerInterceptor{
 		StreamPanicRecover,
 		StreamRequestID,
 		StreamLogging,
 		StreamStats,
 	}
-)
+
+	return m, nil
+}
 
 // NewDefault just gives you a new server with the default middleware
-func NewDefault(opt ...grpc.ServerOption) *grpc.Server {
+func NewDefault(opt ...grpc.ServerOption) (*grpc.Server, error) {
 	return New(nil, nil, opt...)
 }
 
 // New creates a new gRPC server with the default middleware and any other middleware passed in. The defaults are added after the custom ones passed in.
-func New(unaryMiddleWare []grpc.UnaryServerInterceptor, streamMiddleware []grpc.StreamServerInterceptor, opt ...grpc.ServerOption) *grpc.Server {
+func New(unaryMiddleware []grpc.UnaryServerInterceptor, streamMiddleware []grpc.StreamServerInterceptor, opt ...grpc.ServerOption) (*grpc.Server, error) {
 
 	//Add list of passed in middlewares to defaults
-	unaryMiddleWare = append(defaultUnaryMiddleware, unaryMiddleWare...)
-	streamMiddleware = append(defaultStreamingMiddleware, streamMiddleware...)
 
-	opt = append(opt, grpc_middleware.WithUnaryServerChain(unaryMiddleWare...), grpc_middleware.WithStreamServerChain(streamMiddleware...))
+	defaultUnaryM, err := defaultUnaryMiddleware()
+	if err != nil {
+		return nil, werror.Wrap(err)
+	}
+
+	defaultStreamingM, err := defaultStreamingMiddleware()
+	if err != nil {
+		return nil, werror.Wrap(err)
+	}
+
+	unaryMiddleware = append(defaultUnaryM, unaryMiddleware...)
+	streamMiddleware = append(defaultStreamingM, streamMiddleware...)
+
+	opt = append(opt, grpc_middleware.WithUnaryServerChain(unaryMiddleware...), grpc_middleware.WithStreamServerChain(streamMiddleware...))
 
 	// https://godoc.org/google.golang.org/grpc/keepalive#ServerParameters
 	keepaliveOpt := grpc.KeepaliveParams(keepalive.ServerParameters{
@@ -75,7 +98,7 @@ func New(unaryMiddleWare []grpc.UnaryServerInterceptor, streamMiddleware []grpc.
 
 	reflection.Register(s)
 
-	return s
+	return s, nil
 }
 
 // NewVanilla creates a gRPC server without the default middleware.

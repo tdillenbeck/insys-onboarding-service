@@ -60,13 +60,14 @@ func autoRenew(ctx context.Context, s Secret) (bool, error) {
 	recreated := false
 	if p != nil {
 		var err error
+		// test the parent secret to see if it needs
+		// to be renewed
 		recreated, err = autoRenew(ctx, p)
 		if err != nil {
 			return false, werror.Wrap(err)
 		}
 	}
 
-	// only refresh if it is expiring soon?
 	if time.Until(s.Expiration()) > refreshIfSoonerThan {
 		return false, nil
 	}

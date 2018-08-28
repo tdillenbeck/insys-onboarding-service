@@ -16,7 +16,6 @@ type CategoryService struct {
 }
 
 func (s *CategoryService) ByID(ctx context.Context, id uuid.UUID) (*app.Category, error) {
-	var catID string
 	var category app.Category
 
 	query := `
@@ -27,7 +26,7 @@ WHERE id = $1
 `
 	row := s.DB.QueryRowContext(ctx, query, id.String())
 	err := row.Scan(
-		&catID,
+		&category.ID,
 		&category.DisplayText,
 		&category.DisplayOrder,
 		&category.CreatedAt,
@@ -40,12 +39,6 @@ WHERE id = $1
 			return nil, werror.Wrap(err, "error querying Category")
 		}
 	}
-
-	categoryUUID, err := uuid.Parse(catID)
-	if err != nil {
-		return nil, werror.Wrap(err, "error parsing uuid from database into wlib/uuid")
-	}
-	category.ID = categoryUUID
 
 	return &category, nil
 }

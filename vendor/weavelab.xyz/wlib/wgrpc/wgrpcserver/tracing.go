@@ -7,13 +7,13 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 	"github.com/opentracing/opentracing-go/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"weavelab.xyz/wlib/wcontext"
 	"weavelab.xyz/wlib/werror"
 	"weavelab.xyz/wlib/wgrpc"
 	"weavelab.xyz/wlib/wlog"
 	"weavelab.xyz/wlib/wtracer"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func NewUnaryTracerInterceptor(tracer opentracing.Tracer) (grpc.UnaryServerInterceptor, error) {
@@ -70,7 +70,11 @@ func openTracingServerInterceptor(tracer opentracing.Tracer) grpc.UnaryServerInt
 		}
 
 		if logPayloads {
-			serverSpan.LogFields(log.String("gRPC.response", marshalJSON(resp)))
+			out := marshalJSON(resp)
+			if len(out) > wtracer.MaxLogFieldSize {
+				out = "body too large"
+			}
+			serverSpan.LogFields(log.String("gRPC.response", out))
 		}
 
 		wgrpc.SetSpanTags(serverSpan, err, false)

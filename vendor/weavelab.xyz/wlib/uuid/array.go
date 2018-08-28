@@ -60,7 +60,10 @@ func (o *UUID) UnmarshalJSON(pData []byte) error {
 	return nil
 }
 
-func (o *UUID) Bytes() []byte {
+// This cannont be a pointer receiver,
+// returned bytes slice will get reused
+// if embedded in a for range loop
+func (o UUID) Bytes() []byte {
 	return o[:]
 }
 
