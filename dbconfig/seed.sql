@@ -44,14 +44,14 @@
     default
   );
 
-
-
 -- Tasks
+-- INSERT INTO insys_onboarding.onboarding_tasks VALUES (id, title, content, display_order, created_at, updated_at, onboarding_category_id, button_content, button_external_url);
+
 -- Software Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '16a6dc91-ec6b-4b09-b591-a5b0dfa92932', -- id
     'Sync your patient data to Weave', -- title
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> On this scheduled call, we will help get your patient or customer database syncing with Weave. This will allow you to start using many of Weave''s software features.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30-60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> We may need to access your office server - so make sure you have access to that computer and the right login information.</div>',
+    'In order to start using all our software features, we need to sync your patient data to Weave. Typically, we will do this by installing a sync application on your office server - so make sure you have access to that computer and the right login information. If your practice management system is cloud-based, we will instead walk you through how to generate the credentials we need. Click below to schedule a 30-60 minute phone call with a Weave technician.', -- content
     2, -- display_order
     default, -- created_at
     default, -- updated_at
@@ -61,7 +61,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Sync your patient data to Weave', -- title
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> On this scheduled call, we will help get your patient or customer database syncing with Weave. This will allow you to start using many of Weave''s software features.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30-60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> We may need to access your office server - so make sure you have access to that computer and the right login information.</div>',
+    'In order to start using all our software features, we need to sync your patient data to Weave. Typically, we will do this by installing a sync application on your office server - so make sure you have access to that computer and the right login information. If your practice management system is cloud-based, we will instead walk you through how to generate the credentials we need. Click below to schedule a 30-60 minute phone call with a Weave technician.', -- content
     2, -- display_order
     default, -- created_at
     default, -- updated_at
@@ -69,11 +69,10 @@
     'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365' -- button_external_url
   );
 
-
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '720af494-38a4-499f-8633-9c8d5169cd43', -- id
     'Install Weave on other workstations in your office', -- title
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of Weave on other workstations in your office. Installing Weave on more workstations will help you make the most of features like Team Chat and two-way texting.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 5 minutes per workstation</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Use the link below to download Weave throughout your office - if you need help, just let us know!</div>',
+    'In order to make the most of features like Team Chat and two-way text messaging, we recommend installing Weave on most workstations throughout your office. Click below to find helpful instructions to download Weave throughout your office.', -- content
     5, -- display_order
     default, -- created_at
     default, -- updated_at
@@ -83,7 +82,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Install Weave on other workstations in your office', -- title
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of Weave on other workstations in your office. Installing Weave on more workstations will help you make the most of features like Team Chat and two-way texting.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 5 minutes per workstation</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Use the link below to download Weave throughout your office - if you need help, just let us know!</div>',
+    'In order to make the most of features like Team Chat and two-way text messaging, we recommend installing Weave on most workstations throughout your office. Click below to find helpful instructions to download Weave throughout your office.', -- content
     5, -- display_order
     default, -- created_at
     default, -- updated_at
@@ -94,29 +93,28 @@
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     'c20b65d8-e281-4e62-98f0-4aebf83e0bee',
     'Watch our helpful software training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    'In order to get the most out of the Weave software, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up and using two-way texting, automated appointment reminders, and all our other features. Click below to watch our online webinars',
     6,
     default,
     default,
     '26ba2237-c452-42dd-95ca-a5e59dd2853b',
     'Watch Videos',
-    'http://www.weavehelp.com/webinar-on-demand/'
+    'http://www.weavehelp.com/webinar-registration-page/'
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Watch our helpful software training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    'In order to get the most out of the Weave software, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up and using two-way texting, automated appointment reminders, and all our other features. Click below to watch our online webinars',
     6,
     default,
     default,
     'Watch Videos',
-    'http://www.weavehelp.com/webinar-on-demand/'
+    'http://www.weavehelp.com/webinar-registration-page/'
   );
-
 
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '1120842a-a24b-40e8-b29e-0e05e89af99f',
     'Install the Weave mobile app',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of our mobile app on your phone. Our mobile app is a great tool to see your schedule, field office calls, and chat with your team - all on-the-go, whenever you need access.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 3-5 minutes</div>',
+    'In order to see your schedule, field calls, and chat with your team all on the go, we recommend installing the Weave app on your mobile device. Click below to find helpful instructions to download Weave on your phone.',
     7,
     default,
     default,
@@ -126,20 +124,19 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Install the Weave mobile app',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of our mobile app on your phone. Our mobile app is a great tool to see your schedule, field office calls, and chat with your team - all on-the-go, whenever you need access.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 3-5 minutes</div>',
+    'In order to see your schedule, field calls, and chat with your team all on the go, we recommend installing the Weave app on your mobile device. Click below to find helpful instructions to download Weave on your phone.',
     7,
     default,
     default,
     'Learn How',
     'http://www.weavehelp.com/weave-mobile-app/'
   );
-
 
 -- Phone Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '7b15e061-8002-4edc-9bf4-f38c6eec6364',
     'Check your office network to ensure compatibility',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
+    'In order to ensure the highest quality phone service on Weave''s internet-based phones, we need to verify your network compatibility. Click below to schedule a 15 minute phone call with a Weave technician. <a href="http://www.weavehelp.com/network-specs">Learn More</a>',
     3,
     default,
     default,
@@ -149,7 +146,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Check your office network to ensure compatibility',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
+    'In order to ensure the highest quality phone service on Weave''s internet-based phones, we need to verify your network compatibility. Click below to schedule a 15 minute phone call with a Weave technician. <a href="http://www.weavehelp.com/network-specs">Learn More</a>',
     3,
     default,
     default,
@@ -157,11 +154,10 @@
     'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365'
   );
 
-
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     'fd4f656c-c9f1-47b8-96ad-3080b999a843',
     'Install your new phones',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
+    'You''re making great progress! Click below to schedule a 60 minute phone call with a Weave technician who will guide you through the process of connecting the new phones. Typically, we will aim to help you plug the new phones in side-by-side with your old phones. After finishing, you will continue to use your old phones while we work with your current phone service provider for a few days to officially move your phone numbers to our system. <a href="http://www.weavehelp.com/phone-install">Learn more.</a>',
     8,
     default,
     default,
@@ -171,41 +167,39 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Install your new phones',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
+    'You''re making great progress! Click below to schedule a 60 minute phone call with a Weave technician who will guide you through the process of connecting the new phones. Typically, we will aim to help you plug the new phones in side-by-side with your old phones. After finishing, you will continue to use your old phones while we work with your current phone service provider for a few days to officially move your phone numbers to our system. <a href="http://www.weavehelp.com/phone-install">Learn more.</a>',
     8,
     default,
     default,
     'Schedule Call',
     'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=category:Installs'
   );
-
 
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '47743fae-c775-45d5-8a51-dc7e3371dfa4',
     'Watch our helpful phone training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features of your new phone system, including voicemail and auto-attendant setup, transferring calls, placing callers on hold, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    'In order to get the most out of the Weave phones, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up voicemail messages, placing callers on hold, transferring calls, and all our other phone features. Click below to watch our online webinars.',
     9,
     default,
     default,
     'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
     'Watch Videos',
-    'http://www.weavehelp.com/webinar-on-demand/'
+    'http://www.weavehelp.com/webinar-registration-page/'
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Watch our helpful phone training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features of your new phone system, including voicemail and auto-attendant setup, transferring calls, placing callers on hold, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    'In order to get the most out of the Weave phones, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up voicemail messages, placing callers on hold, transferring calls, and all our other phone features. Click below to watch our online webinars.',
     9,
     default,
     default,
     'Watch Videos',
-    'http://www.weavehelp.com/webinar-on-demand/'
+    'http://www.weavehelp.com/webinar-registration-page/'
   );
-
 
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '2d2df285-9211-48fc-a057-74f7dee2d9a4',
     'Customize your phone system',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~30 minutes</div>',
+    'In order to have the best experience with your new phones, we recommend customizing the system to suit your needs. Your onboarding agent will help you change which phones ring when a call comes in, adjust the names and extensions on each phone, and set up any advanced call routing or auto attendant you may need. Click below to schedule a call.',
     10,
     default,
     default,
@@ -215,20 +209,19 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Customize your phone system',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~30 minutes</div>',
+    'In order to have the best experience with your new phones, we recommend customizing the system to suit your needs. Your onboarding agent will help you change which phones ring when a call comes in, adjust the names and extensions on each phone, and set up any advanced call routing or auto attendant you may need. Click below to schedule a call.',
     10,
     default,
     default,
     'Schedule Call',
     'https://getweave.chilipiper.com/book/customization-calls'
   );
-
 
 -- Porting Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '9aec502b-f8b8-4f10-9748-1fe4050eacde',
     'Verify your phone numbers',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarder will help to identify key information about your current phone service account. This will ensure that when your office is ready to start using the new phones, we''re ready to activate them.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~15 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> You''ll want to verify all your office phone numbers prior to this call, and have your most recent phone bill handy.</div>',
+    'One of your first steps is to work with your onboarding agent to verify your office phone numbers. Your onboarding agent will then handle some initial processing with your current phone service provider to ensure that when your office is ready to start using the new phones, we are ready to activate them for you. Click below to schedule a call with your onboarding agent.',
     4,
     default,
     default,
@@ -238,7 +231,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Verify your phone numbers',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarder will help to identify key information about your current phone service account. This will ensure that when your office is ready to start using the new phones, we''re ready to activate them.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~15 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> You''ll want to verify all your office phone numbers prior to this call, and have your most recent phone bill handy.</div>',
+    'One of your first steps is to work with your onboarding agent to verify your office phone numbers. Your onboarding agent will then handle some initial processing with your current phone service provider to ensure that when your office is ready to start using the new phones, we are ready to activate them for you. Click below to schedule a call with your onboarding agent.',
     4,
     default,
     default,
