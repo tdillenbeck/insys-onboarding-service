@@ -35,9 +35,9 @@ WHERE id = $1
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
-		} else {
-			return nil, werror.Wrap(err, "error querying Category")
 		}
+
+		return nil, werror.Wrap(err, "error querying Category")
 	}
 
 	return &category, nil
