@@ -3,7 +3,6 @@ package wsql
 import (
 	"context"
 	"database/sql"
-	"strings"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -58,13 +57,7 @@ func (p *PG) NamedExecContext(ctx context.Context, query string, args interface{
 func (p *PG) NamedQueryContext(ctx context.Context, query string, args interface{}) (*sqlx.Rows, error) {
 	stop := p.middleware(ctx, query, args)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	result, err := db.NamedQueryContext(ctx, query, args)
+	result, err := p.r().NamedQueryContext(ctx, query, args)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -75,13 +68,7 @@ func (p *PG) NamedQueryContext(ctx context.Context, query string, args interface
 func (p *PG) QueryContext(ctx context.Context, query string, args ...interface{}) (*sql.Rows, error) {
 	stop := p.middleware(ctx, query, args...)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	result, err := db.QueryContext(ctx, query, args...)
+	result, err := p.r().QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, wrapError(err)
 	}
@@ -92,25 +79,13 @@ func (p *PG) QueryContext(ctx context.Context, query string, args ...interface{}
 func (p *PG) QueryxContext(ctx context.Context, query string, args ...interface{}) (*sqlx.Rows, error) {
 	stop := p.middleware(ctx, query, args...)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	return db.QueryxContext(ctx, query, args...)
+	return p.r().QueryxContext(ctx, query, args...)
 }
 
 func (p *PG) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	stop := p.middleware(ctx, query, args...)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	row := db.QueryRowContext(ctx, query, args...)
+	row := p.r().QueryRowContext(ctx, query, args...)
 
 	return row
 }
@@ -118,13 +93,7 @@ func (p *PG) QueryRowContext(ctx context.Context, query string, args ...interfac
 func (p *PG) QueryRowxContext(ctx context.Context, query string, args ...interface{}) *sqlx.Row {
 	stop := p.middleware(ctx, query, args...)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	row := db.QueryRowxContext(ctx, query, args...)
+	row := p.r().QueryRowxContext(ctx, query, args...)
 
 	return row
 }
@@ -132,33 +101,10 @@ func (p *PG) QueryRowxContext(ctx context.Context, query string, args ...interfa
 func (p *PG) SelectContext(ctx context.Context, dest interface{}, query string, args ...interface{}) error {
 	stop := p.middleware(ctx, query, args...)
 	defer stop()
-
-	db := p.r()
-	if isPrimary(query) {
-		db = p.rw()
-	}
-
-	err := db.SelectContext(ctx, dest, query, args...)
+	err := p.r().SelectContext(ctx, dest, query, args...)
 	if err != nil {
 		return wrapError(err)
 	}
 
 	return nil
-}
-
-func isPrimary(q string) bool {
-
-	if strings.HasPrefix(q, "INSERT INTO ") {
-		return true
-	}
-
-	if strings.HasPrefix(q, "UPDATE ") {
-		return true
-	}
-
-	if strings.HasPrefix(q, "DELETE FROM ") {
-		return true
-	}
-
-	return false
 }

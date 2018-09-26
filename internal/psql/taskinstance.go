@@ -106,7 +106,13 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 	FROM insys_onboarding.onboarding_tasks
 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at;
 `
-	rows, err := t.DB.QueryContext(ctx, query, locationID.String())
+	// Use a transaction to force the query to be performed against the primary database
+	tx, err := t.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a transaction")
+	}
+	rows, err := tx.QueryContext(ctx, query, locationID.String())
+	defer tx.Commit()
 	if err != nil {
 		return nil, werror.Wrap(err, "error exectuting create task instances from tasks query")
 	}
@@ -174,20 +180,27 @@ func (t *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status i
 	var taskInstance app.TaskInstance
 	var row *sql.Row
 
+	// Use a transaction to force the query to be performed against the primary database
+	tx, err := t.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a database transaction")
+	}
+	defer tx.Commit()
+
 	switch status {
 	case 0: // waiting on customer
-		row = t.DB.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
+		row = tx.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
 	case 1: // waiting on weave
-		row = t.DB.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
+		row = tx.QueryRowContext(ctx, defaultUpdateQuery, status, time.Now(), statusUpdatedBy, id.String())
 	case 2: // completed
-		row = t.DB.QueryRowContext(ctx, completedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
+		row = tx.QueryRowContext(ctx, completedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
 	case 3: // verified
-		row = t.DB.QueryRowContext(ctx, verifiedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
+		row = tx.QueryRowContext(ctx, verifiedUpdateQuery, status, time.Now().UTC(), statusUpdatedBy, id.String())
 	default:
 		return nil, werror.New("Cannot update task instance. Not a valid status. Valid paremeters are 0, 1, 2, or 3")
 	}
 
-	err := row.Scan(
+	err = row.Scan(
 		&taskInstanceID,
 		&locationID,
 		&categoryID,
@@ -243,6 +256,14 @@ func (t *TaskInstanceService) UpdateExplanation(ctx context.Context, id uuid.UUI
 	var taskInstanceID, locationID, categoryID, taskID string
 
 	var taskInstance app.TaskInstance
+	var row *sql.Row
+
+	// Use a transaction to force the query to be performed against the primary database
+	tx, err := t.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a database transaction")
+	}
+	defer tx.Commit()
 
 	query := `
 UPDATE insys_onboarding.onboarding_task_instances
@@ -250,9 +271,9 @@ SET explanation=$1, updated_at=$2
 WHERE id=$3
 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
-	row := t.DB.QueryRowContext(ctx, query, explanation, time.Now(), id.String())
+	row = tx.QueryRowContext(ctx, query, explanation, time.Now(), id.String())
 
-	err := row.Scan(
+	err = row.Scan(
 		&taskInstanceID,
 		&locationID,
 		&categoryID,
