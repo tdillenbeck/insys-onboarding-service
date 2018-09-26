@@ -19,13 +19,6 @@ func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *ap
 	var id, onboarderID, location string
 	var onboardersLocation app.OnboardersLocation
 
-	// Use a transaction to force the query to be performed against the primary database
-	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
-	if err != nil {
-		return nil, werror.Wrap(err, "error opening a database transaction")
-	}
-	defer tx.Commit()
-
 	query := `
 INSERT INTO insys_onboarding.onboarders_location
 	(id, onboarder_id, location_id, created_at, updated_at)
@@ -35,8 +28,8 @@ ON CONFLICT(location_id) DO UPDATE SET
 RETURNING id, onboarder_id, location_id, created_at, updated_at;
 `
 
-	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
-	err = row.Scan(
+	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
+	err := row.Scan(
 		&id,
 		&onboarderID,
 		&location,
@@ -90,9 +83,9 @@ WHERE location_id = $1
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
-		} else {
-			return nil, werror.Wrap(err, "error selecting onboarders location by location id")
 		}
+
+		return nil, werror.Wrap(err, "error selecting onboarders location by location id")
 	}
 
 	onboardersLocationUUID, err := uuid.Parse(id)

@@ -30,20 +30,36 @@ func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
 	return conn
 }
 
-func clearExistingData(db *wsql.PG) {
+func clearExistingData(t *testing.T, db *wsql.PG) {
 	// Clear existing database values
-	clearOnboardersQuery := "DELETE FROM insys_onboarding.onboarders;"
-	db.ExecContext(context.Background(), clearOnboardersQuery)
 
 	clearOnboardersLocationQuery := "DELETE FROM insys_onboarding.onboarders_location;"
-	db.ExecContext(context.Background(), clearOnboardersLocationQuery)
+	_, err := db.ExecContext(context.Background(), clearOnboardersLocationQuery)
+	if err != nil {
+		t.Fatalf("could not delete onboarders_location. error: %v\n", err)
+	}
+
+	clearOnboardersQuery := "DELETE FROM insys_onboarding.onboarders;"
+	_, err = db.ExecContext(context.Background(), clearOnboardersQuery)
+	if err != nil {
+		t.Fatalf("could not delete onboarders. error: %v\n", err)
+	}
 
 	clearOnboardingTaskInstancesQuery := "DELETE FROM insys_onboarding.onboarding_task_instances;"
-	db.ExecContext(context.Background(), clearOnboardingTaskInstancesQuery)
+	_, err = db.ExecContext(context.Background(), clearOnboardingTaskInstancesQuery)
+	if err != nil {
+		t.Fatalf("could not delete onboarding_task_instances. error: %v\n", err)
+	}
 
 	clearOnboardingTasksQuery := "DELETE FROM insys_onboarding.onboarding_tasks;"
-	db.ExecContext(context.Background(), clearOnboardingTasksQuery)
+	_, err = db.ExecContext(context.Background(), clearOnboardingTasksQuery)
+	if err != nil {
+		t.Fatalf("could not delete onboarding_tasks. error: %v\n", err)
+	}
 
 	clearOnboardingCategoriesQuery := "DELETE FROM insys_onboarding.onboarding_categories;"
-	db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
+	_, err = db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
+	if err != nil {
+		t.Fatalf("could not delete onboarding_categories. error: %v\n", err)
+	}
 }

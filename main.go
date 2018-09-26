@@ -70,20 +70,7 @@ func main() {
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return
-	wlog.Info("done")
-}
-
-func onboardingGrpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
-	return func() (*cgrpc.Server, error) {
-		gs, err := wgrpcserver.NewDefault()
-		if err != nil {
-			wapp.Exit(werror.Wrap(err, "error getting a new default wgrpc server"))
-		}
-
-		insys.RegisterOnboardingServer(gs, s)
-
-		return gs, nil
-	}
+	wlog.InfoC(ctx, "done")
 }
 
 func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
