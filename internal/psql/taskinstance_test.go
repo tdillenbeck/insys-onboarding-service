@@ -4,7 +4,6 @@ import (
 	"context"
 	"io/ioutil"
 	"path/filepath"
-	"reflect"
 	"sort"
 	"testing"
 	"time"
@@ -623,7 +622,48 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 }
 
 func TestTaskInstanceService_Update(t *testing.T) {
-	t.Skip("Not implemented yet")
+	skipCI(t)
+
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+
+	// create a category
+	categoryID := uuid.NewV4()
+	query := `
+INSERT INTO insys_onboarding.onboarding_categories
+(id, display_text, display_order)
+VALUES ($1, 'testing display text', 0)
+`
+	_, err := db.ExecContext(context.Background(), query, categoryID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding category: %v\n", err)
+	}
+
+	// create a task
+	taskID := uuid.NewV4()
+	query = `
+INSERT INTO insys_onboarding.onboarding_tasks
+(id, title, content, display_order, onboarding_category_id)
+VALUES ($1, 'testing title', 'testing content', 0, $2)
+`
+	_, err = db.ExecContext(context.Background(), query, taskID.String(), categoryID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding task: %v\n", err)
+	}
+
+	// create a task instance
+	taskInstanceID := uuid.NewV4()
+	query = `
+INSERT INTO insys_onboarding.onboarding_task_instances
+(id, location_id, title, content, display_order, status, status_updated_at, onboarding_category_id, onboarding_task_id)
+VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
+`
+	_, err = db.ExecContext(context.Background(), query, taskInstanceID.String(), locationID.String(), categoryID.String(), taskID.String())
+	if err != nil {
+		t.Fatalf("could not create onboarding task instance: %v\n", err)
+	}
 
 	type fields struct {
 		DB *wsql.PG
@@ -641,7 +681,40 @@ func TestTaskInstanceService_Update(t *testing.T) {
 		want    *app.TaskInstance
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		{
+			name:   "update the status to completed",
+			fields: fields{DB: db},
+			args: args{
+				ctx:             context.Background(),
+				id:              taskInstanceID,
+				status:          2,
+				statusUpdatedBy: "test",
+			},
+			want: &app.TaskInstance{
+				ID:         taskInstanceID,
+				LocationID: locationID,
+				CategoryID: categoryID,
+				TaskID:     taskID,
+
+				ButtonContent:     null.String{},
+				ButtonExternalURL: null.String{},
+				CompletedAt:       null.Time{},
+				CompletedBy:       null.NewString("test"),
+				VerifiedAt:        null.Time{},
+				VerifiedBy:        null.String{},
+				Content:           "testing content",
+				DisplayOrder:      0,
+				Status:            0,
+				StatusUpdatedAt:   time.Now(),
+				StatusUpdatedBy:   null.NewString("test"),
+				Title:             "testing title",
+				Explanation:       null.String{},
+
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -653,7 +726,7 @@ func TestTaskInstanceService_Update(t *testing.T) {
 				t.Errorf("TaskInstanceService.Update() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !compareTaskInstance(*got, *tt.want) {
 				t.Errorf("TaskInstanceService.Update() = %v, want %v", got, tt.want)
 			}
 		})
