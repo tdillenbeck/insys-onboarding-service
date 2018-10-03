@@ -35,6 +35,7 @@ type TaskInstance struct {
 
 	ButtonContent     null.String
 	ButtonExternalURL null.String
+	ButtonInternalURL null.String
 	CompletedAt       null.Time
 	CompletedBy       null.String
 	VerifiedAt        null.Time

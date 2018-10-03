@@ -21,7 +21,7 @@ func (t *TaskInstanceService) ByLocationID(ctx context.Context, locationID uuid.
 
 	query := `
 SELECT
-	id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
+	id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 FROM insys_onboarding.onboarding_task_instances
 WHERE location_id = $1
 `
@@ -46,6 +46,7 @@ WHERE location_id = $1
 			&taskInstance.VerifiedBy,
 			&taskInstance.ButtonContent,
 			&taskInstance.ButtonExternalURL,
+			&taskInstance.ButtonInternalURL,
 			&taskInstance.Content,
 			&taskInstance.DisplayOrder,
 			&taskInstance.Status,
@@ -79,7 +80,7 @@ func (t *TaskInstanceService) CreateFromTasks(ctx context.Context, locationID uu
 	*/
 	query := `
 INSERT INTO insys_onboarding.onboarding_task_instances
-	(id, location_id, title, content, button_content, button_external_url, display_order, status, status_updated_at, status_updated_by, created_at, updated_at, onboarding_category_id, onboarding_task_id)
+	(id, location_id, title, content, button_content, button_external_url, button_internal_url, display_order, status, status_updated_at, status_updated_by, created_at, updated_at, onboarding_category_id, onboarding_task_id)
 	SELECT overlay(overlay(md5(random()::text || ':' || clock_timestamp()::text) placing '4' from 13) placing '8' from 17)::uuid,
 		$1, -- location id
 		title,
@@ -95,6 +96,7 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 			WHEN '47743fae-c775-45d5-8a51-dc7e3371dfa4' THEN COALESCE((SELECT schedule_phone_training_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
 			ELSE button_external_url
 		END,
+		button_internal_url,
 		display_order,
 		0, -- defualt status
 		now(),
@@ -104,7 +106,7 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 		onboarding_category_id,
 		id
 	FROM insys_onboarding.onboarding_tasks
-RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at;
+RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at;
 `
 	// Use a transaction to force the query to be performed against the primary database
 	tx, err := t.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
@@ -132,6 +134,7 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 			&taskInstance.VerifiedBy,
 			&taskInstance.ButtonContent,
 			&taskInstance.ButtonExternalURL,
+			&taskInstance.ButtonInternalURL,
 			&taskInstance.Content,
 			&taskInstance.DisplayOrder,
 			&taskInstance.Status,
@@ -157,19 +160,19 @@ const (
 UPDATE insys_onboarding.onboarding_task_instances
 SET status=$1, status_updated_at=$2, status_updated_by=$3
 WHERE id=$4
-RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
+RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
 	completedUpdateQuery = `
 UPDATE insys_onboarding.onboarding_task_instances
 SET status=$1, status_updated_at=$2, status_updated_by=$3, completed_at=$2, completed_by=$3
 WHERE id = $4
-RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
+RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
 	verifiedUpdateQuery = `
 UPDATE insys_onboarding.onboarding_task_instances
 SET status=$1, status_updated_at=$2, status_updated_by=$3, verified_at=$2, verified_by=$3
 WHERE id = $4
-RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
+RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
 )
 
@@ -211,6 +214,7 @@ func (t *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status i
 		&taskInstance.VerifiedBy,
 		&taskInstance.ButtonContent,
 		&taskInstance.ButtonExternalURL,
+		&taskInstance.ButtonInternalURL,
 		&taskInstance.Content,
 		&taskInstance.DisplayOrder,
 		&taskInstance.Status,
@@ -269,7 +273,7 @@ func (t *TaskInstanceService) UpdateExplanation(ctx context.Context, id uuid.UUI
 UPDATE insys_onboarding.onboarding_task_instances
 SET explanation=$1, updated_at=$2
 WHERE id=$3
-RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
+RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
 	row = tx.QueryRowContext(ctx, query, explanation, time.Now(), id.String())
 
@@ -284,6 +288,7 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 		&taskInstance.VerifiedBy,
 		&taskInstance.ButtonContent,
 		&taskInstance.ButtonExternalURL,
+		&taskInstance.ButtonInternalURL,
 		&taskInstance.Content,
 		&taskInstance.DisplayOrder,
 		&taskInstance.Status,

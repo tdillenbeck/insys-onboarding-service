@@ -189,6 +189,7 @@ func convertToTaskInstanceProto(t app.TaskInstance) (*insysproto.TaskInstance, e
 		VerifiedBy:        t.VerifiedBy.String(),
 		ButtonContent:     t.ButtonContent.String(),
 		ButtonExternalURL: t.ButtonExternalURL.String(),
+		ButtonInternalURL: t.ButtonInternalURL.String(),
 		Content:           t.Content,
 		DisplayOrder:      int32(t.DisplayOrder),
 		Status:            insysenums.OnboardingTaskStatus(t.Status),

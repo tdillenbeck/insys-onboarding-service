@@ -21,28 +21,28 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type OfficeInfo struct {
-	ID                       int64                `protobuf:"varint,1,opt,name=ID" json:"ID,omitempty"`
-	CreatedAt                *timestamp.Timestamp `protobuf:"bytes,2,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt                *timestamp.Timestamp `protobuf:"bytes,3,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
-	BusinessEmail            string               `protobuf:"bytes,4,opt,name=BusinessEmail" json:"BusinessEmail,omitempty"`
-	BusinessName             string               `protobuf:"bytes,5,opt,name=BusinessName" json:"BusinessName,omitempty"`
-	BusinessPhone            string               `protobuf:"bytes,6,opt,name=BusinessPhone" json:"BusinessPhone,omitempty"`
-	BusinessTimezone         string               `protobuf:"bytes,7,opt,name=BusinessTimezone" json:"BusinessTimezone,omitempty"`
-	ITEmail                  string               `protobuf:"bytes,8,opt,name=ITEmail" json:"ITEmail,omitempty"`
-	ITName                   string               `protobuf:"bytes,9,opt,name=ITName" json:"ITName,omitempty"`
-	ITPhoneNumber            string               `protobuf:"bytes,10,opt,name=ITPhoneNumber" json:"ITPhoneNumber,omitempty"`
-	Industry                 string               `protobuf:"bytes,11,opt,name=Industry" json:"Industry,omitempty"`
-	OwnerEmail               string               `protobuf:"bytes,12,opt,name=OwnerEmail" json:"OwnerEmail,omitempty"`
-	OwnerName                string               `protobuf:"bytes,13,opt,name=OwnerName" json:"OwnerName,omitempty"`
-	PatientDatabase          string               `protobuf:"bytes,14,opt,name=PatientDatabase" json:"PatientDatabase,omitempty"`
-	PrimaryReasonForPurchase string               `protobuf:"bytes,15,opt,name=PrimaryReasonForPurchase" json:"PrimaryReasonForPurchase,omitempty"`
-	Street1                  string               `protobuf:"bytes,16,opt,name=Street1" json:"Street1,omitempty"`
-	Street2                  string               `protobuf:"bytes,17,opt,name=Street2" json:"Street2,omitempty"`
-	Country                  string               `protobuf:"bytes,18,opt,name=Country" json:"Country,omitempty"`
-	City                     string               `protobuf:"bytes,19,opt,name=City" json:"City,omitempty"`
-	State                    string               `protobuf:"bytes,20,opt,name=State" json:"State,omitempty"`
-	Zip                      string               `protobuf:"bytes,21,opt,name=Zip" json:"Zip,omitempty"`
-	LocationID               *sharedproto.UUID    `protobuf:"bytes,22,opt,name=LocationID" json:"LocationID,omitempty"`
+	ID                       int64                `protobuf:"varint,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	CreatedAt                *timestamp.Timestamp `protobuf:"bytes,2,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt                *timestamp.Timestamp `protobuf:"bytes,3,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
+	BusinessEmail            string               `protobuf:"bytes,4,opt,name=BusinessEmail,proto3" json:"BusinessEmail,omitempty"`
+	BusinessName             string               `protobuf:"bytes,5,opt,name=BusinessName,proto3" json:"BusinessName,omitempty"`
+	BusinessPhone            string               `protobuf:"bytes,6,opt,name=BusinessPhone,proto3" json:"BusinessPhone,omitempty"`
+	BusinessTimezone         string               `protobuf:"bytes,7,opt,name=BusinessTimezone,proto3" json:"BusinessTimezone,omitempty"`
+	ITEmail                  string               `protobuf:"bytes,8,opt,name=ITEmail,proto3" json:"ITEmail,omitempty"`
+	ITName                   string               `protobuf:"bytes,9,opt,name=ITName,proto3" json:"ITName,omitempty"`
+	ITPhoneNumber            string               `protobuf:"bytes,10,opt,name=ITPhoneNumber,proto3" json:"ITPhoneNumber,omitempty"`
+	Industry                 string               `protobuf:"bytes,11,opt,name=Industry,proto3" json:"Industry,omitempty"`
+	OwnerEmail               string               `protobuf:"bytes,12,opt,name=OwnerEmail,proto3" json:"OwnerEmail,omitempty"`
+	OwnerName                string               `protobuf:"bytes,13,opt,name=OwnerName,proto3" json:"OwnerName,omitempty"`
+	PatientDatabase          string               `protobuf:"bytes,14,opt,name=PatientDatabase,proto3" json:"PatientDatabase,omitempty"`
+	PrimaryReasonForPurchase string               `protobuf:"bytes,15,opt,name=PrimaryReasonForPurchase,proto3" json:"PrimaryReasonForPurchase,omitempty"`
+	Street1                  string               `protobuf:"bytes,16,opt,name=Street1,proto3" json:"Street1,omitempty"`
+	Street2                  string               `protobuf:"bytes,17,opt,name=Street2,proto3" json:"Street2,omitempty"`
+	Country                  string               `protobuf:"bytes,18,opt,name=Country,proto3" json:"Country,omitempty"`
+	City                     string               `protobuf:"bytes,19,opt,name=City,proto3" json:"City,omitempty"`
+	State                    string               `protobuf:"bytes,20,opt,name=State,proto3" json:"State,omitempty"`
+	Zip                      string               `protobuf:"bytes,21,opt,name=Zip,proto3" json:"Zip,omitempty"`
+	LocationID               *sharedproto.UUID    `protobuf:"bytes,22,opt,name=LocationID,proto3" json:"LocationID,omitempty"`
 	XXX_NoUnkeyedLiteral     struct{}             `json:"-"`
 	XXX_unrecognized         []byte               `json:"-"`
 	XXX_sizecache            int32                `json:"-"`
@@ -227,7 +227,7 @@ func (m *OfficeInfo) GetLocationID() *sharedproto.UUID {
 }
 
 type OfficeInfoSubmitRequest struct {
-	OfficeInfo           *OfficeInfo `protobuf:"bytes,1,opt,name=OfficeInfo" json:"OfficeInfo,omitempty"`
+	OfficeInfo           *OfficeInfo `protobuf:"bytes,1,opt,name=OfficeInfo,proto3" json:"OfficeInfo,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
@@ -265,7 +265,7 @@ func (m *OfficeInfoSubmitRequest) GetOfficeInfo() *OfficeInfo {
 }
 
 type OfficeInfoSubmitResponse struct {
-	Success              bool     `protobuf:"varint,1,opt,name=Success" json:"Success,omitempty"`
+	Success              bool     `protobuf:"varint,1,opt,name=Success,proto3" json:"Success,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

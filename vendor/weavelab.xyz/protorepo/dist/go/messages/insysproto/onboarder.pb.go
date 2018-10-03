@@ -21,17 +21,17 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Onboarder struct {
-	ID                           *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	UserID                       *sharedproto.UUID    `protobuf:"bytes,2,opt,name=UserID" json:"UserID,omitempty"`
-	ScheduleCustomizationLink    string               `protobuf:"bytes,3,opt,name=ScheduleCustomizationLink" json:"ScheduleCustomizationLink,omitempty"`
-	SchedulePortingLink          string               `protobuf:"bytes,4,opt,name=SchedulePortingLink" json:"SchedulePortingLink,omitempty"`
-	ScheduleNetworkLink          string               `protobuf:"bytes,5,opt,name=ScheduleNetworkLink" json:"ScheduleNetworkLink,omitempty"`
-	ScheduleSoftwareInstallLink  string               `protobuf:"bytes,6,opt,name=ScheduleSoftwareInstallLink" json:"ScheduleSoftwareInstallLink,omitempty"`
-	SchedulePhoneInstallLink     string               `protobuf:"bytes,7,opt,name=SchedulePhoneInstallLink" json:"SchedulePhoneInstallLink,omitempty"`
-	CreatedAt                    *timestamp.Timestamp `protobuf:"bytes,8,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt                    *timestamp.Timestamp `protobuf:"bytes,9,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
-	ScheduleSoftwareTrainingLink string               `protobuf:"bytes,10,opt,name=ScheduleSoftwareTrainingLink" json:"ScheduleSoftwareTrainingLink,omitempty"`
-	SchedulePhoneTrainingLink    string               `protobuf:"bytes,11,opt,name=SchedulePhoneTrainingLink" json:"SchedulePhoneTrainingLink,omitempty"`
+	ID                           *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	UserID                       *sharedproto.UUID    `protobuf:"bytes,2,opt,name=UserID,proto3" json:"UserID,omitempty"`
+	ScheduleCustomizationLink    string               `protobuf:"bytes,3,opt,name=ScheduleCustomizationLink,proto3" json:"ScheduleCustomizationLink,omitempty"`
+	SchedulePortingLink          string               `protobuf:"bytes,4,opt,name=SchedulePortingLink,proto3" json:"SchedulePortingLink,omitempty"`
+	ScheduleNetworkLink          string               `protobuf:"bytes,5,opt,name=ScheduleNetworkLink,proto3" json:"ScheduleNetworkLink,omitempty"`
+	ScheduleSoftwareInstallLink  string               `protobuf:"bytes,6,opt,name=ScheduleSoftwareInstallLink,proto3" json:"ScheduleSoftwareInstallLink,omitempty"`
+	SchedulePhoneInstallLink     string               `protobuf:"bytes,7,opt,name=SchedulePhoneInstallLink,proto3" json:"SchedulePhoneInstallLink,omitempty"`
+	CreatedAt                    *timestamp.Timestamp `protobuf:"bytes,8,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt                    *timestamp.Timestamp `protobuf:"bytes,9,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
+	ScheduleSoftwareTrainingLink string               `protobuf:"bytes,10,opt,name=ScheduleSoftwareTrainingLink,proto3" json:"ScheduleSoftwareTrainingLink,omitempty"`
+	SchedulePhoneTrainingLink    string               `protobuf:"bytes,11,opt,name=SchedulePhoneTrainingLink,proto3" json:"SchedulePhoneTrainingLink,omitempty"`
 	XXX_NoUnkeyedLiteral         struct{}             `json:"-"`
 	XXX_unrecognized             []byte               `json:"-"`
 	XXX_sizecache                int32                `json:"-"`
@@ -139,11 +139,11 @@ func (m *Onboarder) GetSchedulePhoneTrainingLink() string {
 }
 
 type OnboardersLocation struct {
-	ID                   *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	OnboarderID          *sharedproto.UUID    `protobuf:"bytes,2,opt,name=OnboarderID" json:"OnboarderID,omitempty"`
-	LocationID           *sharedproto.UUID    `protobuf:"bytes,3,opt,name=LocationID" json:"LocationID,omitempty"`
-	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,4,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt            *timestamp.Timestamp `protobuf:"bytes,5,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
+	ID                   *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	OnboarderID          *sharedproto.UUID    `protobuf:"bytes,2,opt,name=OnboarderID,proto3" json:"OnboarderID,omitempty"`
+	LocationID           *sharedproto.UUID    `protobuf:"bytes,3,opt,name=LocationID,proto3" json:"LocationID,omitempty"`
+	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,4,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt            *timestamp.Timestamp `protobuf:"bytes,5,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`

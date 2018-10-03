@@ -57,8 +57,8 @@ func (m *UUID) GetBytes() []byte {
 }
 
 type ObjectKey struct {
-	ID                   *UUID    `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	LocationID           *UUID    `protobuf:"bytes,2,opt,name=LocationID" json:"LocationID,omitempty"`
+	ID                   *UUID    `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	LocationID           *UUID    `protobuf:"bytes,2,opt,name=LocationID,proto3" json:"LocationID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

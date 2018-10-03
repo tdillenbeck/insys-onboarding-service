@@ -112,6 +112,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 
 		ButtonContent:     null.NewString("Click here"),
 		ButtonExternalURL: null.NewString("www.google.com"),
+		ButtonInternalURL: null.NewString("www.google.com"),
 		CompletedAt:       null.NewTime(now),
 		CompletedBy:       null.NewString("Donald Duck"),
 		Content:           "Testing content",
@@ -168,6 +169,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 
 						ButtonContent:     "Click here",
 						ButtonExternalURL: "www.google.com",
+						ButtonInternalURL: "www.google.com",
 						CompletedAt:       expectedCompletedAt,
 						CompletedBy:       "Donald Duck",
 						Content:           "Testing content",
@@ -225,6 +227,7 @@ func TestOnboardingServer_TaskInstances(t *testing.T) {
 
 		ButtonContent:     null.NewString("Click here"),
 		ButtonExternalURL: null.NewString("www.google.com"),
+		ButtonInternalURL: null.NewString("www.google.com"),
 		CompletedAt:       null.NewTime(now),
 		CompletedBy:       null.NewString("Donald Duck"),
 		Content:           "Testing content",
@@ -281,6 +284,7 @@ func TestOnboardingServer_TaskInstances(t *testing.T) {
 
 						ButtonContent:     "Click here",
 						ButtonExternalURL: "www.google.com",
+						ButtonInternalURL: "www.google.com",
 						CompletedAt:       expectedCompletedAt,
 						CompletedBy:       "Donald Duck",
 						Content:           "Testing content",
@@ -337,7 +341,7 @@ func TestOnboardingServer_UpdateTaskInstance(t *testing.T) {
 		want    *insysproto.UpdateTaskInstanceResponse
 		wantErr bool
 	}{
-	// TODO: Add test cases.
+		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
