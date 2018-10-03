@@ -56,8 +56,7 @@ func (c *officeInfoServiceClient) Submit(ctx context.Context, in *insysproto.Off
 	return out, nil
 }
 
-// Server API for OfficeInfoService service
-
+// OfficeInfoServiceServer is the server API for OfficeInfoService service.
 type OfficeInfoServiceServer interface {
 	Submit(context.Context, *insysproto.OfficeInfoSubmitRequest) (*insysproto.OfficeInfoSubmitResponse, error)
 }

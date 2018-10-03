@@ -20,7 +20,7 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type ModifiedSinceRequest struct {
-	Since                *timestamp.Timestamp `protobuf:"bytes,1,opt,name=Since" json:"Since,omitempty"`
+	Since                *timestamp.Timestamp `protobuf:"bytes,1,opt,name=Since,proto3" json:"Since,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`

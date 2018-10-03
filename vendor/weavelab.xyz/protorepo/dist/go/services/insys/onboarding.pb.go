@@ -96,8 +96,7 @@ func (c *onboardingClient) UpdateTaskInstanceExplanation(ctx context.Context, in
 	return out, nil
 }
 
-// Server API for Onboarding service
-
+// OnboardingServer is the server API for Onboarding service.
 type OnboardingServer interface {
 	CreateTaskInstancesFromTasks(context.Context, *insysproto.CreateTaskInstancesFromTasksRequest) (*insysproto.TaskInstancesResponse, error)
 	Category(context.Context, *insysproto.CategoryRequest) (*insysproto.CategoryResponse, error)
@@ -263,8 +262,7 @@ func (c *onboarderClient) ReadByUserID(ctx context.Context, in *insysproto.Onboa
 	return out, nil
 }
 
-// Server API for Onboarder service
-
+// OnboarderServer is the server API for Onboarder service.
 type OnboarderServer interface {
 	CreateOrUpdate(context.Context, *insysproto.Onboarder) (*insysproto.Onboarder, error)
 	ReadByUserID(context.Context, *insysproto.Onboarder) (*insysproto.Onboarder, error)
@@ -361,8 +359,7 @@ func (c *onboardersLocationClient) ReadByLocationID(ctx context.Context, in *ins
 	return out, nil
 }
 
-// Server API for OnboardersLocation service
-
+// OnboardersLocationServer is the server API for OnboardersLocation service.
 type OnboardersLocationServer interface {
 	CreateOrUpdate(context.Context, *insysproto.OnboardersLocation) (*insysproto.OnboardersLocation, error)
 	ReadByLocationID(context.Context, *insysproto.OnboardersLocation) (*insysproto.OnboardersLocation, error)

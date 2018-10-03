@@ -22,34 +22,34 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type PortingData struct {
-	ID                          *sharedproto.UUID             `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	CreatedAt                   *timestamp.Timestamp          `protobuf:"bytes,2,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt                   *timestamp.Timestamp          `protobuf:"bytes,3,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
-	LocationID                  *sharedproto.UUID             `protobuf:"bytes,4,opt,name=LocationID" json:"LocationID,omitempty"`
-	PortOrderNumber             string                        `protobuf:"bytes,5,opt,name=PortOrderNumber" json:"PortOrderNumber,omitempty"`
-	SalesforcePortOrderName     string                        `protobuf:"bytes,6,opt,name=SalesforcePortOrderName" json:"SalesforcePortOrderName,omitempty"`
-	AuthorizedUserFirstName     string                        `protobuf:"bytes,7,opt,name=AuthorizedUserFirstName" json:"AuthorizedUserFirstName,omitempty"`
-	AuthorizedUserLastName      string                        `protobuf:"bytes,8,opt,name=AuthorizedUserLastName" json:"AuthorizedUserLastName,omitempty"`
-	ServiceStreet1              string                        `protobuf:"bytes,9,opt,name=ServiceStreet1" json:"ServiceStreet1,omitempty"`
-	ServiceStreet2              string                        `protobuf:"bytes,10,opt,name=ServiceStreet2" json:"ServiceStreet2,omitempty"`
-	ServiceCity                 string                        `protobuf:"bytes,11,opt,name=ServiceCity" json:"ServiceCity,omitempty"`
-	ServiceState                string                        `protobuf:"bytes,12,opt,name=ServiceState" json:"ServiceState,omitempty"`
-	ServiceZip                  string                        `protobuf:"bytes,13,opt,name=ServiceZip" json:"ServiceZip,omitempty"`
-	ServiceCountry              string                        `protobuf:"bytes,14,opt,name=ServiceCountry" json:"ServiceCountry,omitempty"`
-	EmergencyStreet1            string                        `protobuf:"bytes,15,opt,name=EmergencyStreet1" json:"EmergencyStreet1,omitempty"`
-	EmergencyStreet2            string                        `protobuf:"bytes,16,opt,name=EmergencyStreet2" json:"EmergencyStreet2,omitempty"`
-	EmergencyCity               string                        `protobuf:"bytes,17,opt,name=EmergencyCity" json:"EmergencyCity,omitempty"`
-	EmergencyState              string                        `protobuf:"bytes,18,opt,name=EmergencyState" json:"EmergencyState,omitempty"`
-	EmergencyZip                string                        `protobuf:"bytes,19,opt,name=EmergencyZip" json:"EmergencyZip,omitempty"`
-	EmergencyCountry            string                        `protobuf:"bytes,20,opt,name=EmergencyCountry" json:"EmergencyCountry,omitempty"`
-	CompanyName                 string                        `protobuf:"bytes,21,opt,name=CompanyName" json:"CompanyName,omitempty"`
-	CurrentPhoneServiceProvider string                        `protobuf:"bytes,22,opt,name=CurrentPhoneServiceProvider" json:"CurrentPhoneServiceProvider,omitempty"`
-	PhoneServiceAccountNumber   string                        `protobuf:"bytes,23,opt,name=PhoneServiceAccountNumber" json:"PhoneServiceAccountNumber,omitempty"`
-	CurrentAccountType          insysenums.CurrentAccountType `protobuf:"varint,24,opt,name=CurrentAccountType,enum=portingenums.CurrentAccountType" json:"CurrentAccountType,omitempty"`
-	DesiredCarrier              string                        `protobuf:"bytes,25,opt,name=DesiredCarrier" json:"DesiredCarrier,omitempty"`
-	PortingRequests             []*PortingRequest             `protobuf:"bytes,26,rep,name=PortingRequests" json:"PortingRequests,omitempty"`
-	BillingPhoneNumber          string                        `protobuf:"bytes,27,opt,name=BillingPhoneNumber" json:"BillingPhoneNumber,omitempty"`
-	AccountPin                  string                        `protobuf:"bytes,28,opt,name=AccountPin" json:"AccountPin,omitempty"`
+	ID                          *sharedproto.UUID             `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	CreatedAt                   *timestamp.Timestamp          `protobuf:"bytes,2,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt                   *timestamp.Timestamp          `protobuf:"bytes,3,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
+	LocationID                  *sharedproto.UUID             `protobuf:"bytes,4,opt,name=LocationID,proto3" json:"LocationID,omitempty"`
+	PortOrderNumber             string                        `protobuf:"bytes,5,opt,name=PortOrderNumber,proto3" json:"PortOrderNumber,omitempty"`
+	SalesforcePortOrderName     string                        `protobuf:"bytes,6,opt,name=SalesforcePortOrderName,proto3" json:"SalesforcePortOrderName,omitempty"`
+	AuthorizedUserFirstName     string                        `protobuf:"bytes,7,opt,name=AuthorizedUserFirstName,proto3" json:"AuthorizedUserFirstName,omitempty"`
+	AuthorizedUserLastName      string                        `protobuf:"bytes,8,opt,name=AuthorizedUserLastName,proto3" json:"AuthorizedUserLastName,omitempty"`
+	ServiceStreet1              string                        `protobuf:"bytes,9,opt,name=ServiceStreet1,proto3" json:"ServiceStreet1,omitempty"`
+	ServiceStreet2              string                        `protobuf:"bytes,10,opt,name=ServiceStreet2,proto3" json:"ServiceStreet2,omitempty"`
+	ServiceCity                 string                        `protobuf:"bytes,11,opt,name=ServiceCity,proto3" json:"ServiceCity,omitempty"`
+	ServiceState                string                        `protobuf:"bytes,12,opt,name=ServiceState,proto3" json:"ServiceState,omitempty"`
+	ServiceZip                  string                        `protobuf:"bytes,13,opt,name=ServiceZip,proto3" json:"ServiceZip,omitempty"`
+	ServiceCountry              string                        `protobuf:"bytes,14,opt,name=ServiceCountry,proto3" json:"ServiceCountry,omitempty"`
+	EmergencyStreet1            string                        `protobuf:"bytes,15,opt,name=EmergencyStreet1,proto3" json:"EmergencyStreet1,omitempty"`
+	EmergencyStreet2            string                        `protobuf:"bytes,16,opt,name=EmergencyStreet2,proto3" json:"EmergencyStreet2,omitempty"`
+	EmergencyCity               string                        `protobuf:"bytes,17,opt,name=EmergencyCity,proto3" json:"EmergencyCity,omitempty"`
+	EmergencyState              string                        `protobuf:"bytes,18,opt,name=EmergencyState,proto3" json:"EmergencyState,omitempty"`
+	EmergencyZip                string                        `protobuf:"bytes,19,opt,name=EmergencyZip,proto3" json:"EmergencyZip,omitempty"`
+	EmergencyCountry            string                        `protobuf:"bytes,20,opt,name=EmergencyCountry,proto3" json:"EmergencyCountry,omitempty"`
+	CompanyName                 string                        `protobuf:"bytes,21,opt,name=CompanyName,proto3" json:"CompanyName,omitempty"`
+	CurrentPhoneServiceProvider string                        `protobuf:"bytes,22,opt,name=CurrentPhoneServiceProvider,proto3" json:"CurrentPhoneServiceProvider,omitempty"`
+	PhoneServiceAccountNumber   string                        `protobuf:"bytes,23,opt,name=PhoneServiceAccountNumber,proto3" json:"PhoneServiceAccountNumber,omitempty"`
+	CurrentAccountType          insysenums.CurrentAccountType `protobuf:"varint,24,opt,name=CurrentAccountType,proto3,enum=portingenums.CurrentAccountType" json:"CurrentAccountType,omitempty"`
+	DesiredCarrier              string                        `protobuf:"bytes,25,opt,name=DesiredCarrier,proto3" json:"DesiredCarrier,omitempty"`
+	PortingRequests             []*PortingRequest             `protobuf:"bytes,26,rep,name=PortingRequests,proto3" json:"PortingRequests,omitempty"`
+	BillingPhoneNumber          string                        `protobuf:"bytes,27,opt,name=BillingPhoneNumber,proto3" json:"BillingPhoneNumber,omitempty"`
+	AccountPin                  string                        `protobuf:"bytes,28,opt,name=AccountPin,proto3" json:"AccountPin,omitempty"`
 	XXX_NoUnkeyedLiteral        struct{}                      `json:"-"`
 	XXX_unrecognized            []byte                        `json:"-"`
 	XXX_sizecache               int32                         `json:"-"`
@@ -276,31 +276,31 @@ func (m *PortingData) GetAccountPin() string {
 }
 
 type PortingRequest struct {
-	ID                                   *sharedproto.UUID     `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	PortingRejections                    []*PortingRejection   `protobuf:"bytes,2,rep,name=PortingRejections" json:"PortingRejections,omitempty"`
-	PhoneNumber                          string                `protobuf:"bytes,4,opt,name=PhoneNumber" json:"PhoneNumber,omitempty"`
-	CreatedAt                            *timestamp.Timestamp  `protobuf:"bytes,5,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt                            *timestamp.Timestamp  `protobuf:"bytes,6,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
-	PortType                             insysenums.PortType   `protobuf:"varint,7,opt,name=PortType,enum=portingenums.PortType" json:"PortType,omitempty"`
-	PortStatus                           insysenums.PortStatus `protobuf:"varint,8,opt,name=PortStatus,enum=portingenums.PortStatus" json:"PortStatus,omitempty"`
-	DesiredCNAM                          string                `protobuf:"bytes,9,opt,name=DesiredCNAM" json:"DesiredCNAM,omitempty"`
-	FirmOrderCommitmentDate              *timestamp.Timestamp  `protobuf:"bytes,10,opt,name=FirmOrderCommitmentDate" json:"FirmOrderCommitmentDate,omitempty"`
-	EmergencyDesired                     bool                  `protobuf:"varint,11,opt,name=EmergencyDesired" json:"EmergencyDesired,omitempty"`
-	AcceptedDate                         *timestamp.Timestamp  `protobuf:"bytes,12,opt,name=AcceptedDate" json:"AcceptedDate,omitempty"`
-	AcceptedDateEnteredBy                string                `protobuf:"bytes,13,opt,name=AcceptedDateEnteredBy" json:"AcceptedDateEnteredBy,omitempty"`
-	PhoneDataServiceProvisionedDate      *timestamp.Timestamp  `protobuf:"bytes,14,opt,name=PhoneDataServiceProvisionedDate" json:"PhoneDataServiceProvisionedDate,omitempty"`
-	PhoneDataServiceProvisionedDateSetBy string                `protobuf:"bytes,15,opt,name=PhoneDataServiceProvisionedDateSetBy" json:"PhoneDataServiceProvisionedDateSetBy,omitempty"`
-	CarrierProvisionedDate               *timestamp.Timestamp  `protobuf:"bytes,16,opt,name=CarrierProvisionedDate" json:"CarrierProvisionedDate,omitempty"`
-	CarrierProvisionedDateSetBy          string                `protobuf:"bytes,17,opt,name=CarrierProvisionedDateSetBy" json:"CarrierProvisionedDateSetBy,omitempty"`
-	EmergencyProvisionedDate             *timestamp.Timestamp  `protobuf:"bytes,18,opt,name=EmergencyProvisionedDate" json:"EmergencyProvisionedDate,omitempty"`
-	CNAMProvisionedDate                  *timestamp.Timestamp  `protobuf:"bytes,19,opt,name=CNAMProvisionedDate" json:"CNAMProvisionedDate,omitempty"`
-	SubmittedDate                        *timestamp.Timestamp  `protobuf:"bytes,20,opt,name=SubmittedDate" json:"SubmittedDate,omitempty"`
-	PendingDate                          *timestamp.Timestamp  `protobuf:"bytes,21,opt,name=PendingDate" json:"PendingDate,omitempty"`
-	EmergencyProvisionedBy               string                `protobuf:"bytes,22,opt,name=EmergencyProvisionedBy" json:"EmergencyProvisionedBy,omitempty"`
-	CNAMProvisionedBy                    string                `protobuf:"bytes,23,opt,name=CNAMProvisionedBy" json:"CNAMProvisionedBy,omitempty"`
-	SubmittedBy                          string                `protobuf:"bytes,24,opt,name=SubmittedBy" json:"SubmittedBy,omitempty"`
-	PendingBy                            string                `protobuf:"bytes,25,opt,name=PendingBy" json:"PendingBy,omitempty"`
-	RequestedFirmOrderCommitmentDate     *timestamp.Timestamp  `protobuf:"bytes,26,opt,name=RequestedFirmOrderCommitmentDate" json:"RequestedFirmOrderCommitmentDate,omitempty"`
+	ID                                   *sharedproto.UUID     `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	PortingRejections                    []*PortingRejection   `protobuf:"bytes,2,rep,name=PortingRejections,proto3" json:"PortingRejections,omitempty"`
+	PhoneNumber                          string                `protobuf:"bytes,4,opt,name=PhoneNumber,proto3" json:"PhoneNumber,omitempty"`
+	CreatedAt                            *timestamp.Timestamp  `protobuf:"bytes,5,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt                            *timestamp.Timestamp  `protobuf:"bytes,6,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
+	PortType                             insysenums.PortType   `protobuf:"varint,7,opt,name=PortType,proto3,enum=portingenums.PortType" json:"PortType,omitempty"`
+	PortStatus                           insysenums.PortStatus `protobuf:"varint,8,opt,name=PortStatus,proto3,enum=portingenums.PortStatus" json:"PortStatus,omitempty"`
+	DesiredCNAM                          string                `protobuf:"bytes,9,opt,name=DesiredCNAM,proto3" json:"DesiredCNAM,omitempty"`
+	FirmOrderCommitmentDate              *timestamp.Timestamp  `protobuf:"bytes,10,opt,name=FirmOrderCommitmentDate,proto3" json:"FirmOrderCommitmentDate,omitempty"`
+	EmergencyDesired                     bool                  `protobuf:"varint,11,opt,name=EmergencyDesired,proto3" json:"EmergencyDesired,omitempty"`
+	AcceptedDate                         *timestamp.Timestamp  `protobuf:"bytes,12,opt,name=AcceptedDate,proto3" json:"AcceptedDate,omitempty"`
+	AcceptedDateEnteredBy                string                `protobuf:"bytes,13,opt,name=AcceptedDateEnteredBy,proto3" json:"AcceptedDateEnteredBy,omitempty"`
+	PhoneDataServiceProvisionedDate      *timestamp.Timestamp  `protobuf:"bytes,14,opt,name=PhoneDataServiceProvisionedDate,proto3" json:"PhoneDataServiceProvisionedDate,omitempty"`
+	PhoneDataServiceProvisionedDateSetBy string                `protobuf:"bytes,15,opt,name=PhoneDataServiceProvisionedDateSetBy,proto3" json:"PhoneDataServiceProvisionedDateSetBy,omitempty"`
+	CarrierProvisionedDate               *timestamp.Timestamp  `protobuf:"bytes,16,opt,name=CarrierProvisionedDate,proto3" json:"CarrierProvisionedDate,omitempty"`
+	CarrierProvisionedDateSetBy          string                `protobuf:"bytes,17,opt,name=CarrierProvisionedDateSetBy,proto3" json:"CarrierProvisionedDateSetBy,omitempty"`
+	EmergencyProvisionedDate             *timestamp.Timestamp  `protobuf:"bytes,18,opt,name=EmergencyProvisionedDate,proto3" json:"EmergencyProvisionedDate,omitempty"`
+	CNAMProvisionedDate                  *timestamp.Timestamp  `protobuf:"bytes,19,opt,name=CNAMProvisionedDate,proto3" json:"CNAMProvisionedDate,omitempty"`
+	SubmittedDate                        *timestamp.Timestamp  `protobuf:"bytes,20,opt,name=SubmittedDate,proto3" json:"SubmittedDate,omitempty"`
+	PendingDate                          *timestamp.Timestamp  `protobuf:"bytes,21,opt,name=PendingDate,proto3" json:"PendingDate,omitempty"`
+	EmergencyProvisionedBy               string                `protobuf:"bytes,22,opt,name=EmergencyProvisionedBy,proto3" json:"EmergencyProvisionedBy,omitempty"`
+	CNAMProvisionedBy                    string                `protobuf:"bytes,23,opt,name=CNAMProvisionedBy,proto3" json:"CNAMProvisionedBy,omitempty"`
+	SubmittedBy                          string                `protobuf:"bytes,24,opt,name=SubmittedBy,proto3" json:"SubmittedBy,omitempty"`
+	PendingBy                            string                `protobuf:"bytes,25,opt,name=PendingBy,proto3" json:"PendingBy,omitempty"`
+	RequestedFirmOrderCommitmentDate     *timestamp.Timestamp  `protobuf:"bytes,26,opt,name=RequestedFirmOrderCommitmentDate,proto3" json:"RequestedFirmOrderCommitmentDate,omitempty"`
 	XXX_NoUnkeyedLiteral                 struct{}              `json:"-"`
 	XXX_unrecognized                     []byte                `json:"-"`
 	XXX_sizecache                        int32                 `json:"-"`
@@ -506,12 +506,12 @@ func (m *PortingRequest) GetRequestedFirmOrderCommitmentDate() *timestamp.Timest
 }
 
 type PortingRejection struct {
-	ID                   *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID" json:"ID,omitempty"`
-	PortingRequestID     *sharedproto.UUID    `protobuf:"bytes,2,opt,name=PortingRequestID" json:"PortingRequestID,omitempty"`
-	Reason               string               `protobuf:"bytes,3,opt,name=Reason" json:"Reason,omitempty"`
-	ErrorCode            string               `protobuf:"bytes,4,opt,name=ErrorCode" json:"ErrorCode,omitempty"`
-	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,5,opt,name=CreatedAt" json:"CreatedAt,omitempty"`
-	UpdatedAt            *timestamp.Timestamp `protobuf:"bytes,6,opt,name=UpdatedAt" json:"UpdatedAt,omitempty"`
+	ID                   *sharedproto.UUID    `protobuf:"bytes,1,opt,name=ID,proto3" json:"ID,omitempty"`
+	PortingRequestID     *sharedproto.UUID    `protobuf:"bytes,2,opt,name=PortingRequestID,proto3" json:"PortingRequestID,omitempty"`
+	Reason               string               `protobuf:"bytes,3,opt,name=Reason,proto3" json:"Reason,omitempty"`
+	ErrorCode            string               `protobuf:"bytes,4,opt,name=ErrorCode,proto3" json:"ErrorCode,omitempty"`
+	CreatedAt            *timestamp.Timestamp `protobuf:"bytes,5,opt,name=CreatedAt,proto3" json:"CreatedAt,omitempty"`
+	UpdatedAt            *timestamp.Timestamp `protobuf:"bytes,6,opt,name=UpdatedAt,proto3" json:"UpdatedAt,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}             `json:"-"`
 	XXX_unrecognized     []byte               `json:"-"`
 	XXX_sizecache        int32                `json:"-"`
@@ -584,7 +584,7 @@ func (m *PortingRejection) GetUpdatedAt() *timestamp.Timestamp {
 }
 
 type PortingDataCreateRequest struct {
-	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData" json:"PortingData,omitempty"`
+	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData,proto3" json:"PortingData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -622,7 +622,7 @@ func (m *PortingDataCreateRequest) GetPortingData() *PortingData {
 }
 
 type PortingDataCreateResponse struct {
-	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData" json:"PortingData,omitempty"`
+	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData,proto3" json:"PortingData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -660,7 +660,7 @@ func (m *PortingDataCreateResponse) GetPortingData() *PortingData {
 }
 
 type PortingDataUpdateRequest struct {
-	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData" json:"PortingData,omitempty"`
+	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData,proto3" json:"PortingData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -698,7 +698,7 @@ func (m *PortingDataUpdateRequest) GetPortingData() *PortingData {
 }
 
 type PortingDataUpdateResponse struct {
-	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData" json:"PortingData,omitempty"`
+	PortingData          *PortingData `protobuf:"bytes,1,opt,name=PortingData,proto3" json:"PortingData,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}     `json:"-"`
 	XXX_unrecognized     []byte       `json:"-"`
 	XXX_sizecache        int32        `json:"-"`
@@ -736,7 +736,7 @@ func (m *PortingDataUpdateResponse) GetPortingData() *PortingData {
 }
 
 type PortingDataByLocationIDRequest struct {
-	LocationID           *sharedproto.UUID `protobuf:"bytes,1,opt,name=LocationID" json:"LocationID,omitempty"`
+	LocationID           *sharedproto.UUID `protobuf:"bytes,1,opt,name=LocationID,proto3" json:"LocationID,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}          `json:"-"`
 	XXX_unrecognized     []byte            `json:"-"`
 	XXX_sizecache        int32             `json:"-"`
@@ -774,7 +774,7 @@ func (m *PortingDataByLocationIDRequest) GetLocationID() *sharedproto.UUID {
 }
 
 type PortingDataByLocationIDResponse struct {
-	PortingDatas         []*PortingData `protobuf:"bytes,1,rep,name=PortingDatas" json:"PortingDatas,omitempty"`
+	PortingDatas         []*PortingData `protobuf:"bytes,1,rep,name=PortingDatas,proto3" json:"PortingDatas,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}       `json:"-"`
 	XXX_unrecognized     []byte         `json:"-"`
 	XXX_sizecache        int32          `json:"-"`

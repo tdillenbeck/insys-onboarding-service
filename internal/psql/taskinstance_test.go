@@ -85,6 +85,7 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 
 					ButtonContent:     null.String{},
 					ButtonExternalURL: null.String{},
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -203,6 +204,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -225,6 +227,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Install Weave"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/software-install"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -247,6 +250,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Watch Videos"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-registration-page/"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -269,6 +273,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Learn How"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/weave-mobile-app/"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -291,6 +296,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -313,6 +319,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=category:Installs"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -335,6 +342,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Watch Videos"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-registration-page/"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -357,6 +365,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("https://getweave.chilipiper.com/book/customization-calls"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -379,6 +388,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("https://getweave.chilipiper.com/book/start-porting-process-call"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -409,6 +419,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("schedule software install link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -431,6 +442,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Install Weave"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/software-install"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -453,6 +465,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Watch Videos"),
 					ButtonExternalURL: null.NewString("schedule software training link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -475,6 +488,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Learn How"),
 					ButtonExternalURL: null.NewString("http://www.weavehelp.com/weave-mobile-app/"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -497,6 +511,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("schedule network link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -519,6 +534,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("schedule phone install link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -541,6 +557,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Watch Videos"),
 					ButtonExternalURL: null.NewString("schedule phone training link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -563,6 +580,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("schedule customization link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -585,6 +603,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 					ButtonContent:     null.NewString("Schedule Call"),
 					ButtonExternalURL: null.NewString("schedule porting link"),
+					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
@@ -698,6 +717,7 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 
 				ButtonContent:     null.String{},
 				ButtonExternalURL: null.String{},
+				ButtonInternalURL: null.String{},
 				CompletedAt:       null.Time{},
 				CompletedBy:       null.NewString("test"),
 				VerifiedAt:        null.Time{},
@@ -761,6 +781,7 @@ func compareTaskInstance(a, b app.TaskInstance) bool {
 		a.TaskID == b.TaskID &&
 		a.ButtonContent == b.ButtonContent &&
 		a.ButtonExternalURL == b.ButtonExternalURL &&
+		a.ButtonInternalURL == b.ButtonInternalURL &&
 		a.CompletedBy == b.CompletedBy &&
 		a.VerifiedBy == b.VerifiedBy &&
 		a.Content == b.Content &&

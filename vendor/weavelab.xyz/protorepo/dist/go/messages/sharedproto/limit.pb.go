@@ -19,8 +19,8 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Limit struct {
-	Limit                int32    `protobuf:"varint,1,opt,name=Limit" json:"Limit,omitempty"`
-	Offset               int32    `protobuf:"varint,2,opt,name=Offset" json:"Offset,omitempty"`
+	Limit                int32    `protobuf:"varint,1,opt,name=Limit,proto3" json:"Limit,omitempty"`
+	Offset               int32    `protobuf:"varint,2,opt,name=Offset,proto3" json:"Offset,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`

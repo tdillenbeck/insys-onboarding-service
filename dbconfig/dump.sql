@@ -139,7 +139,8 @@ CREATE TABLE onboarding_task_instances (
     onboarding_task_id uuid NOT NULL,
     button_content text,
     button_external_url text,
-    explanation text
+    explanation text,
+    button_internal_url text
 );
 
 
@@ -158,7 +159,8 @@ CREATE TABLE onboarding_tasks (
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
     onboarding_category_id uuid NOT NULL,
     button_content text,
-    button_external_url text
+    button_external_url text,
+    button_internal_url text
 );
 
 

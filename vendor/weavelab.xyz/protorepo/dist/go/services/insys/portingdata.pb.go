@@ -76,8 +76,7 @@ func (c *portingDataServiceClient) ByLocationID(ctx context.Context, in *insyspr
 	return out, nil
 }
 
-// Server API for PortingDataService service
-
+// PortingDataServiceServer is the server API for PortingDataService service.
 type PortingDataServiceServer interface {
 	Create(context.Context, *insysproto.PortingDataCreateRequest) (*insysproto.PortingDataCreateResponse, error)
 	Update(context.Context, *insysproto.PortingDataUpdateRequest) (*insysproto.PortingDataUpdateResponse, error)
