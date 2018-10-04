@@ -136,7 +136,20 @@
 
 
 -- Phone Tasks
-  INSERT INTO insys_onboarding.onboarding_tasks VALUES (
+  INSERT INTO insys_onboarding.onboarding_tasks
+  (
+    id,
+    title,
+    content,
+    display_order,
+    created_at,
+    updated_at,
+    onboarding_category_id,
+    button_content,
+    button_external_url,
+    button_internal_url
+  )
+  VALUES (
     '7b15e061-8002-4edc-9bf4-f38c6eec6364',
     'Check your office network to ensure compatibility',
     '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
@@ -145,16 +158,19 @@
     default,
     'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
     'Schedule Call',
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365'
+    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365',
+    '/network-audit'
   )
-  ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
+  ON CONFLICT(id) DO UPDATE SET
+  (title,content, display_order, created_at, updated_at, button_content, button_external_url, button_internal_url) = (
     'Check your office network to ensure compatibility',
     '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
     3,
     default,
     default,
     'Schedule Call',
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365'
+    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365',
+    '/network-audit'
   );
 
 
