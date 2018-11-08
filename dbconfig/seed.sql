@@ -161,7 +161,7 @@
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     'fd4f656c-c9f1-47b8-96ad-3080b999a843',
     'Install your new phones',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
     8,
     default,
     default,
@@ -171,7 +171,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Install your new phones',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
     8,
     default,
     default,
@@ -205,7 +205,7 @@
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '2d2df285-9211-48fc-a057-74f7dee2d9a4',
     'Customize your phone system',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~30 minutes</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
     10,
     default,
     default,
@@ -215,7 +215,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Customize your phone system',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~30 minutes</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
     10,
     default,
     default,
@@ -227,22 +227,23 @@
 -- Porting Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     '9aec502b-f8b8-4f10-9748-1fe4050eacde',
-    'Verify your phone numbers',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarder will help to identify key information about your current phone service account. This will ensure that when your office is ready to start using the new phones, we''re ready to activate them.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~15 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> You''ll want to verify all your office phone numbers prior to this call, and have your most recent phone bill handy.</div>',
+    'Provide current phone account info',
+    '<div class="insys-content-body"> <span class="insys-content-bold"> What is this?  </span> In order to port your phone numbers from your current provider to your new Weave phones, we need three things: <ul> <li>Info about your current phone account</li> <li>Your approval of the terms of service</li> <li>A copy of your current phone bill</li> </ul> </div> <div class="insys-content-body"> <span class="insys-content-bold">How long will this take?</span> 5-10 minutes </div>',
     4,
     default,
     default,
     'd0da53a9-fbdb-4d22-85c6-ed521f237349',
-    'Schedule Call',
-    'https://getweave.chilipiper.com/book/start-porting-process-call'
+    'Let''s Start',
+    'https://getweave.chilipiper.com/book/start-porting-process-call',
+    '/porting'
   )
-  ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
-    'Verify your phone numbers',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarder will help to identify key information about your current phone service account. This will ensure that when your office is ready to start using the new phones, we''re ready to activate them.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> ~15 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> You''ll want to verify all your office phone numbers prior to this call, and have your most recent phone bill handy.</div>',
+  ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url, button_internal_url) = (
+    'Provide current phone account info',
+    '<div class="insys-content-body"> <span class="insys-content-bold"> What is this?  </span> In order to port your phone numbers from your current provider to your new Weave phones, we need three things: <ul> <li>Info about your current phone account</li> <li>Your approval of the terms of service</li> <li>A copy of your current phone bill</li> </ul> </div> <div class="insys-content-body"> <span class="insys-content-bold">How long will this take?</span> 5-10 minutes </div>',
     4,
     default,
     default,
-    'Schedule Call',
-    'https://getweave.chilipiper.com/book/start-porting-process-call'
+    'Let''s Start',
+    'https://getweave.chilipiper.com/book/start-porting-process-call',
+    '/porting'
   );
-
