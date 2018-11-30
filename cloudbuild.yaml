@@ -1,0 +1,14 @@
+steps:
+- name: 'gcr.io/weave-lab/ops/ops-weavebuilder:v1.0.0'
+  args: ['/usr/local/bin/weavebuilder']
+  env:
+  - 'GITHASH=$COMMIT_SHA'
+  - 'GITBRANCH=$BRANCH_NAME'
+  - 'REPO=$REPO_NAME'
+- name: 'gcr.io/weave-lab/ops/ops-cd-tools:v1.0.0'
+  args: ['/bin/cd-tools']
+  env:
+  - 'GITBRANCH=$BRANCH_NAME'
+  - 'REPO=$REPO_NAME'
+  - 'TAG=$TAG_NAME'
+  - 'SSHA=$SHORT_SHA'
