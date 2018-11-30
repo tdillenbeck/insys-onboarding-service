@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"weavelab.xyz/go-utilities/null"
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/insys-onboarding/internal/mock"
-	"weavelab.xyz/protorepo/dist/go/messages/insysproto"
-	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
-	"weavelab.xyz/wlib/uuid"
+
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/insys-onboarding-service/internal/mock"
+
+	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
 func TestOnboardingServer_Category(t *testing.T) {

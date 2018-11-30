@@ -23,7 +23,7 @@ spec:
         prometheus.io.port: "7777"
     spec:
       containers:
-      - image: registry.gitlab.getweave.com/weave-lab/internal/insys-onboarding:{{ .Values.image.tag }}
+      - image: "{{ .Values.image.registry }}:{{ .Values.image.tag }}"
         name: insys-onboarding
         env:
           - name: VAULT_ADDR
@@ -78,7 +78,7 @@ spec:
         - name: grpc
           containerPort: 9000
 
-      - image: registry.gitlab.getweave.com/weave-lab/platform/wmetricsd:1.0.853-sha.fe1de2c
+      - image: gcr.io/weave-lab/shared/wmetricsd:2018-11-06.2fa17d96elm
         name: wmetricsd
         env:
         - name: ENABLE_PROM
@@ -91,7 +91,7 @@ spec:
             memory: 32Mi   
             
       - name: wlogd
-        image: registry.gitlab.getweave.com/weave-lab/platform/wlogd:1.0.860-sha.fe3748a
+        image: gcr.io/weave-lab/shared/wlogd:2018-11-06.2fa17d96elm
         resources:
           requests:
             cpu: 15m
@@ -117,5 +117,5 @@ spec:
       serviceAccountName: insys-onboarding
 
       imagePullSecrets:
-      - name: gitlabregistry
+      - name: gcr-io
 

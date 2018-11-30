@@ -8,11 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"weavelab.xyz/go-utilities/null"
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 func TestTaskInstanceService_ByLocationID(t *testing.T) {
@@ -122,8 +123,9 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 				t.Errorf("TaskInstanceService.ByLocationID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !compareTaskInstances(got, tt.want) {
-				t.Errorf("TaskInstanceService.CreateFromTasks() = %v, want %v", got, tt.want)
+				t.Errorf("TaskInstanceService.ByLocationID() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -151,7 +153,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 	// create an onboarder
 	onb := &app.Onboarder{
-		UserID: uuid.NewV4(),
+		UserID:                       uuid.NewV4(),
 		ScheduleCustomizationLink:    null.NewString("schedule customization link"),
 		SchedulePortingLink:          null.NewString("schedule porting link"),
 		ScheduleNetworkLink:          null.NewString("schedule network link"),
@@ -209,7 +211,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to start using all our software features, we need to sync your patient data to Weave. Typically, we will do this by installing a sync application on your office server - so make sure you have access to that computer and the right login information. If your practice management system is cloud-based, we will instead walk you through how to generate the credentials we need. Click below to schedule a 30-60 minute phone call with a Weave technician.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> On this scheduled call, we will help get your patient or customer database syncing with Weave. This will allow you to start using many of Weave's software features.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30-60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> We may need to access your office server - so make sure you have access to that computer and the right login information.</div>`,
 					DisplayOrder:      2,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -232,7 +234,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to make the most of features like Team Chat and two-way text messaging, we recommend installing Weave on most workstations throughout your office. Click below to find helpful instructions to download Weave throughout your office.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of Weave on other workstations in your office. Installing Weave on more workstations will help you make the most of features like Team Chat and two-way texting.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 5 minutes per workstation</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Use the link below to download Weave throughout your office - if you need help, just let us know!</div>`,
 					DisplayOrder:      5,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -249,13 +251,13 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					TaskID:     mustUUID(uuid.Parse("c20b65d8-e281-4e62-98f0-4aebf83e0bee")),
 
 					ButtonContent:     null.NewString("Watch Videos"),
-					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-registration-page/"),
+					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-on-demand/"),
 					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to get the most out of the Weave software, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up and using two-way texting, automated appointment reminders, and all our other features. Click below to watch our online webinars",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      6,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -278,7 +280,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to see your schedule, field calls, and chat with your team all on the go, we recommend installing the Weave app on your mobile device. Click below to find helpful instructions to download Weave on your phone.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of our mobile app on your phone. Our mobile app is a great tool to see your schedule, field office calls, and chat with your team - all on-the-go, whenever you need access.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 3-5 minutes</div>`,
 					DisplayOrder:      7,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -301,7 +303,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to ensure the highest quality phone service on Weave's internet-based phones, we need to verify your network compatibility. Click below to schedule a 15 minute phone call with a Weave technician. <a href="http://www.weavehelp.com/network-specs">Learn More</a>`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>`,
 					DisplayOrder:      3,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -324,7 +326,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `You're making great progress! Click below to schedule a 60 minute phone call with a Weave technician who will guide you through the process of connecting the new phones. Typically, we will aim to help you plug the new phones in side-by-side with your old phones. After finishing, you will continue to use your old phones while we work with your current phone service provider for a few days to officially move your phone numbers to our system. <a href="http://www.weavehelp.com/phone-install">Learn more.</a>`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>`,
 					DisplayOrder:      8,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -341,13 +343,13 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					TaskID:     mustUUID(uuid.Parse("47743fae-c775-45d5-8a51-dc7e3371dfa4")),
 
 					ButtonContent:     null.NewString("Watch Videos"),
-					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-registration-page/"),
+					ButtonExternalURL: null.NewString("http://www.weavehelp.com/webinar-on-demand/"),
 					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to get the most out of the Weave phones, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up voicemail messages, placing callers on hold, transferring calls, and all our other phone features. Click below to watch our online webinars.`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features of your new phone system, including voicemail and auto-attendant setup, transferring calls, placing callers on hold, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      9,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -370,7 +372,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to have the best experience with your new phones, we recommend customizing the system to suit your needs. Your onboarding agent will help you change which phones ring when a call comes in, adjust the names and extensions on each phone, and set up any advanced call routing or auto attendant you may need. Click below to schedule a call.`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      10,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -386,19 +388,19 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CategoryID: mustUUID(uuid.Parse("d0da53a9-fbdb-4d22-85c6-ed521f237349")),
 					TaskID:     mustUUID(uuid.Parse("9aec502b-f8b8-4f10-9748-1fe4050eacde")),
 
-					ButtonContent:     null.NewString("Schedule Call"),
+					ButtonContent:     null.NewString("Let's Start"),
 					ButtonExternalURL: null.NewString("https://getweave.chilipiper.com/book/start-porting-process-call"),
-					ButtonInternalURL: null.String{},
+					ButtonInternalURL: null.NewString("/porting"),
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `One of your first steps is to work with your onboarding agent to verify your office phone numbers. Your onboarding agent will then handle some initial processing with your current phone service provider to ensure that when your office is ready to start using the new phones, we are ready to activate them for you. Click below to schedule a call with your onboarding agent.`,
+					Content:           `<div class="insys-content-body"> <span class="insys-content-bold"> What is this?  </span> In order to port your phone numbers from your current provider to your new Weave phones, we need three things: <ul> <li>Info about your current phone account</li> <li>Your approval of the terms of service</li> <li>A copy of your current phone bill</li> </ul> </div> <div class="insys-content-body"> <span class="insys-content-bold">How long will this take?</span> 5-10 minutes </div>`,
 					DisplayOrder:      4,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
 					StatusUpdatedBy:   null.NewString("Weave - default"),
-					Title:             "Verify your phone numbers",
+					Title:             "Provide current phone account info",
 					Explanation:       null.String{},
 
 					CreatedAt: time.Now(),
@@ -424,7 +426,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to start using all our software features, we need to sync your patient data to Weave. Typically, we will do this by installing a sync application on your office server - so make sure you have access to that computer and the right login information. If your practice management system is cloud-based, we will instead walk you through how to generate the credentials we need. Click below to schedule a 30-60 minute phone call with a Weave technician.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> On this scheduled call, we will help get your patient or customer database syncing with Weave. This will allow you to start using many of Weave's software features.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30-60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> We may need to access your office server - so make sure you have access to that computer and the right login information.</div>`,
 					DisplayOrder:      2,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -447,7 +449,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to make the most of features like Team Chat and two-way text messaging, we recommend installing Weave on most workstations throughout your office. Click below to find helpful instructions to download Weave throughout your office.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of Weave on other workstations in your office. Installing Weave on more workstations will help you make the most of features like Team Chat and two-way texting.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 5 minutes per workstation</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Use the link below to download Weave throughout your office - if you need help, just let us know!</div>`,
 					DisplayOrder:      5,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -470,7 +472,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to get the most out of the Weave software, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up and using two-way texting, automated appointment reminders, and all our other features. Click below to watch our online webinars",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      6,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -493,7 +495,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           "In order to see your schedule, field calls, and chat with your team all on the go, we recommend installing the Weave app on your mobile device. Click below to find helpful instructions to download Weave on your phone.",
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A quick installation of our mobile app on your phone. Our mobile app is a great tool to see your schedule, field office calls, and chat with your team - all on-the-go, whenever you need access.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 3-5 minutes</div>`,
 					DisplayOrder:      7,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -516,7 +518,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to ensure the highest quality phone service on Weave's internet-based phones, we need to verify your network compatibility. Click below to schedule a 15 minute phone call with a Weave technician. <a href="http://www.weavehelp.com/network-specs">Learn More</a>`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>`,
 					DisplayOrder:      3,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -539,7 +541,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `You're making great progress! Click below to schedule a 60 minute phone call with a Weave technician who will guide you through the process of connecting the new phones. Typically, we will aim to help you plug the new phones in side-by-side with your old phones. After finishing, you will continue to use your old phones while we work with your current phone service provider for a few days to officially move your phone numbers to our system. <a href="http://www.weavehelp.com/phone-install">Learn more.</a>`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>`,
 					DisplayOrder:      8,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -562,7 +564,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to get the most out of the Weave phones, we recommend tuning in to our training videos online. Our helpful training staff will walk you through setting up voicemail messages, placing callers on hold, transferring calls, and all our other phone features. Click below to watch our online webinars.`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features of your new phone system, including voicemail and auto-attendant setup, transferring calls, placing callers on hold, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      9,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -585,7 +587,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `In order to have the best experience with your new phones, we recommend customizing the system to suit your needs. Your onboarding agent will help you change which phones ring when a call comes in, adjust the names and extensions on each phone, and set up any advanced call routing or auto attendant you may need. Click below to schedule a call.`,
+					Content:           `<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>`,
 					DisplayOrder:      10,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
@@ -601,19 +603,19 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CategoryID: mustUUID(uuid.Parse("d0da53a9-fbdb-4d22-85c6-ed521f237349")),
 					TaskID:     mustUUID(uuid.Parse("9aec502b-f8b8-4f10-9748-1fe4050eacde")),
 
-					ButtonContent:     null.NewString("Schedule Call"),
+					ButtonContent:     null.NewString("Let's Start"),
 					ButtonExternalURL: null.NewString("schedule porting link"),
-					ButtonInternalURL: null.String{},
+					ButtonInternalURL: null.NewString("/porting"),
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
 					VerifiedAt:        null.Time{},
 					VerifiedBy:        null.String{},
-					Content:           `One of your first steps is to work with your onboarding agent to verify your office phone numbers. Your onboarding agent will then handle some initial processing with your current phone service provider to ensure that when your office is ready to start using the new phones, we are ready to activate them for you. Click below to schedule a call with your onboarding agent.`,
+					Content:           `<div class="insys-content-body"> <span class="insys-content-bold"> What is this?  </span> In order to port your phone numbers from your current provider to your new Weave phones, we need three things: <ul> <li>Info about your current phone account</li> <li>Your approval of the terms of service</li> <li>A copy of your current phone bill</li> </ul> </div> <div class="insys-content-body"> <span class="insys-content-bold">How long will this take?</span> 5-10 minutes </div>`,
 					DisplayOrder:      4,
 					Status:            0,
 					StatusUpdatedAt:   time.Now(),
 					StatusUpdatedBy:   null.NewString("Weave - default"),
-					Title:             "Verify your phone numbers",
+					Title:             "Provide current phone account info",
 					Explanation:       null.String{},
 
 					CreatedAt: time.Now(),
@@ -633,8 +635,9 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !compareTaskInstances(got, tt.want) {
-				t.Errorf("TaskInstanceService.CreateFromTasks() = %v, want %v", got, tt.want)
+				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

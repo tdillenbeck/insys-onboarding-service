@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 const (

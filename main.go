@@ -6,17 +6,18 @@ import (
 
 	cgrpc "google.golang.org/grpc"
 
-	"weavelab.xyz/insys-onboarding/internal/config"
-	"weavelab.xyz/insys-onboarding/internal/grpc"
-	"weavelab.xyz/insys-onboarding/internal/psql"
-	"weavelab.xyz/protorepo/dist/go/services/insys"
-	"weavelab.xyz/wlib/wapp"
-	"weavelab.xyz/wlib/wapp/grpcwapp"
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wgrpc/wgrpcserver"
-	"weavelab.xyz/wlib/wlog"
-	"weavelab.xyz/wlib/wsql"
-	"weavelab.xyz/wlib/wvault/wvaultdb"
+	"weavelab.xyz/insys-onboarding-service/internal/config"
+	"weavelab.xyz/insys-onboarding-service/internal/grpc"
+	"weavelab.xyz/insys-onboarding-service/internal/psql"
+
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/wapp"
+	"weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
+	"weavelab.xyz/monorail/shared/wlib/wvault/wvaultdb"
 )
 
 type databaseConnectionOptions struct {

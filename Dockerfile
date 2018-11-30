@@ -1,5 +1,5 @@
 FROM scratch  
 
-ADD insys-onboarding /
+ADD insys-onboarding-service /
 
-CMD ["/insys-onboarding"]
+CMD ["/insys-onboarding-service"]

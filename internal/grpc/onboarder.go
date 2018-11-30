@@ -5,14 +5,15 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
-	"weavelab.xyz/go-utilities/null"
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/protorepo/dist/go/messages/insysproto"
-	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
-	"weavelab.xyz/protorepo/dist/go/services/insys"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wgrpc"
+
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
 
 var _ insys.OnboarderServer = &OnboarderServer{}
@@ -101,8 +102,8 @@ func convertProtoToOnboarder(proto *insysproto.Onboarder) (*app.Onboarder, error
 	}
 
 	return &app.Onboarder{
-		ID:     id,
-		UserID: userID,
+		ID:                           id,
+		UserID:                       userID,
 		ScheduleCustomizationLink:    null.NewString(proto.ScheduleCustomizationLink),
 		SchedulePortingLink:          null.NewString(proto.SchedulePortingLink),
 		ScheduleNetworkLink:          null.NewString(proto.ScheduleNetworkLink),
@@ -126,8 +127,8 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 	}
 
 	return &insysproto.Onboarder{
-		ID:     sharedproto.UUIDToProto(onb.ID),
-		UserID: sharedproto.UUIDToProto(onb.UserID),
+		ID:                           sharedproto.UUIDToProto(onb.ID),
+		UserID:                       sharedproto.UUIDToProto(onb.UserID),
 		ScheduleCustomizationLink:    onb.ScheduleCustomizationLink.String(),
 		SchedulePortingLink:          onb.SchedulePortingLink.String(),
 		ScheduleNetworkLink:          onb.ScheduleNetworkLink.String(),

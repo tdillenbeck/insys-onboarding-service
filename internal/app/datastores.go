@@ -3,8 +3,8 @@ package app
 import (
 	"context"
 
-	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
-	"weavelab.xyz/wlib/uuid"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
 // CategoryService defines the actions for the database related to Categories

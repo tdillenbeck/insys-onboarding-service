@@ -1,0 +1,26 @@
+
+if [ -z $GOOS ] 
+then
+	GOOS=linux
+fi
+
+if [ "${TRAVIS}" = "true" ]
+then
+	GITREV=${TRAVIS_BUILD_NUMBER}
+	GITHASH=${TRAVIS_COMMIT}
+	GITBRANCH=${TRAVIS_BRANCH}
+else
+	GITREV=$(git rev-list HEAD --count)
+	GITHASH=$(git rev-parse HEAD)
+	GITBRANCH=$(git symbolic-ref --short HEAD)
+fi
+
+VPATH=$(pwd)/vendor/github.com/weave-lab/wlib/version
+VPATH=${VPATH##*/src/}
+
+CGO_ENABLED=0 \
+GOOS=${GOOS} \
+GOARCH=amd64 \
+go build \
+-ldflags "-s -w -X ${VPATH}.maintenance=${GITREV} -X ${VPATH}.commitHash=${GITHASH} -X ${VPATH}.branch=${GITBRANCH}" \
+-v -i 
