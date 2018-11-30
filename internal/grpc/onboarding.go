@@ -5,13 +5,14 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
-	"weavelab.xyz/protorepo/dist/go/messages/insysproto"
-	"weavelab.xyz/protorepo/dist/go/messages/sharedproto"
-	"weavelab.xyz/protorepo/dist/go/services/insys"
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wgrpc"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
 
 // verify that the OnboardingService struct implements all methods required in the proto definition

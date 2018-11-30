@@ -8,11 +8,12 @@ import (
 	"testing"
 	"time"
 
-	"weavelab.xyz/go-utilities/null"
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 func TestTaskInstanceService_ByLocationID(t *testing.T) {
@@ -151,7 +152,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 
 	// create an onboarder
 	onb := &app.Onboarder{
-		UserID: uuid.NewV4(),
+		UserID:                       uuid.NewV4(),
 		ScheduleCustomizationLink:    null.NewString("schedule customization link"),
 		SchedulePortingLink:          null.NewString("schedule porting link"),
 		ScheduleNetworkLink:          null.NewString("schedule network link"),

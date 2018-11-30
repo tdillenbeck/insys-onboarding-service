@@ -4,11 +4,12 @@ import (
 	"context"
 	"database/sql"
 
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wgrpc"
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 type OnboarderService struct {

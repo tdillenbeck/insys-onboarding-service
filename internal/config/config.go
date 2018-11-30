@@ -3,8 +3,8 @@ package config
 import (
 	"time"
 
-	"weavelab.xyz/wlib/config"
-	"weavelab.xyz/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/config"
+	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
 const (

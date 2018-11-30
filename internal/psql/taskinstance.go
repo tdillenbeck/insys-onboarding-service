@@ -5,11 +5,12 @@ import (
 	"database/sql"
 	"time"
 
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/protorepo/dist/go/enums/insysenums"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/werror"
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 type TaskInstanceService struct {

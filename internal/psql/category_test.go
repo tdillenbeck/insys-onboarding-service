@@ -7,9 +7,10 @@ import (
 	"testing"
 	"time"
 
-	"weavelab.xyz/insys-onboarding/internal/app"
-	"weavelab.xyz/wlib/uuid"
-	"weavelab.xyz/wlib/wsql"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
 func TestCategoryService_ByID(t *testing.T) {

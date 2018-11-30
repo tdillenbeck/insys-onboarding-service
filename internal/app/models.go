@@ -11,8 +11,8 @@ package app
 import (
 	"time"
 
-	"weavelab.xyz/go-utilities/null"
-	"weavelab.xyz/wlib/uuid"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
 // Category represents a group of tasks that are related.
