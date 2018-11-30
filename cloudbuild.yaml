@@ -12,3 +12,5 @@ steps:
   - 'REPO=$REPO_NAME'
   - 'TAG=$TAG_NAME'
   - 'SSHA=$SHORT_SHA'
+
+logsBucket: 'gs://weave-lab-build-logs'
