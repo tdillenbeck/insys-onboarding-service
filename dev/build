@@ -15,7 +15,7 @@ else
 	GITBRANCH=$(git symbolic-ref --short HEAD)
 fi
 
-VPATH=$(pwd -P)/vendor/github.com/weave-lab/wlib/version
+VPATH=$(pwd -P)/vendor/weavelab.xyz/monorail/shared/wlib/version
 VPATH=${VPATH##*/src/}
 
 CGO_ENABLED=0 \
