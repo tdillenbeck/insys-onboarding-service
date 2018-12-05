@@ -1,0 +1,93 @@
+schema: "1"
+
+slug: "insys-onboarding-service" # No spaces or special characters and must be unique. This is used as the identifier
+name: "insys onboarding service"
+owner: "squad-insys@getweave.com"
+repo: "gcr.io/weave-lab/insys/insys-onboarding-service"
+domain: "insys"
+slack: "#squad-insys"
+
+#############################
+# Radioactive Man!!!
+#############################
+# radioactive:
+#   state: alpha  # alpha | private (private beta) | beta | ga
+  # excludes: # Exclude some default radioactive templates
+  # - database
+  # - scale
+  # requirements:
+  #   network-diagram: http://my-network-diagram-check-it-out
+  #   metrics-dashboard: http://grafana.devs/my-app-dashboard
+  #   metrics-alerts: http://prometheus.devs/my-app-alerts
+  #   pagerduty-schedule: http://pagerduty.com/my-app-schedule-setup
+
+#############################
+# Ports 
+#############################
+
+# ports:
+# - name: main-port
+#   protocol: TCP
+#   number: 9000
+# - name: health-check 
+#   protocol: TCP
+#   number: 7777
+
+#############################
+# Resources
+#############################
+
+# resources:
+#   ram: 100m
+#   cpu: .5u
+#   replicas: 3
+#   maxReplicas: 10
+
+#############################
+# Environment Variables 
+#############################
+
+# env:
+# - name: THIS_PORT
+#   value: 9000
+# - name: PROPERTY_TWO
+#   configMapName: myConfigMap
+#   key: propertytwo
+# - name: PRIVATE_STUFF
+#   secretName: mySecret
+#   key: propertythree
+
+# overrides:
+#   dev:
+#   - name: THIS_PORT
+#     value: 9001
+#   - name: local
+#     env:
+#   local:
+#   - name: THIS_PORT
+#     value: 8080
+    
+
+#############################
+# Outside Access
+#############################
+
+# expose:
+# - name: http
+#   domain: api.getweave.com
+#   paths:
+#   - "/hi"
+#   - "/hello"
+#   destination: main-port
+# - name: diagnostics
+#   nodeport: 30211
+#   destination: health-check
+
+#############################
+# Sidecars
+#############################
+# sidecars:
+# - wsql:v1
+# - wcache-redis
+# - wmetrics
+
