@@ -5,6 +5,7 @@ steps:
   - 'GITHASH=$COMMIT_SHA'
   - 'GITBRANCH=$BRANCH_NAME'
   - 'REPO=$REPO_NAME'
+  - 'CI=true'
 - name: 'gcr.io/weave-lab/ops/ops-cd-tools:v1.0.0'
   args: ['/bin/cd-tools']
   env:
