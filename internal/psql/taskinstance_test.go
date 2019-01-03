@@ -4,10 +4,11 @@ import (
 	"context"
 	"io/ioutil"
 	"path/filepath"
-	"sort"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -109,10 +110,16 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 			name:    "attempts to to look up task instances that do not have the requested location id",
 			fields:  fields{DB: db},
 			args:    args{ctx: context.Background(), locationID: uuid.NewV4()},
-			want:    []app.TaskInstance{},
+			want:    nil,
 			wantErr: false,
 		},
 	}
+
+	// custom functions to ignore fields in cmp.Equal comparison
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.TaskInstance{}, "ID", "CompletedAt", "VerifiedAt", "StatusUpdatedAt", "CreatedAt", "UpdatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tis := &TaskInstanceService{
@@ -124,7 +131,7 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 				return
 			}
 
-			if !compareTaskInstances(got, tt.want) {
+			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("TaskInstanceService.ByLocationID() = %v, want %v", got, tt.want)
 			}
 		})
@@ -625,6 +632,11 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 			wantErr: false,
 		},
 	}
+
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.TaskInstance{}, "ID", "CompletedAt", "VerifiedAt", "StatusUpdatedAt", "CreatedAt", "UpdatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tis := &TaskInstanceService{
@@ -636,7 +648,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 				return
 			}
 
-			if !compareTaskInstances(got, tt.want) {
+			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
@@ -727,7 +739,7 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 				VerifiedBy:        null.String{},
 				Content:           "testing content",
 				DisplayOrder:      0,
-				Status:            0,
+				Status:            2,
 				StatusUpdatedAt:   time.Now(),
 				StatusUpdatedBy:   null.NewString("test"),
 				Title:             "testing title",
@@ -739,6 +751,11 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 			wantErr: false,
 		},
 	}
+
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.TaskInstance{}, "ID", "CompletedAt", "VerifiedAt", "StatusUpdatedAt", "CreatedAt", "UpdatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tis := &TaskInstanceService{
@@ -749,7 +766,8 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 				t.Errorf("TaskInstanceService.Update() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !compareTaskInstance(*got, *tt.want) {
+
+			if !cmp.Equal(*got, *tt.want, opts...) {
 				t.Errorf("TaskInstanceService.Update() = %v, want %v", got, tt.want)
 			}
 		})
@@ -759,37 +777,4 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 // musUUID is a helper function that simply returns the value without checking the errors. This is usefule when using uuid.Parse directly in a struct definition.
 func mustUUID(u uuid.UUID, err error) uuid.UUID {
 	return u
-}
-
-func compareTaskInstances(a, b []app.TaskInstance) bool {
-	if len(a) != len(b) {
-		return false
-	}
-
-	sort.Slice(a, func(i, j int) bool { return a[i].DisplayOrder < a[j].DisplayOrder })
-	sort.Slice(b, func(i, j int) bool { return b[i].DisplayOrder < b[j].DisplayOrder })
-
-	for i, _ := range a {
-		if !compareTaskInstance(a[i], b[i]) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func compareTaskInstance(a, b app.TaskInstance) bool {
-	return a.LocationID == b.LocationID &&
-		a.CategoryID == b.CategoryID &&
-		a.TaskID == b.TaskID &&
-		a.ButtonContent == b.ButtonContent &&
-		a.ButtonExternalURL == b.ButtonExternalURL &&
-		a.ButtonInternalURL == b.ButtonInternalURL &&
-		a.CompletedBy == b.CompletedBy &&
-		a.VerifiedBy == b.VerifiedBy &&
-		a.Content == b.Content &&
-		a.DisplayOrder == b.DisplayOrder &&
-		a.StatusUpdatedBy == b.StatusUpdatedBy &&
-		a.Title == b.Title &&
-		a.Explanation == b.Explanation
 }
