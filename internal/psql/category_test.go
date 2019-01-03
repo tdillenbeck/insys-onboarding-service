@@ -7,6 +7,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
 	"weavelab.xyz/monorail/shared/wlib/uuid"
@@ -75,6 +77,12 @@ func TestCategoryService_ByID(t *testing.T) {
 			true,
 		},
 	}
+
+	// custom functions to ignore fields in cmp.Equal comparison
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.Category{}, "ID", "CreatedAt", "UpdatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &CategoryService{
@@ -85,23 +93,9 @@ func TestCategoryService_ByID(t *testing.T) {
 				t.Errorf("CategoryService.ByID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !compareCategory(got, tt.want) {
+			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("CategoryService.ByID() = %v, want %v", got, tt.want)
 			}
 		})
 	}
-}
-
-func compareCategory(a, b *app.Category) bool {
-	// handle nil case
-	if a == b {
-		return true
-	}
-	if a == nil || b == nil {
-		return false
-	}
-
-	return a.ID == b.ID &&
-		a.DisplayText == b.DisplayText &&
-		a.DisplayOrder == b.DisplayOrder
 }
