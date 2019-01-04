@@ -35,7 +35,7 @@ migratetestdown:
 	goose -dir ./dbconfig/migrations postgres "postgres://postgres@localhost:5432/insys_onboarding_test?search_path=insys_onboarding&sslmode=disable" down
 	
 migratedev:
-	goose -dir ./dbconfig/migrations postgres "postgres://username:password@dev-pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable" up
+	goose -dir ./dbconfig/migrations postgres "postgres://username:password@dev-pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 migrateprod:
 	goose -dir ./dbconfig/migrations postgres "prod connection string" up
