@@ -212,7 +212,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					TaskID:     mustUUID(uuid.Parse("16a6dc91-ec6b-4b09-b591-a5b0dfa92932")),
 
 					ButtonContent:     null.NewString("Schedule Call"),
-					ButtonExternalURL: null.NewString("https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365"),
+					ButtonExternalURL: null.NewString("https://getweave.chilipiper.com/book/installation-scheduler?type=software-installation"),
 					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
@@ -327,7 +327,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					TaskID:     mustUUID(uuid.Parse("fd4f656c-c9f1-47b8-96ad-3080b999a843")),
 
 					ButtonContent:     null.NewString("Schedule Call"),
-					ButtonExternalURL: null.NewString("https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=category:Installs"),
+					ButtonExternalURL: null.NewString("https://getweave.chilipiper.com/book/installation-scheduler?type=phone-installation"),
 					ButtonInternalURL: null.String{},
 					CompletedAt:       null.Time{},
 					CompletedBy:       null.String{},
@@ -643,13 +643,14 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 				DB: tt.fields.DB,
 			}
 			got, err := tis.CreateFromTasks(tt.args.ctx, tt.args.locationID)
+
 			if (err != nil) != tt.wantErr {
 				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
 			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("TaskInstanceService.CreateFromTasks() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("TaskInstanceService.CreateFromTasks() compare failed. diff: %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}
