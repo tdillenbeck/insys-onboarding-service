@@ -57,7 +57,7 @@
     default, -- updated_at
     '26ba2237-c452-42dd-95ca-a5e59dd2853b', -- onboarding_category_id
     'Schedule Call', -- button_content
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365' -- button_external_url
+    'https://getweave.chilipiper.com/book/installation-scheduler?type=software-installation' -- button_external_url
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Sync your patient data to Weave', -- title
@@ -66,7 +66,7 @@
     default, -- created_at
     default, -- updated_at
     'Schedule Call', -- button_content
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365' -- button_external_url
+    'https://getweave.chilipiper.com/book/installation-scheduler?type=software-installation' -- button_external_url
   );
 
 
@@ -167,7 +167,7 @@
     default,
     'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
     'Schedule Call',
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=category:Installs'
+    'https://getweave.chilipiper.com/book/installation-scheduler?type=phone-installation'
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Install your new phones',
@@ -176,7 +176,7 @@
     default,
     default,
     'Schedule Call',
-    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=category:Installs'
+    'https://getweave.chilipiper.com/book/installation-scheduler?type=phone-installation'
   );
 
 
