@@ -40,3 +40,14 @@ migratedev:
 migrateprod:
 	goose -dir ./dbconfig/migrations postgres "prod connection string" up
 
+seedlocal:
+	psql "postgres://localhost:5432/insys_onboarding_local?sslmode=disable" -f dbconfig/seed.sql
+
+seedtest:
+	psql "postgres://localhost:5432/insys_onboarding_test?sslmode=disable" -f dbconfig/seed.sql
+
+seeddev:
+	psql "postgres://username:password@dev-pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
+
+seedprod:
+	psql "postgres://username:password@pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
