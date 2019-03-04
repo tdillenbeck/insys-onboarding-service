@@ -88,13 +88,13 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 		content,
 		button_content,
 		CASE id -- map task to specific onboarder url to use for scheduling for button_external_url field
-			WHEN '2d2df285-9211-48fc-a057-74f7dee2d9a4' THEN COALESCE((SELECT schedule_customization_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN '9aec502b-f8b8-4f10-9748-1fe4050eacde' THEN COALESCE((SELECT schedule_porting_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN '7b15e061-8002-4edc-9bf4-f38c6eec6364' THEN COALESCE((SELECT schedule_network_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN '16a6dc91-ec6b-4b09-b591-a5b0dfa92932' THEN COALESCE((SELECT schedule_software_install_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN 'fd4f656c-c9f1-47b8-96ad-3080b999a843' THEN COALESCE((SELECT schedule_phone_install_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN 'c20b65d8-e281-4e62-98f0-4aebf83e0bee' THEN COALESCE((SELECT schedule_software_training_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
-			WHEN '47743fae-c775-45d5-8a51-dc7e3371dfa4' THEN COALESCE((SELECT schedule_phone_training_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), button_external_url)
+			WHEN '2d2df285-9211-48fc-a057-74f7dee2d9a4' THEN COALESCE(NULLIF((SELECT schedule_customization_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN '9aec502b-f8b8-4f10-9748-1fe4050eacde' THEN COALESCE(NULLIF((SELECT schedule_porting_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN '7b15e061-8002-4edc-9bf4-f38c6eec6364' THEN COALESCE(NULLIF((SELECT schedule_network_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN '16a6dc91-ec6b-4b09-b591-a5b0dfa92932' THEN COALESCE(NULLIF((SELECT schedule_software_install_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN 'fd4f656c-c9f1-47b8-96ad-3080b999a843' THEN COALESCE(NULLIF((SELECT schedule_phone_install_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN 'c20b65d8-e281-4e62-98f0-4aebf83e0bee' THEN COALESCE(NULLIF((SELECT schedule_software_training_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			WHEN '47743fae-c775-45d5-8a51-dc7e3371dfa4' THEN COALESCE(NULLIF((SELECT schedule_phone_training_link FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
 			ELSE button_external_url
 		END,
 		button_internal_url,
