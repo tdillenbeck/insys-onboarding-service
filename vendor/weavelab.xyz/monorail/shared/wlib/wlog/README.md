@@ -3,9 +3,9 @@
 ```go
 
 import (
-  "github.com/weave-lab/wlib/werror"
-  "github.com/weave-lab/wlib/wlog"
-  "github.com/weave-lab/wlib/wlog/tag"
+  "weavelab.xyz/monorail/shared/wlib/werror"
+  "weavelab.xyz/monorail/shared/wlib/wlog"
+  "weavelab.xyz/monorail/shared/wlib/wlog/tag"
 )
 
 func main() {

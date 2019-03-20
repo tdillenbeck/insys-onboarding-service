@@ -59,7 +59,15 @@ func (ns UUID) Value() (driver.Value, error) {
 	return ns.String(), nil
 }
 
+// String returns the UUID as a string for valid UUIDs or an empty string for invalid UUIDs
 func (ns UUID) String() string {
+	// an invalid null.UUID historically returned an empty string; uuid.UUID returns all 0s
+	// changing back to return an empty string to match the behavior that existed before
+	// switching to uuid.UUID as the underlying type
+	if !ns.Valid {
+		return ""
+	}
+
 	return ns.UUID.String()
 }
 

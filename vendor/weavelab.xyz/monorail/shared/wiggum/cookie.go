@@ -13,6 +13,12 @@ import (
 )
 
 func SetCookie(token string, w http.ResponseWriter, r *http.Request) error {
+	return Default.SetCookie(token, w, r)
+}
+
+func (k *KeySet) SetCookie(token string, w http.ResponseWriter, r *http.Request) error {
+	cookieName := k.CookieName()
+
 	tokenCookie, err := r.Cookie(cookieName)
 	if err != nil && err != http.ErrNoCookie {
 		return fmt.Errorf("unable to get cookie: %s", err)
@@ -31,6 +37,12 @@ func SetCookie(token string, w http.ResponseWriter, r *http.Request) error {
 }
 
 func DeleteCookie(w http.ResponseWriter, r *http.Request) {
+	Default.DeleteCookie(w, r)
+}
+
+func (k *KeySet) DeleteCookie(w http.ResponseWriter, r *http.Request) {
+	cookieName := k.CookieName()
+
 	tokenCookie, err := r.Cookie(cookieName)
 	if err != nil {
 		return
@@ -43,8 +55,7 @@ func DeleteCookie(w http.ResponseWriter, r *http.Request) {
 }
 
 /* --- Private --- */
-
-func getCookie(r *http.Request) (string, bool) {
+func getCookie(r *http.Request, cookieName string) (string, bool) {
 	tokenCookie, err := r.Cookie(cookieName)
 	switch {
 	case err == http.ErrNoCookie:

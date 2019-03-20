@@ -10,7 +10,7 @@ package wiggum
 
 import (
 	"net/http"
-	// "strings"
+	"time"
 
 	// Weave
 	jwt "weavelab.xyz/monorail/shared/wiggum/jwt-go"
@@ -18,33 +18,34 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
+var Default = &KeySet{}
+
 // Set required values
-func Register(key []byte, cookie string) {
-	if len(key) == 0 {
-		key = []byte(`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuIrag84JwUnWwrG72T5s
-wokwqynX3pzDfcM2tTDOg9Gp4h5YEHdmpKAMklcfIiPnDbXCOzybrb6nnABXeoXG
-zlHstBJxzJWfcopI+wGJKnRyN+Z70F8ScZedNoaWsGdjSq6N8rcv0Vk8Fl2WG/2A
-mLTdTBGwGAvu7QDlLRTSC3DmMW+6Xbw+q+tGZuNEBfZj3+p3rXUdTWNoD64XcUoq
-bp7UHSBZcP9F4azRjMn+wYCO/mVzsUhp+b/PK/j2qt3xIePQLQdHTc6rCUEP6MGF
-eX3LbWqkxhgpnYcw0049bEOdc8eDu8x+hSOV9peBJdrKhNWAuiyFH18u2Zig3VYY
-RwIDAQAB
------END PUBLIC KEY-----`)
+func Register(verifyKey []byte, cookie string) error {
+	var err error
+	Default, err = NewLegacyKeySet(verifyKey, cookie)
+	if err != nil {
+		return werror.Wrap(err)
 	}
 
-	verifyKeyVal = key
-
-	if cookie == "" {
-		cookieName = "wiggum"
-	} else {
-		cookieName = cookie
-	}
-	return
+	return nil
 }
 
 // Makes a new signed JWT token string
-func Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, buffer int64, signKey []byte) (string, error) {
-	t := jwt.New(jwt.GetSigningMethod("RS256"))
+func (k *KeySet) Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, buffer int64, keyID string) (string, error) {
+
+	key, err := k.key(keyID)
+	if err != nil {
+		return "", werror.Wrap(err, "unable to lookup key")
+	}
+
+	if key.IsPublic() {
+		return "", werror.Wrap(err, "unable to sign with public key")
+	}
+
+	signingMethod := jwt.GetSigningMethod(key.Algorithm)
+
+	t := jwt.New(signingMethod)
 
 	t.Claims["ACLS"] = acls
 	t.Claims["user_id"] = userID
@@ -52,16 +53,35 @@ func Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, 
 	t.Claims["type"] = aclT
 	t.Claims["exp"] = exp
 	t.Claims["expBuffer"] = buffer
-	return t.SignedString(signKey)
+	t.Claims["iat"] = time.Now().Unix()
+	t.Claims["jti"] = uuid.NewV4()
+
+	if keyID != "" {
+		// add hint as to which signing key was used
+		// https://tools.ietf.org/html/rfc7515#section-4.1.4
+		t.Header["kid"] = keyID
+	}
+
+	ss, err := t.SignedString(key.Key)
+	if err != nil {
+		return "", werror.Wrap(err, "unable to sign")
+	}
+
+	return ss, nil
 }
 
 // Gets the passed jwt string from either the request cookie or header
 func TokenString(r *http.Request) string {
+	return Default.TokenString(r)
+}
+
+// Gets the passed jwt string from either the request cookie or header
+func (k *KeySet) TokenString(r *http.Request) string {
 	headerValue, ok := getHeader(r)
 	if ok {
 		return headerValue
 	}
-	cookieValue, ok := getCookie(r)
+	cookieValue, ok := getCookie(r, k.CookieName())
 	if ok {
 		return cookieValue
 	}
@@ -75,11 +95,20 @@ func TokenString(r *http.Request) string {
 
 // Convert a jwt string into a wiggum token
 func ParseAndValidate(tokenString string) (*Token, error) {
-	return newToken(tokenString)
+	return Default.ParseAndValidate(tokenString)
+}
+
+// Convert a jwt string into a wiggum token
+func (k *KeySet) ParseAndValidate(tokenString string) (*Token, error) {
+	return k.newToken(tokenString)
 }
 
 func ParseSkipValidation(tokenString string) (*Token, error) {
-	token, err := newToken(tokenString)
+	return Default.ParseSkipValidation(tokenString)
+}
+
+func (k *KeySet) ParseSkipValidation(tokenString string) (*Token, error) {
+	token, err := k.newToken(tokenString)
 	if !token.ValidSkipExpiration() {
 		return token, werror.Wrap(err).Add("context", "Invalid Token")
 	}

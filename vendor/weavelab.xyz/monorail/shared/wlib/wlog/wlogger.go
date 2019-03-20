@@ -1,10 +1,9 @@
 package wlog
 
 import (
+	"context"
 	"sync/atomic"
 	"unsafe"
-
-	"context"
 
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"

@@ -14,7 +14,7 @@ func renewPeriod(s Secret) time.Duration {
 
 	exp := s.Expiration()
 
-	period := time.Until(exp) / 3
+	period := Until(exp) / 5
 
 	if parentPeriod > 0 && parentPeriod < period {
 		return parentPeriod

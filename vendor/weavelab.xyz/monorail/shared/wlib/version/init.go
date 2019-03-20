@@ -8,8 +8,6 @@ import (
 	"runtime/debug"
 	"strings"
 	"time"
-
-	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
 var (
@@ -46,7 +44,6 @@ var disableBuildChecks = func() bool {
 
 func init() {
 
-	instanceID := uuid.NewV4().Format(string(uuid.CleanHyphen))
 	hostname, _ := os.Hostname()
 
 	name = selfName()
@@ -64,8 +61,7 @@ func init() {
 		GoVersion: runtime.Version(),
 		Hostname:  hostname,
 
-		StartTime:  time.Now(),
-		InstanceID: instanceID,
+		StartTime: time.Now(),
 	}
 	l.Unlock()
 

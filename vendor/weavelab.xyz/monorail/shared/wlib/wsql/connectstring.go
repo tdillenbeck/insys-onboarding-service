@@ -20,6 +20,8 @@ type ConnectString struct {
 	Role          string
 
 	Params url.Values // allow arbitrary parameters
+
+	host string // internal use only
 }
 
 func (c *ConnectString) String() string {
@@ -76,4 +78,18 @@ func (c *ConnectString) String() string {
 // and bypasses templating
 func (c *ConnectString) SetConnectString(s string) {
 	c.connectString = s
+}
+
+func (c *ConnectString) Hostname() string {
+	if c.host != "" {
+		return c.host
+	}
+	c.host = hostnameFromConnectionString(c.String())
+
+	return c.host
+}
+
+func hostnameFromConnectionString(cs string) string {
+	u, _ := url.Parse(cs)
+	return u.Hostname()
 }

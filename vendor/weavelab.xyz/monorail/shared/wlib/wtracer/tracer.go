@@ -3,6 +3,7 @@ package wtracer
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/opentracing/opentracing-go"
 	"github.com/uber/jaeger-client-go"
@@ -17,6 +18,8 @@ const (
 
 	RequestIDTag      = "RequestID"
 	HTTPURLPatternTag = "Pattern"
+
+	UberTraceIDHeader = "Uber-Trace-Id"
 
 	MaxLogFieldSize = 64000
 
@@ -166,4 +169,24 @@ func ShouldLogBodies(ctx opentracing.SpanContext) bool {
 	})
 
 	return l
+}
+
+// SetOutgoingTraceID -- grabs the traceID from the context and adds it to the outgoing context
+// Particularly useful for reverse proxies
+func SetOutgoingTraceID(ctx context.Context, r *http.Request) {
+
+	span := opentracing.SpanFromContext(ctx)
+	if span == nil {
+		return
+	}
+
+	spanCtx := span.Context()
+
+	sc, ok := spanCtx.(jaeger.SpanContext)
+	if !ok {
+		return
+	}
+
+	r.Header.Add(UberTraceIDHeader, sc.String())
+
 }

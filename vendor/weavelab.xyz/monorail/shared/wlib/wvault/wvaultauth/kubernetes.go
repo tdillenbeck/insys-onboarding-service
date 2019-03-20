@@ -14,10 +14,11 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 	"weavelab.xyz/monorail/shared/wlib/wmetrics"
 	"weavelab.xyz/monorail/shared/wlib/wvault"
+	"weavelab.xyz/monorail/shared/wlib/wvault/wvaulttypes"
 )
 
 const (
-	kubernetesServiceTokenConfig = "KUBERNETES_SERVICE_TOKEN"
+	KubernetesServiceTokenConfig = "KUBERNETES_SERVICE_TOKEN"
 )
 
 func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token, error) {
@@ -34,7 +35,7 @@ func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token
 	// use the kubernetes vault backend to use the kubernetes
 	// service account credentials to get a vault token
 
-	loginRequest := KubernetesLoginRequest{
+	loginRequest := wvaulttypes.KubernetesLoginRequest{
 		JWT:  serviceToken,
 		Role: role,
 	}
@@ -66,21 +67,25 @@ func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token
 	}
 
 	leaseDuration := time.Duration(k.Auth.LeaseDuration) * time.Second
-	expiration := time.Now().Add(leaseDuration)
+
+	now := wvault.Clock.Now()
+	expiration := now.Add(leaseDuration)
 
 	token := token{
 		client: c,
+		role:   role,
 
 		leaseID:  k.LeaseID, // lease id is always empty
 		accessor: k.Auth.Accessor,
 		token:    k.Auth.ClientToken,
 
 		renewable:        k.Auth.Renewable,
+		createdAt:        now,
 		expiration:       expiration,
 		requestIncrement: leaseDuration,
 	}
 
-	wlog.Info("[VaultAuth] kubernetes auth", tag.Int("duration", k.Auth.LeaseDuration), tag.Bool("renewable", k.Auth.Renewable))
+	wlog.InfoC(ctx, "[VaultAuth] kubernetes auth", tag.Int("duration", k.Auth.LeaseDuration), tag.Bool("renewable", k.Auth.Renewable), tag.String("expiration", token.expiration.Format(time.RFC3339)))
 
 	wmetrics.Incr(1, vaultAuthMetric, "kubernetesAuth", "success")
 
@@ -88,15 +93,15 @@ func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token
 
 }
 
+var serviceTokenFilename = `/var/run/secrets/kubernetes.io/serviceaccount/token`
+
 func kubernetesServiceToken() (string, error) {
 
 	// TODO: move service token logic to separate function
-	serviceToken := []byte(os.Getenv(kubernetesServiceTokenConfig))
+	serviceToken := []byte(os.Getenv(KubernetesServiceTokenConfig))
 	if len(serviceToken) != 0 {
 		return string(serviceToken), nil
 	}
-
-	serviceTokenFilename := `/var/run/secrets/kubernetes.io/serviceaccount/token`
 
 	var err error
 	serviceToken, err = ioutil.ReadFile(serviceTokenFilename)
@@ -105,9 +110,4 @@ func kubernetesServiceToken() (string, error) {
 	}
 
 	return string(serviceToken), nil
-}
-
-type KubernetesLoginRequest struct {
-	JWT  string `json:"jwt"`
-	Role string `json:"role"`
 }

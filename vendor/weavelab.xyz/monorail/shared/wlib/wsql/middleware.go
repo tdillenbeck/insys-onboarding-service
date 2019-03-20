@@ -2,14 +2,11 @@ package wsql
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"runtime"
 	"strings"
 	"time"
 
-	"weavelab.xyz/monorail/shared/wlib/wlog"
-	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 	"weavelab.xyz/monorail/shared/wlib/wmetrics"
 )
 
@@ -21,24 +18,6 @@ func init() {
 	wmetrics.SetLabels(dbCallStackMetric, "query", "path")
 
 	rand.Seed(time.Now().UnixNano())
-}
-
-func (p *PG) logQuery(q string) {
-	if p.LogQueries {
-		wlog.Info("query", tag.String("query", q))
-	}
-}
-
-func (p *PG) logQueryParameters(q string, parameters ...interface{}) {
-	if p.LogQueries {
-		wlog.Info("query", tag.String("query", q), tag.String("paramaters", fmt.Sprintf("%#v", parameters)))
-	}
-}
-
-func (p *PG) log(caller string, q string, parameters ...interface{}) {
-	if p.LogQueries {
-		wlog.Info("query", tag.String("caller", caller), tag.String("query", q), tag.String("parameters", fmt.Sprintf("%#v", parameters)))
-	}
 }
 
 func findStackAndStartTimer() func(...string) {
@@ -75,7 +54,7 @@ func (p *PG) middleware(ctx context.Context, query string, parameters ...interfa
 	}
 
 	// log
-	p.log(callerName, query, parameters)
+	p.log(ctx, callerName, query, parameters)
 
 	// trace
 	t := p.openTracingInterceptor(ctx, callerName, query)

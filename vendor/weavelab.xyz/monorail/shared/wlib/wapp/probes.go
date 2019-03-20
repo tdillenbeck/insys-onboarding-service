@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -31,8 +30,6 @@ func Probes(addr string, liveness ...LivenessCheck) StartFunc {
 	if EnableProbes == false {
 		return nil
 	}
-
-	liveness = append(globalLivenessChecks, liveness...)
 
 	// set EnableProbes to false so that we only start one set of Probes
 	EnableProbes = false
@@ -67,7 +64,9 @@ func (s statusHandler) Liveness(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	for _, r := range s.livenessChecks {
+	livenessChecks := append(s.livenessChecks, globalLivenessChecks...)
+
+	for _, r := range livenessChecks {
 		err := r.Liveness(ctx)
 		if err != nil {
 			wlog.WError(werror.Wrap(err, "error while checking liveness status"))
@@ -94,17 +93,4 @@ func (s statusHandler) Readiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-}
-
-// AppInfo is for retrieving info about an app
-func (s statusHandler) AppInfo(w http.ResponseWriter, r *http.Request) {
-
-	b, err := ioutil.ReadFile(".weave.yaml")
-	if err == nil {
-		_, err = io.WriteString(w, string(b))
-		if err != nil {
-			wlog.WError(werror.Wrap(err, "unable to write app info body"))
-			return
-		}
-	}
 }

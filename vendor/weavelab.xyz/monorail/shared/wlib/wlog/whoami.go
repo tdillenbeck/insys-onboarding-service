@@ -49,6 +49,5 @@ func init() {
 	AddWhoAmI(tag.String("commitHash", info.GitHash))
 	AddWhoAmI(tag.String("branch", info.GitBranch))
 	AddWhoAmI(tag.String("hostname", info.Hostname))
-	AddWhoAmI(tag.String("instanceId", info.InstanceID))
 	AddWhoAmI(tag.Int64("modTime", info.FileModificationTime.Unix()))
 }

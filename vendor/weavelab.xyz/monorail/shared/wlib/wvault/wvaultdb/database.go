@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"time"
@@ -20,15 +19,6 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wvault/wvaultauth"
 	"weavelab.xyz/monorail/shared/wlib/wvault/wvaulttypes"
 )
-
-var (
-	maxRenewInterval time.Duration
-)
-
-func init() {
-	i := os.Getenv("WVAULT_DB_MAX_RENEW_INTERVAL")
-	maxRenewInterval, _ = time.ParseDuration(i)
-}
 
 func New(ctx context.Context, role string, target string, s *wsql.Settings) (*wsql.PG, error) {
 
@@ -73,8 +63,11 @@ func createCredentials(ctx context.Context, role string, target string) (*Creato
 		return nil, werror.Wrap(err)
 	}
 
+	ctx2, done := wvault.WithNewTracingParent(ctx)
+	defer done()
+
 	// get auth token
-	authToken, err := wvaultauth.New(ctx, client, role)
+	authToken, err := wvaultauth.New(ctx2, client, role)
 	if err != nil {
 		return nil, werror.Wrap(err)
 	}
@@ -85,7 +78,7 @@ func createCredentials(ctx context.Context, role string, target string) (*Creato
 		target: target,
 	}
 
-	err = c.createCredentials(ctx)
+	err = c.createCredentials(ctx2)
 	if err != nil {
 		return nil, werror.Wrap(err)
 	}
@@ -143,7 +136,30 @@ func (c *Creator) Password() string {
 	return c.password
 }
 
+func (c *Creator) ShouldRefresh() bool {
+	lifetime := c.expiration.Sub(c.createdAt)
+
+	halfway := c.createdAt.Add(lifetime / 2)
+
+	now := wvault.Clock.Now()
+
+	return now.After(halfway)
+
+}
+
+func (c *Creator) ShouldForceRecreate() bool {
+	lifetime := c.expiration.Sub(c.createdAt)
+
+	cutPoint := c.createdAt.Add(lifetime * 9 / 10)
+
+	now := wvault.Clock.Now()
+
+	return now.After(cutPoint)
+}
+
 func (c *Creator) createCredentials(ctx context.Context) error {
+
+	wlog.InfoC(ctx, "[VaultDB] attempting to create database credentials")
 
 	databaseSecretPath := `/v1/database/creds/` + c.target
 	url := c.client.BaseAddress() + databaseSecretPath
@@ -172,16 +188,16 @@ func (c *Creator) createCredentials(ctx context.Context) error {
 	}
 
 	leaseDuration := time.Duration(cr.LeaseDuration) * time.Second
-	expiration := time.Now().Add(leaseDuration)
+	expiration := wvault.Clock.Now().Add(leaseDuration)
 
 	c.expiration = expiration
 	c.leaseID = cr.LeaseID
-	c.createdAt = time.Now()
+	c.createdAt = wvault.Clock.Now()
 	c.username = cr.Data.Username
 	c.password = cr.Data.Password
 	c.requestIncrement = leaseDuration
 
-	wlog.Info("[VaultDB] database credentials created", tag.String("username", cr.Data.Username), tag.Int("leaseDuration", cr.LeaseDuration), tag.String("leaseID", cr.LeaseID))
+	wlog.InfoC(ctx, "[VaultDB] database credentials created", tag.String("username", cr.Data.Username), tag.Int("leaseDuration", cr.LeaseDuration), tag.String("leaseID", cr.LeaseID))
 	return nil
 }
 
@@ -202,7 +218,7 @@ func (c *Creator) renew(ctx context.Context) (time.Duration, bool, error) {
 
 	leaseDuration := time.Duration(resp.LeaseDuration) * time.Second
 
-	c.expiration = time.Now().Add(leaseDuration)
+	c.expiration = wvault.Clock.Now().Add(leaseDuration)
 
 	return leaseDuration, false, nil
 

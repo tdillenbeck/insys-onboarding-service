@@ -32,6 +32,7 @@ type token struct {
 	role     string
 
 	renewable        bool
+	createdAt        time.Time
 	expiration       time.Time
 	requestIncrement time.Duration
 }
@@ -42,13 +43,16 @@ func New(ctx context.Context, c *wvault.Client, role string) (wvault.Secret, err
 	// check to see if we have a vault token
 	envToken := os.Getenv(ConfigVaultToken)
 	if envToken != "" {
-		wlog.Info("[VaultAuth] Using auth token from environment variable")
+		wlog.InfoC(ctx, "[VaultAuth] Using auth token from environment variable")
+		now := wvault.Clock.Now()
+
 		t := token{
 			token:      envToken,
 			role:       role,
 			client:     c,
 			renewable:  true, // tokens are valid until they are revoked, a new token must be issued and configured
-			expiration: time.Now().AddDate(1000, 0, 0),
+			createdAt:  now,
+			expiration: now.AddDate(1000, 0, 0),
 		}
 		return &t, nil
 	}
@@ -76,13 +80,22 @@ func (t *token) Token() string {
 
 // Renews the auth token. If recreate is true or the token
 // cannot be refreshed, a new token is obtained.
-// Returns true if a fresh was possible, otherwise returns false
+// Returns true if a refresh was possible, otherwise returns false
 // to indicate that a new token was created
+// If a new token was issued, all secrets depending on the previous
+// token should be recreated
 func (t *token) Refresh(ctx context.Context, recreate bool) (bool, error) {
-	t.Lock()
-	defer t.Unlock()
 
-	if t.renewable == false || recreate {
+	return t.refresh(ctx, recreate)
+}
+
+func (t *token) refresh(ctx context.Context, recreate bool) (bool, error) {
+	// if the token is expiring soon, force recreate
+	if wvault.Until(t.Expiration()) < time.Second*10 {
+		recreate = true
+	}
+
+	if t.Renewable() == false || recreate {
 		err := t.recreate(ctx)
 		if err != nil {
 			return false, werror.Wrap(err)
@@ -91,34 +104,61 @@ func (t *token) Refresh(ctx context.Context, recreate bool) (bool, error) {
 	}
 
 	// TODO: increment should be generated in a more robust way
-	increment := t.requestIncrement
-	resp, retryable, err := t.client.RenewToken(ctx, t, increment)
+	requestIncrement := t.RequestIncrement()
+	resp, retryable, err := t.client.RenewToken(ctx, t, requestIncrement)
 	if err != nil {
 		if retryable {
 			return false, werror.Wrap(err)
 		}
+		// log and continue
+		wlog.WErrorC(ctx, werror.Wrap(err, "[Vault] unable to renew token"))
+	}
 
-		err := t.recreate(ctx)
-		if err != nil {
-			return false, werror.Wrap(err)
-		}
-		return false, nil
+	if resp == nil || resp.LeaseDuration < int(requestIncrement/time.Second)/2 {
+		return t.Refresh(ctx, true)
 	}
 
 	t.expiration = resp.NewExpiration()
-
 	return true, nil
+
 }
 
 func (t *token) recreate(ctx context.Context) error {
 
-	newToken, err := New(ctx, t.client, t.role)
+	t.Lock()
+	client := t.client
+	role := t.role
+	t.Unlock()
+
+	newToken, err := New(ctx, client, role)
 	if err != nil {
 		return werror.Wrap(err)
 	}
 
-	t = newToken.(*token)
+	*t = *(newToken.(*token))
+
 	return nil // token was renewed
+}
+
+func (t *token) RequestIncrement() time.Duration {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.requestIncrement
+}
+
+func (t *token) Renewable() bool {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.renewable
+}
+
+func (t *token) CreatedAt() time.Time {
+	t.Lock()
+	defer t.Unlock()
+
+	return t.createdAt
 }
 
 func (t *token) Expiration() time.Time {
@@ -137,4 +177,20 @@ func (t *token) LeaseID() string {
 
 func (t *token) Parent() wvault.Secret {
 	return nil
+}
+
+func (t *token) ShouldRefresh() bool {
+	// if we're past the halfway mark, we should refresh
+	expiration := t.Expiration()
+	createdAt := t.CreatedAt()
+
+	lifetime := expiration.Sub(createdAt)
+
+	halfway := createdAt.Add(lifetime / 2)
+
+	now := wvault.Clock.Now()
+
+	shouldRefresh := now.After(halfway)
+
+	return shouldRefresh
 }

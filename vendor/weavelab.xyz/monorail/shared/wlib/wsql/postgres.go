@@ -6,6 +6,7 @@ Package wsql implements a postgres interface with logging, metrics, and tracing 
 package wsql
 
 import (
+	"context"
 	"database/sql"
 	"math/rand"
 	"net/url"
@@ -27,6 +28,9 @@ import (
 const (
 	pgPrimaryName = "primary"
 	pgReplicaName = "replica"
+
+	defaultMaxIdleConnections = 3
+	defaultMaxOpenConnections = 5
 )
 
 type PG struct {
@@ -39,13 +43,16 @@ type PG struct {
 	setupLock  sync.Mutex
 
 	settings *Settings
+
+	loggers []LoggerFunc
 }
 
 type DB struct {
 	stopMetrics chan struct{}
 
-	Name string
-	xdb  *sqlx.DB
+	Name     string
+	Hostname string
+	xdb      *sqlx.DB
 }
 
 type Settings struct {
@@ -60,6 +67,11 @@ type Settings struct {
 }
 
 func New(s *Settings) (*PG, error) {
+
+	if s.MaxOpenConnections == 0 {
+		s.MaxIdleConnections = defaultMaxIdleConnections
+		s.MaxOpenConnections = defaultMaxOpenConnections
+	}
 
 	t, err := wtracer.DefaultTracer()
 	if err != nil {
@@ -166,9 +178,12 @@ func (p *PG) connect(s *Settings, name string, cs ConnectString) (*DB, error) {
 		return nil, werror.Wrap(err).Add("csHost", cs.Host).Add("csSet", cs.connectString != "")
 	}
 
+	hostname := hostnameFromConnectionString(css)
+
 	db := &DB{
 		xdb:         conn,
 		Name:        name,
+		Hostname:    hostname,
 		stopMetrics: make(chan struct{}),
 	}
 
@@ -276,14 +291,20 @@ func (p *PG) UpdateCredentials(username string, password string) error {
 	return nil
 }
 
-func (p *PG) rw() *sqlx.DB {
-	db := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.db)))
+func (p *PG) rw(ctx context.Context) *sqlx.DB {
+	dbPointer := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.db)))
 
-	return (*DB)(db).xdb
+	db := (*DB)(dbPointer)
+	wlog.DebugC(ctx, "sending query to read-write connection", tag.String("host", db.Hostname))
+
+	return db.xdb
 }
 
-func (p *PG) r() *sqlx.DB {
-	db := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.dbReplica)))
+func (p *PG) r(ctx context.Context) *sqlx.DB {
+	dbPointer := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.dbReplica)))
 
-	return (*DB)(db).xdb
+	db := (*DB)(dbPointer)
+	wlog.DebugC(ctx, "sending query to read-only connection", tag.String("host", db.Hostname))
+
+	return db.xdb
 }

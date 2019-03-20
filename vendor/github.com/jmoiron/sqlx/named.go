@@ -12,10 +12,12 @@ package sqlx
 //  * bindArgs, bindMapArgs, bindAnyArgs - given a list of names, return an arglist
 //
 import (
+	"bytes"
 	"database/sql"
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"unicode"
 
@@ -163,16 +165,18 @@ func bindArgs(names []string, arg interface{}, m *reflectx.Mapper) ([]interface{
 		v = v.Elem()
 	}
 
-	fields := m.TraversalsByName(v.Type(), names)
-	for i, t := range fields {
+	err := m.TraversalsByNameFunc(v.Type(), names, func(i int, t []int) error {
 		if len(t) == 0 {
-			return arglist, fmt.Errorf("could not find name %s in %#v", names[i], arg)
+			return fmt.Errorf("could not find name %s in %#v", names[i], arg)
 		}
+
 		val := reflectx.FieldByIndexesReadOnly(v, t)
 		arglist = append(arglist, val.Interface())
-	}
 
-	return arglist, nil
+		return nil
+	})
+
+	return arglist, err
 }
 
 // like bindArgs, but for maps.
@@ -203,6 +207,56 @@ func bindStruct(bindType int, query string, arg interface{}, m *reflectx.Mapper)
 		return "", []interface{}{}, err
 	}
 
+	return bound, arglist, nil
+}
+
+var (
+	EndBracketsReg = regexp.MustCompile(`\([^()]*\)\s*$`)
+)
+
+func fixBound(bound string, loop int) string {
+	endBrackets := EndBracketsReg.FindString(bound)
+	if endBrackets == "" {
+		return bound
+	}
+	var buffer bytes.Buffer
+	buffer.WriteString(bound)
+	for i := 0; i < loop-1; i++ {
+		buffer.WriteString(",")
+		buffer.WriteString(endBrackets)
+	}
+	return buffer.String()
+}
+
+// bindArray binds a named parameter query with fields from an array or slice of
+// structs argument.
+func bindArray(bindType int, query string, arg interface{}, m *reflectx.Mapper) (string, []interface{}, error) {
+	// do the initial binding with QUESTION;  if bindType is not question,
+	// we can rebind it at the end.
+	bound, names, err := compileNamedQuery([]byte(query), QUESTION)
+	if err != nil {
+		return "", []interface{}{}, err
+	}
+	arrayValue := reflect.ValueOf(arg)
+	arrayLen := arrayValue.Len()
+	if arrayLen == 0 {
+		return "", []interface{}{}, fmt.Errorf("length of array is 0: %#v", arg)
+	}
+	var arglist []interface{}
+	for i := 0; i < arrayLen; i++ {
+		elemArglist, err := bindArgs(names, arrayValue.Index(i).Interface(), m)
+		if err != nil {
+			return "", []interface{}{}, err
+		}
+		arglist = append(arglist, elemArglist...)
+	}
+	if arrayLen > 1 {
+		bound = fixBound(bound, arrayLen)
+	}
+	// adjust binding type if we weren't on question
+	if bindType != QUESTION {
+		bound = Rebind(bindType, bound)
+	}
 	return bound, arglist, nil
 }
 
@@ -257,6 +311,10 @@ func compileNamedQuery(qs []byte, bindType int) (query string, names []string, e
 			}
 			inName = true
 			name = []byte{}
+		} else if inName && i > 0 && b == '=' && len(name) == 0 {
+			rebound = append(rebound, ':', '=')
+			inName = false
+			continue
 			// if we're in a name, and this is an allowed character, continue
 		} else if inName && (unicode.IsOneOf(allowedBindRunes, rune(b)) || b == '_' || b == '.') && i != last {
 			// append the byte to the name if we are in a name and not on the last byte
@@ -281,6 +339,12 @@ func compileNamedQuery(qs []byte, bindType int) (query string, names []string, e
 				rebound = append(rebound, '?')
 			case DOLLAR:
 				rebound = append(rebound, '$')
+				for _, b := range strconv.Itoa(currentVar) {
+					rebound = append(rebound, byte(b))
+				}
+				currentVar++
+			case AT:
+				rebound = append(rebound, '@', 'p')
 				for _, b := range strconv.Itoa(currentVar) {
 					rebound = append(rebound, byte(b))
 				}
@@ -318,7 +382,12 @@ func bindNamedMapper(bindType int, query string, arg interface{}, m *reflectx.Ma
 	if maparg, ok := arg.(map[string]interface{}); ok {
 		return bindMap(bindType, query, maparg)
 	}
-	return bindStruct(bindType, query, arg, m)
+	switch reflect.TypeOf(arg).Kind() {
+	case reflect.Array, reflect.Slice:
+		return bindArray(bindType, query, arg, m)
+	default:
+		return bindStruct(bindType, query, arg, m)
+	}
 }
 
 // NamedQuery binds a named query and then runs Query on the result using the

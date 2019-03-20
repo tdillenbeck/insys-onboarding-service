@@ -1,8 +1,8 @@
 package wvaulttypes
 
 import (
+	"encoding/json"
 	"time"
-
 )
 
 type KVSecretResponse struct {
@@ -15,8 +15,8 @@ type KVSecretResponse struct {
 }
 
 type KVSecretResponseData struct {
-	Data     map[string]string    `json:"data"`
-	MetaData MetaDataResponseData `json:"metadata"`
+	Data     map[string]json.RawMessage `json:"data"`
+	MetaData MetaDataResponseData       `json:"metadata"`
 }
 
 type MetaDataResponseData struct {

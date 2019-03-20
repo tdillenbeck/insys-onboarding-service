@@ -3,7 +3,7 @@ package wgrpcserver
 import (
 	"time"
 
-	"github.com/mwitkow/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -91,7 +91,9 @@ func New(unaryMiddleware []grpc.UnaryServerInterceptor, streamMiddleware []grpc.
 		// Timeout: // if going through HA Proxy, there is a 50 second timeout on both RX/TX
 	})
 
-	opt = append(opt, keepaliveOpt)
+	statsOpt := grpc.StatsHandler(&statsHandler{})
+
+	opt = append(opt, keepaliveOpt, statsOpt)
 
 	//grpc_middleware has to be used because grpc.Server actually only allows one interceptor
 	s := grpc.NewServer(opt...)

@@ -1,45 +1,45 @@
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package metrics
 
 import (
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
-// Init initializes the passed in metrics and initializes its fields using the passed in factory.
-func Init(metrics interface{}, factory Factory, globalTags map[string]string) {
-	if err := initMetrics(metrics, factory, globalTags); err != nil {
-		panic(err.Error())
-	}
-}
-
-// initMetrics uses reflection to initialize a struct containing metrics fields
+// MustInit initializes the passed in metrics and initializes its fields using the passed in factory.
+//
+// It uses reflection to initialize a struct containing metrics fields
 // by assigning new Counter/Gauge/Timer values with the metric name retrieved
 // from the `metric` tag and stats tags retrieved from the `tags` tag.
 //
 // Note: all fields of the struct must be exported, have a `metric` tag, and be
 // of type Counter or Gauge or Timer.
-func initMetrics(m interface{}, factory Factory, globalTags map[string]string) error {
+//
+// Errors during Init lead to a panic.
+func MustInit(metrics interface{}, factory Factory, globalTags map[string]string) {
+	if err := Init(metrics, factory, globalTags); err != nil {
+		panic(err.Error())
+	}
+}
+
+// Init does the same as Init, but returns an error instead of
+// panicking.
+func Init(m interface{}, factory Factory, globalTags map[string]string) error {
 	// Allow user to opt out of reporting metrics by passing in nil.
 	if factory == nil {
 		factory = NullFactory
@@ -48,6 +48,7 @@ func initMetrics(m interface{}, factory Factory, globalTags map[string]string) e
 	counterPtrType := reflect.TypeOf((*Counter)(nil)).Elem()
 	gaugePtrType := reflect.TypeOf((*Gauge)(nil)).Elem()
 	timerPtrType := reflect.TypeOf((*Timer)(nil)).Elem()
+	histogramPtrType := reflect.TypeOf((*Histogram)(nil)).Elem()
 
 	v := reflect.ValueOf(m).Elem()
 	t := v.Type()
@@ -56,6 +57,7 @@ func initMetrics(m interface{}, factory Factory, globalTags map[string]string) e
 		for k, v := range globalTags {
 			tags[k] = v
 		}
+		var buckets []float64
 		field := t.Field(i)
 		metric := field.Tag.Get("metric")
 		if metric == "" {
@@ -73,13 +75,57 @@ func initMetrics(m interface{}, factory Factory, globalTags map[string]string) e
 				tags[tag[0]] = tag[1]
 			}
 		}
+		if bucketString := field.Tag.Get("buckets"); bucketString != "" {
+			if field.Type.AssignableTo(timerPtrType) {
+				// TODO: Parse timer duration buckets
+				return fmt.Errorf(
+					"Field [%s]: Buckets are not currently initialized for timer metrics",
+					field.Name)
+			} else if field.Type.AssignableTo(histogramPtrType) {
+				bucketValues := strings.Split(bucketString, ",")
+				for _, bucket := range bucketValues {
+					b, err := strconv.ParseFloat(bucket, 64)
+					if err != nil {
+						return fmt.Errorf(
+							"Field [%s]: Bucket [%s] could not be converted to float64 in 'buckets' string [%s]",
+							field.Name, bucket, bucketString)
+					}
+					buckets = append(buckets, b)
+				}
+			} else {
+				return fmt.Errorf(
+					"Field [%s]: Buckets should only be defined for Timer and Histogram metric types",
+					field.Name)
+			}
+		}
+		help := field.Tag.Get("help")
 		var obj interface{}
 		if field.Type.AssignableTo(counterPtrType) {
-			obj = factory.Counter(metric, tags)
+			obj = factory.Counter(Options{
+				Name: metric,
+				Tags: tags,
+				Help: help,
+			})
 		} else if field.Type.AssignableTo(gaugePtrType) {
-			obj = factory.Gauge(metric, tags)
+			obj = factory.Gauge(Options{
+				Name: metric,
+				Tags: tags,
+				Help: help,
+			})
 		} else if field.Type.AssignableTo(timerPtrType) {
-			obj = factory.Timer(metric, tags)
+			// TODO: Add buckets once parsed (see TODO above)
+			obj = factory.Timer(TimerOptions{
+				Name: metric,
+				Tags: tags,
+				Help: help,
+			})
+		} else if field.Type.AssignableTo(histogramPtrType) {
+			obj = factory.Histogram(HistogramOptions{
+				Name:    metric,
+				Tags:    tags,
+				Help:    help,
+				Buckets: buckets,
+			})
 		} else {
 			return fmt.Errorf(
 				"Field %s is not a pointer to timer, gauge, or counter",

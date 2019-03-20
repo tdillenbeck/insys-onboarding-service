@@ -18,7 +18,6 @@ type AppInfo struct {
 
 	StartTime time.Time
 
-	InstanceID           string
 	Hostname             string
 	FileModificationTime time.Time
 
@@ -68,10 +67,4 @@ func setVersion() {
 func String() string {
 	info := Info()
 	return info.Version
-}
-
-// InstanceID returns the instance id of the app
-func InstanceID() string {
-	info := Info()
-	return info.InstanceID
 }

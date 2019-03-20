@@ -134,18 +134,23 @@ func Error(code Code, werr *werror.Error) error {
 		werr = werror.New("err was nil")
 	}
 
-	class := ErrorClass(codes.Code(code))
+	class := werror.ErrorClass(werror.Code(codes.Code(code)))
 	switch class {
-	case Success, ClientError:
+	case werror.Success, werror.ClientError:
 		// don't log
-	case ServerError:
+	case werror.ServerError:
 		// log the error
 		wlog.WError(werr.Add("code", code))
 	default:
 		wlog.WError(werr.Add("code", code))
 	}
 
-	return status.Error(codes.Code(code), werr.Error())
+	encoded, err := werror.Encode(werr)
+	if err != nil {
+		return status.Error(codes.Code(code), werr.Error())
+	}
+
+	return status.Error(codes.Code(code), string(encoded))
 }
 
 func IsCode(code Code, err error) bool {
@@ -167,14 +172,15 @@ var Wrap = werror.Wrap
 
 // convert a grpc error to a werror
 func wrap(werr *werror.Error, err error) *werror.Error {
-
-	code := codes.Unknown
 	status, ok := status.FromError(err)
-	if ok {
-		code = status.Code()
+	if !ok {
+		return werr.SetCode(werror.CodeUnknown)
 	}
 
-	w := werr.SetCode(werror.Code(code))
+	decodedErr, err := werror.Decode([]byte(status.Message()))
+	if err != nil {
+		return werr.SetCode(werror.Code(status.Code()))
+	}
 
-	return w
+	return decodedErr
 }

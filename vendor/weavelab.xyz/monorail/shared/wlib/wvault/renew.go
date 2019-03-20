@@ -16,8 +16,7 @@ import (
 )
 
 const (
-	vaultClientMetric   = "vaultClient"
-	refreshIfSoonerThan = time.Hour
+	vaultClientMetric = "vaultClient"
 )
 
 func init() {
@@ -27,25 +26,31 @@ func init() {
 // AutoRenew will automatically attempt to renew the given Secret every renewInterval.
 func (c *Client) AutoRenew(ctx context.Context, secret Secret) {
 
-	wlog.Info("[Vault] Starting auto renew loop")
+	wlog.InfoC(ctx, "[Vault] Starting auto renew loop")
+	defer wlog.InfoC(ctx, "[Vault] Exiting auto renew loop")
+
+	ctx, closeSpan := WithNewTracingParent(ctx)
 
 	for {
 
 		period := renewPeriod(secret) // determine the period to renew secret chain at
-
-		wlog.Info("[Vault] Next renew scheduled", tag.Duration("wait", period))
+		wlog.InfoC(ctx, "[Vault] Next renew scheduled", tag.Duration("wait", period))
+		closeSpan() // close existing span before sleeping
 
 		select {
-		case <-time.After(period):
+		case <-Clock.After(period):
 		case <-ctx.Done():
 			return
 		}
+
+		// open a new tracing span
+		ctx, closeSpan = WithNewTracingParent(ctx)
 
 		// loop through secret chain, if parent has to recreate,
 		// force children to recreate also.
 		_, err := autoRenew(ctx, secret)
 		if err != nil {
-			wlog.WError(werror.Wrap(err, "[Vault] unable to renew secret"))
+			wlog.WErrorC(ctx, werror.Wrap(err, "[Vault] unable to renew secret"))
 			continue
 		}
 
@@ -68,14 +73,19 @@ func autoRenew(ctx context.Context, s Secret) (bool, error) {
 		}
 	}
 
-	if time.Until(s.Expiration()) > refreshIfSoonerThan {
+	// TODO: define refreshIfSoonerThan better
+	if recreated == false && s.ShouldRefresh() == false {
+		wlog.InfoC(ctx, "[Vault] Does not need to be refreshed", tag.String("expiration", s.Expiration().Format(time.RFC3339)), tag.String("secret", s.LeaseID()))
 		return false, nil
 	}
 
+	wlog.InfoC(ctx, "[Vault] Refreshing", tag.String("expiration", s.Expiration().Format(time.RFC3339)), tag.String("now", Clock.Now().Format(time.RFC3339)), tag.String("secret", s.LeaseID()), tag.Bool("forceRecreate", recreated))
 	refreshed, err := s.Refresh(ctx, recreated)
 	if err != nil {
 		return false, werror.Wrap(err)
 	}
+
+	wlog.InfoC(ctx, "[Vault] Secret refreshed", tag.String("expiration", s.Expiration().Format(time.RFC3339)), tag.String("secret", s.LeaseID()), tag.Bool("refreshed", refreshed))
 
 	recreate := !refreshed
 
@@ -114,7 +124,7 @@ func (c *Client) renew(ctx context.Context, path string, s Secret, increment tim
 
 	leaseID := s.LeaseID()
 
-	wlog.Info("[Vault] Renewing vault lease or token", tag.String("leaseID", leaseID), tag.Duration("increment", increment), tag.String("path", path))
+	wlog.InfoC(ctx, "[Vault] Renewing vault lease or token", tag.String("leaseID", leaseID), tag.Duration("increment", increment), tag.String("path", path))
 	wmetrics.Incr(1, vaultClientMetric, "renew", "attempt", s.Name())
 
 	r := RenewRequest{
@@ -134,6 +144,10 @@ func (c *Client) renew(ctx context.Context, path string, s Secret, increment tim
 	if err != nil {
 		return nil, true, werror.Wrap(err)
 	}
+
+	// add timeout to context
+	ctx, done := context.WithTimeout(ctx, time.Second*30)
+	defer done()
 
 	req.Header.Add("X-Vault-Token", s.Token())
 
@@ -174,7 +188,7 @@ func (c *Client) renew(ctx context.Context, path string, s Secret, increment tim
 	}
 
 	result := RenewResult{
-		expiration:    time.Now().Add(time.Second * time.Duration(leaseDuration)),
+		expiration:    Clock.Now().Add(time.Second * time.Duration(leaseDuration)),
 		RequestID:     tresult.RequestID,
 		Renewable:     renewable,
 		LeaseDuration: leaseDuration,
@@ -183,7 +197,7 @@ func (c *Client) renew(ctx context.Context, path string, s Secret, increment tim
 
 	wmetrics.Incr(1, vaultClientMetric, "renew", "success", s.Name())
 
-	wlog.Info("[Vault] Vault lease|token renewed", tag.String("leaseID", leaseID), tag.Int("duration", result.LeaseDuration))
+	wlog.InfoC(ctx, "[Vault] Vault lease|token renewed", tag.String("leaseID", leaseID), tag.Int("duration", result.LeaseDuration))
 
 	return &result, true, nil
 }

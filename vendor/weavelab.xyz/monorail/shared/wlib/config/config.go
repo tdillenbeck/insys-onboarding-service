@@ -8,19 +8,11 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"weavelab.xyz/monorail/shared/wlib/wdns"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
-
-// DefaultConfig is the main config object used by default when including this package
-var DefaultConfig *Config
-
-func init() {
-	DefaultConfig = &Config{
-		Settings: make(map[string]*Setting),
-	}
-}
 
 // Values is a custom type which allows you to set a flag multiple times
 type Values []string
@@ -52,17 +44,17 @@ type Setting struct {
 	ShortFlagValue Values
 }
 
-func (s *Setting) init() {
+func (s *Setting) init(flagSet *flag.FlagSet) {
 	if s.Env != "" {
 		s.EnvValue = os.Getenv(s.Env)
 	}
 
 	if s.Flag != "" {
-		flag.Var(&s.FlagValue, s.Flag, s.HelpMessage)
+		flagSet.Var(&s.FlagValue, s.Flag, s.HelpMessage)
 	}
 
 	if s.ShortFlag != "" {
-		flag.Var(&s.ShortFlagValue, s.ShortFlag, s.HelpMessage)
+		flagSet.Var(&s.ShortFlagValue, s.ShortFlag, s.HelpMessage)
 	}
 }
 
@@ -70,18 +62,15 @@ func (s *Setting) init() {
 type Config struct {
 	Settings map[string]*Setting
 	mu       sync.Mutex
+	flagSet  *flag.FlagSet
 }
 
 // New returns a new config
 func New() *Config {
 	return &Config{
 		Settings: make(map[string]*Setting),
+		flagSet:  flag.NewFlagSet(os.Args[0], flag.ExitOnError),
 	}
-}
-
-// Add creates a new config setting for the app on the default config
-func Add(name string, defaultValue string, message string, flags ...string) {
-	DefaultConfig.Add(name, defaultValue, message, flags...)
 }
 
 // Add is for adding a config setting to a config struct
@@ -111,18 +100,13 @@ func (c *Config) Add(name string, defaultValue string, message string, flags ...
 	if len(flags) > 2 {
 		setting.ShortFlag = flags[2]
 	}
-	setting.init()
+	setting.init(c.flagSet)
 
 	c.mu.Lock()
 	c.Settings[setting.Name] = &setting
 	c.mu.Unlock()
 
 	return
-}
-
-// Set modifies the value of an already-created config setting on the default config
-func Set(name string, value string) {
-	DefaultConfig.Set(name, value)
 }
 
 // Set modifies the value of an already-created config setting on instantiated config struct
@@ -133,11 +117,6 @@ func (c *Config) Set(name string, value string) {
 		c.Settings[name] = setting
 	}
 	c.mu.Unlock()
-}
-
-// Get returns the value for the given setting name on the default config
-func Get(name string) string {
-	return DefaultConfig.Get(name)
 }
 
 // Get returns the value for a given setting name on the instantiated config struct
@@ -154,11 +133,6 @@ func (c *Config) Get(name string) string {
 	return setting.value()
 }
 
-// GetArray calls DefaultConfig.GetArray
-func GetArray(name string) []string {
-	return DefaultConfig.GetArray(name)
-}
-
 // GetArray returns all the values for a given setting
 func (c *Config) GetArray(name string) []string {
 	s := c.Get(name)
@@ -170,9 +144,100 @@ func (c *Config) GetArray(name string) []string {
 	return strings.Split(s, ";")
 }
 
-// GetInt calls DefaultConfig.GetInt
-func GetInt(name string, die bool) (int, error) {
-	return DefaultConfig.GetInt(name, die)
+// GetAddress looks up the value of the setting and converts it to a resolvable address.
+// If the lookup fails GetAddress will either panic or attempt to use the default value, depending on the die bool.
+// GetAddress uses wdns to do an SRV record lookup if necessary to resolve the port on which the service runs.
+// For example, GetAddress can handle either "serviceB.serviceBNamespace:http" or "serviceB.serviceBNamespace:8080"
+func (c *Config) GetAddress(name string, die bool) (string, error) {
+	var err error
+	value := c.Get(name)
+
+	addr, err := resolveAddress(value)
+	if err != nil {
+		if die {
+			panic(err)
+		}
+		return "", werror.Wrap(err, "Unable to resolve address for config value, will try using default instead.").Add("configValue", addr)
+	}
+
+	return addr, nil
+}
+
+func (c *Config) GetAddressArray(name string, die bool) ([]string, error) {
+	values := c.GetArray(name)
+	addrs := make([]string, 0, len(values))
+	for _, v := range values {
+		a, err := resolveAddress(v)
+		if err != nil {
+			if die {
+				panic(err)
+			}
+			return nil, err
+		}
+
+		addrs = append(addrs, a)
+	}
+
+	return addrs, nil
+}
+
+// GetBool returns the config setting for `name` with type `bool`
+func (c *Config) GetBool(name string, die bool) (bool, error) {
+
+	value := c.Get(name)
+	result, err := strconv.ParseBool(value)
+	if err != nil {
+		if die {
+			exit(name, value, err)
+		}
+
+		// lookup the default value
+		c.mu.Lock()
+		setting, ok := c.Settings[name]
+		c.mu.Unlock()
+
+		if ok != true {
+			return false, fmt.Errorf("setting %s was never created so has no bool value", name)
+		}
+
+		defaultValue, err := strconv.ParseBool(setting.DefaultValue)
+		if err != nil {
+			return false, fmt.Errorf("unable to parse %s as bool, default value also invalid %s", value, setting.DefaultValue)
+		}
+
+		return defaultValue, fmt.Errorf("unable to parse %s as bool", value)
+	}
+
+	return result, nil
+}
+
+// GetBoolArray returns a slice of bools for a given setting `name`
+func (c *Config) GetBoolArray(name string, die bool) ([]bool, error) {
+	var err error
+	var x bool
+	stringArr := c.GetArray(name)
+	boolArr := make([]bool, len(stringArr))
+	for i, v := range stringArr {
+		x, err = strconv.ParseBool(v)
+		if err != nil {
+			if die {
+				exit(name, fmt.Sprintf("[%v]", stringArr), err)
+			}
+
+			return nil, fmt.Errorf("unable to parse %s as bool error=[%s]", v, err)
+		}
+		boolArr[i] = x
+	}
+	return boolArr, nil
+}
+
+func GetDuration(name string, die bool) (time.Duration, error) {
+	return DefaultConfig.GetDuration(name, die)
+}
+
+// GetDurationArray calls DefaultConfig equivalent
+func GetDurationArray(name string, die bool) ([]time.Duration, error) {
+	return DefaultConfig.GetDurationArray(name, die)
 }
 
 // GetInt returns the config setting for `name` with type `int`
@@ -206,11 +271,6 @@ func (c *Config) GetInt(name string, die bool) (int, error) {
 	return result, nil
 }
 
-// GetIntArray calls DefaultConfig equivalent
-func GetIntArray(name string, die bool) ([]int, error) {
-	return DefaultConfig.GetIntArray(name, die)
-}
-
 // GetIntArray returns a slice of ints for a given setting `name`
 func (c *Config) GetIntArray(name string, die bool) ([]int, error) {
 	var err error
@@ -230,53 +290,6 @@ func (c *Config) GetIntArray(name string, die bool) ([]int, error) {
 	return intArr, nil
 }
 
-// GetAddress calls DefaultConfig equivalent
-func GetAddress(name string, die bool) (string, error) {
-	return DefaultConfig.GetAddress(name, die)
-}
-
-// GetAddress looks up the value of the setting and converts it to a resolvable address.
-// If the lookup fails GetAddress will either panic or attempt to use the default value, depending on the die bool.
-// GetAddress uses wdns to do an SRV record lookup if necessary to resolve the port on which the service runs.
-// For example, GetAddress can handle either "serviceB.serviceBNamespace:http" or "serviceB.serviceBNamespace:8080"
-func (c *Config) GetAddress(name string, die bool) (string, error) {
-	var err error
-	value := c.Get(name)
-
-	addr, err := resolveAddress(value)
-	if err != nil {
-		if die {
-			panic(err)
-		}
-		return "", werror.Wrap(err, "Unable to resolve address for config value, will try using default instead.").Add("configValue", addr)
-	}
-
-	return addr, nil
-}
-
-// GetAddressArray calls DefaultConfig equivalent
-func GetAddressArray(name string, die bool) ([]string, error) {
-	return DefaultConfig.GetAddressArray(name, die)
-}
-
-func (c *Config) GetAddressArray(name string, die bool) ([]string, error) {
-	values := c.GetArray(name)
-	addrs := make([]string, 0, len(values))
-	for _, v := range values {
-		a, err := resolveAddress(v)
-		if err != nil {
-			if die {
-				panic(err)
-			}
-			return nil, err
-		}
-
-		addrs = append(addrs, a)
-	}
-
-	return addrs, nil
-}
-
 func resolveAddress(addr string) (string, error) {
 
 	a, err := wdns.ResolveAddress(addr)
@@ -285,11 +298,6 @@ func resolveAddress(addr string) (string, error) {
 	}
 
 	return a, nil
-}
-
-// All calls DefaultConfig.All()
-func All() map[string]string {
-	return DefaultConfig.All()
 }
 
 // All returns a map of all the config settings for the given config object
@@ -305,16 +313,10 @@ func (c *Config) All() map[string]string {
 	return all
 }
 
-// Parse calls DefaultConfig.parse()
-func Parse() {
-	DefaultConfig.Parse()
-	DefaultConfig.PrettyPrint()
-}
-
 // Parse will call flag.Parse() if it hasn't been called yet
 func (c *Config) Parse() {
-	if flag.Parsed() == false {
-		flag.Parse()
+	if c.flagSet.Parsed() == false {
+		c.flagSet.Parse(os.Args[1:])
 	}
 }
 

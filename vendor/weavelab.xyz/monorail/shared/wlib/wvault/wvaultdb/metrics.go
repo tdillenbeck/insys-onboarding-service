@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"weavelab.xyz/monorail/shared/wlib/wmetrics"
+	"weavelab.xyz/monorail/shared/wlib/wvault"
 )
 
 const (
@@ -16,14 +17,14 @@ const (
 
 func (c *Creator) metricsLoop(ctx context.Context) {
 
-	t := time.NewTicker(metricsInterval)
+	t := wvault.Clock.NewTicker(metricsInterval)
 	defer t.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return
-		case <-t.C:
+		case <-t.Chan():
 			c.pushMetrics()
 		}
 	}
@@ -32,7 +33,7 @@ func (c *Creator) metricsLoop(ctx context.Context) {
 func (c *Creator) pushMetrics() {
 
 	exp := c.Expiration()
-	ttl := int(time.Until(exp) / time.Second)
+	ttl := int(wvault.Until(exp) / time.Second)
 
 	wmetrics.Gauge(ttl, metricTTL)
 }

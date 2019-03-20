@@ -9,6 +9,7 @@ type Secret interface {
 	Name() string
 	Parent() Secret
 	Expiration() time.Time
+	ShouldRefresh() bool
 	Refresh(ctx context.Context, recreate bool) (bool, error) // renews the lease
 	LeaseID() string                                          // returns the leaseID associated with the secret
 

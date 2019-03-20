@@ -1,14 +1,9 @@
-[![pipeline status](https://gitlab.getweave.com/weave-lab/platform/wiggum/badges/master/pipeline.svg)](https://gitlab.getweave.com/weave-lab/platform/wiggum/commits/master)
-[![coverage report](https://gitlab.getweave.com/weave-lab/platform/wiggum/badges/master/coverage.svg)](https://gitlab.getweave.com/weave-lab/platform/wiggum/commits/master)
-
 ## Installation
 ```bash
 go get weavelab.xyz/wiggum
 ```
 
-For more information on `weavelab.xyz`, see the projects [readme](https://gitlab.getweave.com/weave-lab/ops/xyz/blob/master/README.md).
-
-[![Build Status](https://magnum.travis-ci.com/weave-lab/wiggum.svg?token=CygcQpxpGins1yr7wdks)](https://magnum.travis-ci.com/weave-lab/wiggum) [![Coverage Status](https://coveralls.io/repos/weave-lab/wiggum/badge.svg?branch=master&service=github&t=lcZsDI)](https://coveralls.io/github/weave-lab/wiggum?branch=master)
+For more information on `weavelab.xyz`, see the projects [readme](https://github.com/weave-lab/ops-xyz/blob/master/README.md).
 
 Overview
 ======

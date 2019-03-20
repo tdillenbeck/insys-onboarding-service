@@ -2,8 +2,8 @@ package version
 
 import (
 	"io/ioutil"
-	"strings"
 	"os"
+	"strings"
 )
 
 const namespaceFilename = `/var/run/secrets/kubernetes.io/serviceaccount/namespace`
@@ -20,7 +20,7 @@ func Namespace() (string, error) {
 	out, err := ioutil.ReadFile(namespaceFilename)
 	if err != nil {
 
-		if  testNamespace := os.Getenv("TEST_NAMESPACE"); testNamespace != "" {
+		if testNamespace := os.Getenv("TEST_NAMESPACE"); testNamespace != "" {
 			return testNamespace, nil
 		}
 

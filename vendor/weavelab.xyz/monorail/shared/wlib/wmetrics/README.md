@@ -7,10 +7,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/weave-lab/wlib/wlog"
-	"github.com/weave-lab/wlib/wmetrics"
-	"github.com/weave-lab/wlib/wmetrics/client"
-	"github.com/weave-lab/wlib/wmetrics/wmetricslog"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
+	"weavelab.xyz/monorail/shared/wlib/wmetrics"
+	"weavelab.xyz/monorail/shared/wlib/wmetrics/client"
+	"weavelab.xyz/monorail/shared/wlib/wmetrics/wmetricslog"
 )
 
 //A custom metrics client with a different prefix

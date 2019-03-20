@@ -29,6 +29,9 @@ func (p *PG) openTracingInterceptor(ctx context.Context, method string, query st
 	done := func() {
 		clientSpan.LogFields(log.String("query", query))
 		clientSpan.SetTag(wtracer.RequestIDTag, wcontext.RequestID(ctx))
+		clientSpan.SetTag("primaryHostname", p.settings.PrimaryConnectString.Hostname())
+		clientSpan.SetTag("replicaHostname", p.settings.ReplicaConnectString.Hostname())
+
 		clientSpan.Finish()
 	}
 

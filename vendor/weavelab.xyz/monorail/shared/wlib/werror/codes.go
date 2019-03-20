@@ -8,6 +8,7 @@ type Class string
 const (
 	CodeOK = Code(0)
 
+	// These error codes should map one to one with the gRPC error codes
 	CodeCanceled           = Code(1)
 	CodeUnknown            = Code(2)
 	CodeInvalidArgument    = Code(3)
@@ -24,7 +25,7 @@ const (
 	CodeUnavailable        = Code(14)
 	CodeDataLoss           = Code(15)
 	CodeUnauthenticated    = Code(16)
-	CodeConflict           = Code(17)
+	CodeConflict           = Code(17) // TODO: this isn't a grpc error code and may cause _conflicts_ in the future
 
 	Unknown Class = "0xx"
 	// Success represents outcomes that achieved the desired results.
@@ -77,7 +78,7 @@ func ErrorClass(code Code) Class {
 	// Client errors
 	case CodeCanceled, CodeInvalidArgument, CodeNotFound, CodeAlreadyExists,
 		CodePermissionDenied, CodeUnauthenticated, CodeFailedPrecondition,
-		CodeOutOfRange:
+		CodeOutOfRange, CodeConflict:
 		return ClientError
 
 	// Server errors
