@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package wnsqproto;
+
+message OpenTracing {
+	map<string, string> OpenTracing = 666;
+}

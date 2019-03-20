@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "7gK+lSShSu1NRw83/A95BcgMqsI=",
+			"path": "github.com/codahale/hdrhistogram",
+			"revision": "3a0bb77429bd3a61596f5e8a3172445844342120",
+			"revisionTime": "2016-10-10T02:54:55Z"
+		},
+		{
 			"checksumSHA1": "BP2buXHHOKxI5eYS2xELVng2kf4=",
 			"path": "github.com/golang/protobuf/jsonpb",
 			"revision": "d3c38a4eb4970272b87a425ae00ccc4548e2f9bb",
@@ -49,6 +55,12 @@
 			"path": "github.com/golang/protobuf/ptypes/timestamp",
 			"revision": "d3c38a4eb4970272b87a425ae00ccc4548e2f9bb",
 			"revisionTime": "2019-03-18T19:48:12Z"
+		},
+		{
+			"checksumSHA1": "h1d2lPZf6j2dW/mIqVnd1RdykDo=",
+			"path": "github.com/golang/snappy",
+			"revision": "2e65f85255dbc3072edf28d6b5b8efc472979f5a",
+			"revisionTime": "2018-05-18T05:39:59Z"
 		},
 		{
 			"checksumSHA1": "GhVjj03AhsCAzfg27YgS8RA+6wk=",
@@ -115,6 +127,12 @@
 			"path": "github.com/lib/pq/oid",
 			"revision": "7aad666537ab32b76f0966145530335f1fed51fd",
 			"revisionTime": "2019-03-14T17:36:50Z"
+		},
+		{
+			"checksumSHA1": "MZdppx6laedD1LcVomiZ/Sfa6rE=",
+			"path": "github.com/nsqio/go-nsq",
+			"revision": "8c1ff52dff6fd3ecc19c418649bc643b18e862fc",
+			"revisionTime": "2017-10-30T00:05:02Z"
 		},
 		{
 			"checksumSHA1": "X4wRztD77u7gCeqkLflz27Bjn0Q=",
@@ -621,6 +639,12 @@
 			"revisionTime": "2019-03-20T15:39:31Z"
 		},
 		{
+			"checksumSHA1": "F2T7XhY81Ls18I2W+morHc+clGA=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wapp/nsqwapp",
+			"revision": "b769e9d104be570519303469da124953705019f9",
+			"revisionTime": "2019-03-19T22:19:52Z"
+		},
+		{
 			"checksumSHA1": "TtMeYkFEtdOxti/6Uc4npkBAP1k=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wcontext",
 			"revision": "9a094225684c08152bdda8a599afaf3ce9cc612c",
@@ -721,6 +745,18 @@
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/wmetricslog",
 			"revision": "9a094225684c08152bdda8a599afaf3ce9cc612c",
 			"revisionTime": "2019-03-20T15:39:31Z"
+		},
+		{
+			"checksumSHA1": "IHDqLISeFpt+OWpCW9tP3yQCvlE=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wnsq",
+			"revision": "b769e9d104be570519303469da124953705019f9",
+			"revisionTime": "2019-03-19T22:19:52Z"
+		},
+		{
+			"checksumSHA1": "QofnJDMcUePlHdv7dTz8aG4J8PM=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wnsq/wnsqproto",
+			"revision": "b769e9d104be570519303469da124953705019f9",
+			"revisionTime": "2019-03-19T22:19:52Z"
 		},
 		{
 			"checksumSHA1": "OqKcmaDuhzdvrrsX3QFfnGUJuaY=",
