@@ -1,9 +1,0 @@
-steps:
-- name: 'golang:1.11.1-stretch'
-  entrypoint: 'bash'
-  args:
-  - '-c'
-  - |
-    cd /workspace/src/weavelab.xyz/monorail/shared/wiggum
-    make gobuild
-  env: ['GO111MODULE=on', 'GOPATH=/workspace/go']
