@@ -4,25 +4,17 @@ package nethttp
 
 import (
 	"net/http"
+	"net/url"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/ext"
 )
 
-type statusCodeTracker struct {
-	http.ResponseWriter
-	status int
-}
-
-func (w *statusCodeTracker) WriteHeader(status int) {
-	w.status = status
-	w.ResponseWriter.WriteHeader(status)
-}
-
 type mwOptions struct {
 	opNameFunc    func(r *http.Request) string
 	spanFilter    func(r *http.Request) bool
 	spanObserver  func(span opentracing.Span, r *http.Request)
+	urlTagFunc    func(u *url.URL) string
 	componentName string
 }
 
@@ -59,6 +51,15 @@ func MWSpanFilter(f func(r *http.Request) bool) MWOption {
 func MWSpanObserver(f func(span opentracing.Span, r *http.Request)) MWOption {
 	return func(options *mwOptions) {
 		options.spanObserver = f
+	}
+}
+
+// MWURLTagFunc returns a MWOption that uses given function f
+// to set the span's http.url tag. Can be used to change the default
+// http.url tag, eg to redact sensitive information.
+func MWURLTagFunc(f func(u *url.URL) string) MWOption {
+	return func(options *mwOptions) {
+		options.urlTagFunc = f
 	}
 }
 
@@ -100,6 +101,9 @@ func MiddlewareFunc(tr opentracing.Tracer, h http.HandlerFunc, options ...MWOpti
 		},
 		spanFilter:   func(r *http.Request) bool { return true },
 		spanObserver: func(span opentracing.Span, r *http.Request) {},
+		urlTagFunc: func(u *url.URL) string {
+			return u.String()
+		},
 	}
 	for _, opt := range options {
 		opt(&opts)
@@ -112,7 +116,7 @@ func MiddlewareFunc(tr opentracing.Tracer, h http.HandlerFunc, options ...MWOpti
 		ctx, _ := tr.Extract(opentracing.HTTPHeaders, opentracing.HTTPHeadersCarrier(r.Header))
 		sp := tr.StartSpan(opts.opNameFunc(r), ext.RPCServerOption(ctx))
 		ext.HTTPMethod.Set(sp, r.Method)
-		ext.HTTPUrl.Set(sp, r.URL.String())
+		ext.HTTPUrl.Set(sp, opts.urlTagFunc(r.URL))
 		opts.spanObserver(sp, r)
 
 		// set component name, use "net/http" if caller does not specify
@@ -122,12 +126,15 @@ func MiddlewareFunc(tr opentracing.Tracer, h http.HandlerFunc, options ...MWOpti
 		}
 		ext.Component.Set(sp, componentName)
 
-		w = &statusCodeTracker{w, 200}
+		sct := &statusCodeTracker{w, 200}
 		r = r.WithContext(opentracing.ContextWithSpan(r.Context(), sp))
 
-		h(w, r)
+		h(sct.wrappedResponseWriter(), r)
 
-		ext.HTTPStatusCode.Set(sp, uint16(w.(*statusCodeTracker).status))
+		ext.HTTPStatusCode.Set(sp, uint16(sct.status))
+		if sct.status >= http.StatusInternalServerError {
+			ext.Error.Set(sp, true)
+		}
 		sp.Finish()
 	}
 	return http.HandlerFunc(fn)
