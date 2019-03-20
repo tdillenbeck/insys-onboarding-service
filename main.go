@@ -70,7 +70,8 @@ func main() {
 	nsqConfig := nsqwapp.NewConfig()
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
-	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx)
+
+	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(onboardingServer, onboarderServer, onboardersLocationServer))
 	fmt.Println(grpcStarter)
