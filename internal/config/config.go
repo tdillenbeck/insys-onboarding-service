@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	// Database Settings
 	primaryConnString = "pg-primary-connect-string"
 	replicaConnString = "pg-replica-connect-string"
 
@@ -19,9 +20,18 @@ const (
 	maxOpenConnections    = "max-open-connections"
 	maxConnectionLifetime = "max-connection-lifetime"
 	logQueries            = "log-queries"
+
+	// NSQ Settings
+	nsqConcurrentHandlersConfig = "nsq-concurrent-handlers"
+	nsqMaxInFlightConfig        = "nsq-max-in-flight"
+	nsqdAddrConfig              = "nsqd-addr"
+	nsqLookupdAddrsConfig       = "nsq-lookupd-addrs"
+	nsqChannelConfig            = "nsq-listen-channel"
+	nsqTopicConfig              = "nsq-topic"
 )
 
 var (
+	// Database Settings
 	PrimaryConnString string
 	ReplicaConnString string
 
@@ -33,9 +43,19 @@ var (
 	MaxOpenConnections    int
 	MaxConnectionLifetime time.Duration
 	LogQueries            bool
+
+	// NSQ Settings
+	NSQDAddr       string
+	NSQLookupAddrs []string
+	NSQChannel     string
+	NSQTopic       string
+
+	NSQMaxInFlight        int
+	NSQConcurrentHandlers int
 )
 
 func init() {
+	// Database Settings
 	config.Add(primaryConnString, "", "connection string to the primary db")
 	config.Add(replicaConnString, "", "connection string to the replica db")
 
@@ -47,6 +67,15 @@ func init() {
 	config.Add(maxOpenConnections, "10", "maximum number of open connections to the database")
 	config.Add(maxConnectionLifetime, "15m", "maximum amount of time a connection may be reused")
 	config.Add(logQueries, "false", "include query logging")
+
+	// NSQ Settings
+	config.Add(nsqChannelConfig, "Onboarding", "The channel on which to consume")
+	config.Add(nsqdAddrConfig, "nsqd.nsq.svc.cluster.local.:4150", "nsqd addresses")
+	config.Add(nsqLookupdAddrsConfig, "lookupd-0.lookupd.nsq.svc.cluster.local.:4161;lookupd-1.lookupd.nsq.svc.cluster.local.:4161;lookupd-2.lookupd.nsq.svc.cluster.local.:4161", "NSQ lookupd addresses")
+	config.Add(nsqTopicConfig, "PortingDataCreated", "The topic NSQ to consume")
+
+	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
+	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
 
 }
 
@@ -94,6 +123,30 @@ func Init() error {
 	LogQueries, err = config.GetBool(logQueries, false)
 	if err != nil {
 		return werror.Wrap(err, "error getting logQueries")
+	}
+
+	// NSQ Settings
+	NSQLookupAddrs, err = config.GetAddressArray(nsqLookupdAddrsConfig, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting lookupd-addrs")
+	}
+
+	NSQDAddr, err = config.GetAddress(nsqdAddrConfig, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting nsqd-addr")
+	}
+
+	NSQTopic = config.Get(nsqTopicConfig)
+	NSQChannel = config.Get(nsqChannelConfig)
+
+	NSQMaxInFlight, err = config.GetInt(nsqMaxInFlightConfig, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting max attempts")
+	}
+
+	NSQConcurrentHandlers, err = config.GetInt(nsqConcurrentHandlersConfig, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting concurrent handlers")
 	}
 
 	return nil
