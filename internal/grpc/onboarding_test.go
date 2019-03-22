@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/grpc"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
@@ -14,6 +15,7 @@ import (
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
@@ -139,6 +141,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 	type fields struct {
 		categoryService     app.CategoryService
 		taskInstanceService app.TaskInstanceService
+		portingDataClient   insys.PortingDataServiceClient
 	}
 	type args struct {
 		ctx context.Context
@@ -156,6 +159,17 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 			fields{
 				categoryService:     nil,
 				taskInstanceService: &tis,
+				portingDataClient: &mock.PortingDataClient{
+					ByLocationIDFn: func(ctx context.Context, in *insysproto.PortingDataByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PortingDataByLocationIDResponse, error) {
+						return &insysproto.PortingDataByLocationIDResponse{
+							PortingData: []*insysproto.PortingData{
+								{
+									Id: uuid.NewV4().String(),
+								},
+							},
+						}, nil
+					},
+				},
 			},
 			args{
 				ctx: context.Background(),
@@ -197,6 +211,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 			s := &OnboardingServer{
 				categoryService:     tt.fields.categoryService,
 				taskInstanceService: tt.fields.taskInstanceService,
+				portingDataClient:   tt.fields.portingDataClient,
 			}
 			got, err := s.CreateTaskInstancesFromTasks(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
