@@ -3,6 +3,8 @@
 
 # insys-onboarding
 
+Service that helps track the onboarding process of new clients.
+
 ## Installation
 ```bash
 go get weavelab.xyz/insys-onboarding
@@ -17,6 +19,7 @@ This project's folder structure is based on [Ben Johnson's standard package layo
   * `/internal/config` is used as a default way configure in environment variables.
   * `/internal/grpc`  defines the gRPC handlers.
   * `/internal/mock` defines structs that can be used for testing. This is useful to isolate our unit tests.
+  * `/internal/nsq` defines code that receives/publishes messages via NSQ
   * `/internal/psql` defines code to interact with the database. NOTE: these tests rely on a test database to be setup
 
 ## Testing

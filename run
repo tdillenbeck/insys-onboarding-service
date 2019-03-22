@@ -44,6 +44,13 @@ case $env in
         export MAX_OPEN_CONNECTIONS=10
         export CONN_MAX_LIFETIME=15m
         export LOG_QUERIES=true
+
+        export NSQ_CONCURRENT_HANDLERS=10
+        export NSQ_MAX_IN_FLIGHT=10
+        export NSQD_ADDR=127.0.0.1:4150
+        export NSQ_LOOKUPD_ADDRS=127.0.0.1:4161
+        export NSQ_LISTEN_CHANNEL=Onboarding
+        export NSQ_TOPIC=PortingDataCreated
         ;;
     2)
         echo "Starting in PROD" >&2
@@ -56,6 +63,13 @@ case $env in
         export CONN_MAX_LIFETIME=30m
         export LOG_QUERIES=false
         export DATA_LOCATION_ADDRESS=kube-load:30106
+
+        export NSQ_CONCURRENT_HANDLERS=10
+        export NSQ_MAX_IN_FLIGHT=10
+        export NSQD_ADDR=127.0.0.1:4150
+        export NSQ_LOOKUPD_ADDRS=127.0.0.1:4161
+        export NSQ_LISTEN_CHANNEL=Onboarding
+        export NSQ_TOPIC=PortingDataCreated
         ;;
     *)
         echo "Unable to set runtime environment. Did you pass an environment option -d OR -p" >&2

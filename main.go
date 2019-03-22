@@ -2,17 +2,20 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	cgrpc "google.golang.org/grpc"
 
 	"weavelab.xyz/insys-onboarding-service/internal/config"
 	"weavelab.xyz/insys-onboarding-service/internal/grpc"
+	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
 
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/wapp"
 	"weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp"
+	"weavelab.xyz/monorail/shared/wlib/wapp/nsqwapp"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
@@ -53,6 +56,7 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
+	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
@@ -62,12 +66,21 @@ func main() {
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService)
 
+	// setup nsq
+	nsqConfig := nsqwapp.NewConfig()
+	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
+	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
+
+	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
+
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(onboardingServer, onboarderServer, onboardersLocationServer))
+	fmt.Println(grpcStarter)
 
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
 		ctx,
-		grpcStarter,
+		// 		grpcStarter,
+		nsqwapp.Bootstrap(config.NSQTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, subscriber),
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return
