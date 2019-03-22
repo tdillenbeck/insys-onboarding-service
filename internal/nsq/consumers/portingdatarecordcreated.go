@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	portingInfoTaskID = "9aec502b-f8b8-4f10-9748-1fe4050eacde"
+	PortingInfoTaskID = "9aec502b-f8b8-4f10-9748-1fe4050eacde"
 )
 
 type PortingDataRecordCreatedSubscriber struct {
@@ -44,14 +44,13 @@ func (p PortingDataRecordCreatedSubscriber) HandleMessage(ctx context.Context, m
 	}
 
 	for _, taskInstance := range taskInstances {
-		if taskInstance.TaskID.String() == portingInfoTaskID {
-			updatedBy := "mobile - " + pd.AuthorizedUserFirstName + " " + pd.AuthorizedUserLastName
+		if taskInstance.TaskID.String() == PortingInfoTaskID {
+			updatedBy := pd.AuthorizedUserFirstName + " " + pd.AuthorizedUserLastName
 			_, err := p.taskInstanceService.Update(ctx, taskInstance.ID, insysenums.OnboardingTaskStatus_Completed, updatedBy)
 			if err != nil {
 				return werror.Wrap(err, "could not update task to completed").Add("task instance id", taskInstance.ID)
 			}
 		}
-
 	}
 
 	return nil
