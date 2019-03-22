@@ -79,7 +79,7 @@ func main() {
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
 		ctx,
-		// 		grpcStarter,
+		grpcStarter,
 		nsqwapp.Bootstrap(config.NSQTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, subscriber),
 	)
 
