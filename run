@@ -51,6 +51,8 @@ case $env in
         export NSQ_LOOKUPD_ADDRS=127.0.0.1:4161
         export NSQ_LISTEN_CHANNEL=Onboarding
         export NSQ_TOPIC=PortingDataCreated
+
+        export PORTING_DATA_GRPC_ADDRESS=dev-kube-load:30707
         ;;
     2)
         echo "Starting in PROD" >&2
@@ -70,6 +72,8 @@ case $env in
         export NSQ_LOOKUPD_ADDRS=127.0.0.1:4161
         export NSQ_LISTEN_CHANNEL=Onboarding
         export NSQ_TOPIC=PortingDataCreated
+
+        export PORTING_DATA_GRPC_ADDRESS=kube-load:30707
         ;;
     *)
         echo "Unable to set runtime environment. Did you pass an environment option -d OR -p" >&2

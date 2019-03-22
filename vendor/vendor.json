@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "7gK+lSShSu1NRw83/A95BcgMqsI=",
+			"path": "github.com/codahale/hdrhistogram",
+			"revision": "3a0bb77429bd3a61596f5e8a3172445844342120",
+			"revisionTime": "2016-10-10T02:54:55Z"
+		},
+		{
 			"checksumSHA1": "nTHr8B2CPLP8kcJRtBEXluFvzUY=",
 			"path": "github.com/gogo/protobuf/proto",
 			"revision": "30cf7ac33676b5786e78c746683f0d4cd64fa75b",
@@ -677,6 +683,12 @@
 		{
 			"checksumSHA1": "eUirJ7pJvZWb8+JTHUvnFk6X97M=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc",
+			"revision": "9a094225684c08152bdda8a599afaf3ce9cc612c",
+			"revisionTime": "2019-03-20T15:39:31Z"
+		},
+		{
+			"checksumSHA1": "l3o1bb7K7fvMTi6AQEZMeEiLR7g=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcclient",
 			"revision": "9a094225684c08152bdda8a599afaf3ce9cc612c",
 			"revisionTime": "2019-03-20T15:39:31Z"
 		},
