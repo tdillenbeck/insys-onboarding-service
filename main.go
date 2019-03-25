@@ -92,19 +92,6 @@ func main() {
 	wlog.Info("done")
 }
 
-func onboardingGrpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
-	return func() (*cgrpc.Server, error) {
-		gs, err := wgrpcserver.NewDefault()
-		if err != nil {
-			wapp.Exit(werror.Wrap(err, "error getting a new default wgrpc server"))
-		}
-
-		insys.RegisterOnboardingServer(gs, s)
-
-		return gs, nil
-	}
-}
-
 func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs, err := wgrpcserver.NewDefault()
