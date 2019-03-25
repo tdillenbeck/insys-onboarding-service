@@ -6,13 +6,16 @@ import (
 	"github.com/golang/protobuf/ptypes"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
 
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 // verify that the OnboardingService struct implements all methods required in the proto definition
@@ -21,12 +24,14 @@ var _ insys.OnboardingServer = &OnboardingServer{}
 type OnboardingServer struct {
 	categoryService     app.CategoryService
 	taskInstanceService app.TaskInstanceService
+	portingDataClient   insys.PortingDataServiceClient
 }
 
-func NewOnboardingServer(cs app.CategoryService, tis app.TaskInstanceService) *OnboardingServer {
+func NewOnboardingServer(cs app.CategoryService, tis app.TaskInstanceService, pdc insys.PortingDataServiceClient) *OnboardingServer {
 	return &OnboardingServer{
 		categoryService:     cs,
 		taskInstanceService: tis,
+		portingDataClient:   pdc,
 	}
 }
 
@@ -47,9 +52,17 @@ func (s *OnboardingServer) CreateTaskInstancesFromTasks(ctx context.Context, req
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert database tasks to protobuf tasks"))
 	}
 
-	return &insysproto.TaskInstancesResponse{
-		TaskInstances: taskInstances,
-	}, nil
+	result := &insysproto.TaskInstancesResponse{TaskInstances: taskInstances}
+
+	err = updatePhoneInfoTask(ctx, locationUUID, onboardingTasks, s.portingDataClient, s.taskInstanceService)
+	if err != nil {
+		// do not return an error. it is better to return the data in this instance
+		wlog.ErrorC(ctx, err.Error())
+		return result, nil
+	}
+
+	// check for existing porting request. If one exists, mark the submit phone info task as complete
+	return result, nil
 }
 
 // Category is the grpc method to retrieve a category from the database
@@ -218,4 +231,28 @@ func convertToTaskInstancesProto(onboardingTasks []app.TaskInstance) ([]*insyspr
 	}
 
 	return taskInstances, nil
+}
+
+// updatePhoneInfoTask checks if a porting request has been submitted for that location. If there is already a porting request, we can update the
+// task instance associated with collecting the porting information as completed since they have already done that.
+func updatePhoneInfoTask(ctx context.Context, locationID uuid.UUID, onboardingTasks []app.TaskInstance, portingDataClient insys.PortingDataServiceClient, taskInstanceService app.TaskInstanceService) error {
+	pds, err := portingDataClient.ByLocationID(ctx, &insysproto.PortingDataByLocationIDRequest{
+		LocationId: locationID.String(),
+	})
+	if err != nil {
+		return werror.Wrap(err, "could not get porting data information").Add("locationID", locationID.String())
+	}
+
+	if len(pds.PortingData) > 0 {
+		for _, taskInstance := range onboardingTasks {
+			if taskInstance.TaskID.String() == consumers.PortingInfoTaskID {
+				_, err = taskInstanceService.Update(ctx, taskInstance.ID, insysenums.OnboardingTaskStatus_Completed, taskInstance.StatusUpdatedBy.Str)
+				if err != nil {
+					return werror.Wrap(err, "could not update phone info task instance").Add("locationID", locationID.String()).Add("taskInstanceID", taskInstance.ID)
+				}
+			}
+		}
+	}
+
+	return nil
 }

@@ -28,6 +28,8 @@ const (
 	nsqLookupdAddrsConfig       = "nsq-lookupd-addrs"
 	nsqChannelConfig            = "nsq-listen-channel"
 	nsqTopicConfig              = "nsq-topic"
+
+	portingDataGRPCAddress = "porting-data-grpc-address"
 )
 
 var (
@@ -52,6 +54,8 @@ var (
 
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
+
+	PortingDataGRPCAddr string
 )
 
 func init() {
@@ -77,6 +81,7 @@ func init() {
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
 
+	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
 }
 
 func Init() error {
@@ -147,6 +152,11 @@ func Init() error {
 	NSQConcurrentHandlers, err = config.GetInt(nsqConcurrentHandlersConfig, false)
 	if err != nil {
 		return werror.Wrap(err, "error getting concurrent handlers")
+	}
+
+	PortingDataGRPCAddr, err = config.GetAddress(portingDataGRPCAddress, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting proting data grpc address")
 	}
 
 	return nil

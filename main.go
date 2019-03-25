@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	cgrpc "google.golang.org/grpc"
@@ -16,7 +15,9 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wapp"
 	"weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp"
 	"weavelab.xyz/monorail/shared/wlib/wapp/nsqwapp"
+	"weavelab.xyz/monorail/shared/wlib/wdns"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcclient"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
@@ -56,13 +57,18 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
+	portingDataClient, err := initPortingDataClient(ctx, config.PortingDataGRPCAddr)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up porting data client"))
+	}
+
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
-	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService)
+	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService)
 
@@ -74,7 +80,6 @@ func main() {
 	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(onboardingServer, onboarderServer, onboardersLocationServer))
-	fmt.Println(grpcStarter)
 
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
@@ -85,19 +90,6 @@ func main() {
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return
 	wlog.Info("done")
-}
-
-func onboardingGrpcBootstrap(s *grpc.OnboardingServer) grpcwapp.BootstrapFunc {
-	return func() (*cgrpc.Server, error) {
-		gs, err := wgrpcserver.NewDefault()
-		if err != nil {
-			wapp.Exit(werror.Wrap(err, "error getting a new default wgrpc server"))
-		}
-
-		insys.RegisterOnboardingServer(gs, s)
-
-		return gs, nil
-	}
 }
 
 func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
@@ -163,4 +155,25 @@ func initDBConnectionFromVault(ctx context.Context, primaryHost, replicaHost, db
 	}
 
 	return conn, nil
+}
+
+func initPortingDataClient(ctx context.Context, grpcAddr string) (insys.PortingDataServiceClient, error) {
+	defaultPortingDataGrpcAddress := "insys-porting-data.insys.svc.cluster.local.:grpc"
+
+	if grpcAddr == "" {
+		var err error
+
+		grpcAddr, err = wdns.ResolveAddress(defaultPortingDataGrpcAddress)
+		if err != nil {
+			return nil, werror.Wrap(err, "unable to use default settings address for porting data client")
+		}
+	}
+
+	g, err := wgrpcclient.NewDefault(ctx, grpcAddr)
+	if err != nil {
+		return nil, werror.Wrap(err, "unable to setup PortingData grpc client")
+	}
+
+	return insys.NewPortingDataServiceClient(g), nil
+
 }

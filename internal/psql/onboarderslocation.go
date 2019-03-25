@@ -91,9 +91,8 @@ WHERE location_id = $1
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
-		} else {
-			return nil, werror.Wrap(err, "error selecting onboarders location by location id")
 		}
+		return nil, werror.Wrap(err, "error selecting onboarders location by location id")
 	}
 
 	onboardersLocationUUID, err := uuid.Parse(id)

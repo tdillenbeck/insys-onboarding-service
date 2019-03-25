@@ -95,9 +95,8 @@ WHERE user_id = $1`
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
-		} else {
-			return nil, werror.Wrap(err, "error selecting onboarder by user id")
 		}
+		return nil, werror.Wrap(err, "error selecting onboarder by user id")
 	}
 
 	onboarderUUID, err := uuid.Parse(id)

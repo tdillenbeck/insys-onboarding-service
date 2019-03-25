@@ -80,7 +80,7 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 			fields: fields{DB: db},
 			args:   args{ctx: context.Background(), locationID: locationID},
 			want: []app.TaskInstance{
-				app.TaskInstance{
+				{
 					LocationID: locationID,
 					CategoryID: categoryID,
 					TaskID:     taskID,
@@ -232,7 +232,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 			fields: fields{DB: db},
 			args:   args{ctx: context.Background(), locationID: unassignedOnboarderLocationID},
 			want: []app.TaskInstance{
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("16a6dc91-ec6b-4b09-b591-a5b0dfa92932")),
@@ -255,7 +255,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("720af494-38a4-499f-8633-9c8d5169cd43")),
@@ -278,7 +278,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("c20b65d8-e281-4e62-98f0-4aebf83e0bee")),
@@ -301,7 +301,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("1120842a-a24b-40e8-b29e-0e05e89af99f")),
@@ -324,7 +324,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("7b15e061-8002-4edc-9bf4-f38c6eec6364")),
@@ -347,7 +347,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("fd4f656c-c9f1-47b8-96ad-3080b999a843")),
@@ -370,7 +370,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("47743fae-c775-45d5-8a51-dc7e3371dfa4")),
@@ -393,7 +393,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("2d2df285-9211-48fc-a057-74f7dee2d9a4")),
@@ -416,7 +416,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: unassignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("d0da53a9-fbdb-4d22-85c6-ed521f237349")),
 					TaskID:     mustUUID(uuid.Parse("9aec502b-f8b8-4f10-9748-1fe4050eacde")),
@@ -447,7 +447,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 			fields: fields{DB: db},
 			args:   args{ctx: context.Background(), locationID: assignedOnboarderLocationID},
 			want: []app.TaskInstance{
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("16a6dc91-ec6b-4b09-b591-a5b0dfa92932")),
@@ -470,7 +470,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("720af494-38a4-499f-8633-9c8d5169cd43")),
@@ -493,7 +493,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("c20b65d8-e281-4e62-98f0-4aebf83e0bee")),
@@ -516,7 +516,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("1120842a-a24b-40e8-b29e-0e05e89af99f")),
@@ -539,7 +539,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("7b15e061-8002-4edc-9bf4-f38c6eec6364")),
@@ -562,7 +562,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("fd4f656c-c9f1-47b8-96ad-3080b999a843")),
@@ -585,7 +585,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("47743fae-c775-45d5-8a51-dc7e3371dfa4")),
@@ -608,7 +608,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("2d2df285-9211-48fc-a057-74f7dee2d9a4")),
@@ -631,7 +631,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: assignedOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("d0da53a9-fbdb-4d22-85c6-ed521f237349")),
 					TaskID:     mustUUID(uuid.Parse("9aec502b-f8b8-4f10-9748-1fe4050eacde")),
@@ -662,7 +662,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 			fields: fields{DB: db},
 			args:   args{ctx: context.Background(), locationID: partialOnboarderLocationID},
 			want: []app.TaskInstance{
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("16a6dc91-ec6b-4b09-b591-a5b0dfa92932")),
@@ -685,7 +685,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("720af494-38a4-499f-8633-9c8d5169cd43")),
@@ -708,7 +708,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("c20b65d8-e281-4e62-98f0-4aebf83e0bee")),
@@ -731,7 +731,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")),
 					TaskID:     mustUUID(uuid.Parse("1120842a-a24b-40e8-b29e-0e05e89af99f")),
@@ -754,7 +754,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("7b15e061-8002-4edc-9bf4-f38c6eec6364")),
@@ -777,7 +777,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("fd4f656c-c9f1-47b8-96ad-3080b999a843")),
@@ -800,7 +800,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("47743fae-c775-45d5-8a51-dc7e3371dfa4")),
@@ -823,7 +823,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("ebc72a11-f1b3-40d5-888e-5b6aba66e871")),
 					TaskID:     mustUUID(uuid.Parse("2d2df285-9211-48fc-a057-74f7dee2d9a4")),
@@ -846,7 +846,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				},
-				app.TaskInstance{
+				{
 					LocationID: partialOnboarderLocationID,
 					CategoryID: mustUUID(uuid.Parse("d0da53a9-fbdb-4d22-85c6-ed521f237349")),
 					TaskID:     mustUUID(uuid.Parse("9aec502b-f8b8-4f10-9748-1fe4050eacde")),
