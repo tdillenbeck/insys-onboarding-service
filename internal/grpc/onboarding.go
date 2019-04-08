@@ -15,7 +15,6 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
-	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 // verify that the OnboardingService struct implements all methods required in the proto definition
@@ -57,7 +56,6 @@ func (s *OnboardingServer) CreateTaskInstancesFromTasks(ctx context.Context, req
 	err = updatePhoneInfoTask(ctx, locationUUID, onboardingTasks, s.portingDataClient, s.taskInstanceService)
 	if err != nil {
 		// do not return an error. it is better to return the data in this instance
-		wlog.ErrorC(ctx, err.Error())
 		return result, nil
 	}
 
