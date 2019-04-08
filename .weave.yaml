@@ -5,7 +5,7 @@ name: "insys onboarding service"
 owner: "squad-insys@getweave.com"
 repo: "gcr.io/weave-lab/insys/insys-onboarding-service"
 domain: "insys"
-slack: "#squad-insys"
+slack: "#squad-insy-alerts"
 
 #############################
 # Radioactive Man!!!
