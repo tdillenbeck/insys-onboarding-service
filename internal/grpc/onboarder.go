@@ -36,7 +36,7 @@ func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.On
 
 	onb, err := s.onboarderService.CreateOrUpdate(ctx, onboarder)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database"))
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database").Add("onboarder", onboarder))
 	}
 
 	result, err := convertOnboarderToProto(onb)
@@ -55,7 +55,7 @@ func (s *OnboarderServer) ReadByUserID(ctx context.Context, req *insysproto.Onbo
 
 	onb, err := s.onboarderService.ReadByUserID(ctx, userID)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error reading onboarder by user id from the database"))
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error reading onboarder by user id from the database").Add("userID", userID))
 	}
 
 	result, err := convertOnboarderToProto(onb)
