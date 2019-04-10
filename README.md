@@ -1,64 +1,136 @@
-[![pipeline status](https://gitlab.getweave.com/weave-lab/internal/insys-onboarding/badges/master/pipeline.svg)](https://gitlab.getweave.com/weave-lab/internal/insys-onboarding/commits/master)
-[![coverage report](https://gitlab.getweave.com/weave-lab/management/insys-onboarding/badges/master/coverage.svg)](https://gitlab.getweave.com/weave-lab/internal/insys-onboarding/commits/master)
+# insys onboarding service
 
-# insys-onboarding
+The insys-onboarding-service is for managing the onboarding process for new customers.
 
-Service that helps track the onboarding process of new clients.
+## Getting Started
 
-## Installation
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
+- Install [PostgreSQL](https://www.postgresql.org/) - Relational Database System
+- Install [NSQ](https://nsq.io/) - Realtime Distributed Messaging Platform
+- Install [helm](https://helm.sh/) for deploys
+- Install [goose](https://github.com/pressly/goose) - Database migrations
+
+### Prerequisites
+
+This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1). The domain logic is defined in the `internal/app/` package instead of in the top level directory.
+
+### Installing
+
 ```bash
-go get weavelab.xyz/insys-onboarding
+go get -u weavelab.xyz/insys-onboarding-service
 ```
 
-For more information on `weavelab.xyz`, see the projects [readme](https://gitlab.getweave.com/weave-lab/ops/xyz/blob/master/README.md).
+#### Running Locally
 
-## Project Layout
+NSQ is not required for the service to be running locally. This service does publish and consume NSQ messages, so if you are wanting that behavior see the `Running NSQ Locally` step.
 
-This project's folder structure is based on [Ben Johnson's standard package layout](https://medium.com/@benbjohnson/standard-package-layout-7cdbc8391fc1).
-  * `/internal/app` defines the business logic for this service (structs and interfaces)
-  * `/internal/config` is used as a default way configure in environment variables.
-  * `/internal/grpc`  defines the gRPC handlers.
-  * `/internal/mock` defines structs that can be used for testing. This is useful to isolate our unit tests.
-  * `/internal/nsq` defines code that receives/publishes messages via NSQ
-  * `/internal/psql` defines code to interact with the database. NOTE: these tests rely on a test database to be setup
+##### Setup Local Database
+    1. psql: `CREATE DATABASE insys_onboarding_local;`
+    2. psql: `CREATE SCHEMA insys_onboarding;` NOTE: create this in the insys_onboarding_local database.
+    3. `make migratelocalup`
+    4. psal: `CREATE DATABASE insys_onboarding_test;`
+    5. psql: `CREATE SCHEMA insys_onboarding;` NOTE: create this in the insys_onboarding_test database.
+    6. `make migratetestup`
 
-## Testing
+##### Running NSQ Locally
 
-  This project contains tests that rely on a test database. Here are the setups to setup your local postgres:
+Follow the quick start guide found [here](https://nsq.io/overview/quick_start.html). NOTE: when starting nsqd, run `nsqd --lookupd-tcp-address=127.0.0.1:4160 -broadcast-address=127.0.0.1`.
 
-  1. psql: `CREATE DATABASE "insys_onboarding_test";`
-  2. psql: `CREATE SCHEMA insys_onboarding;` NOTE: make sure to create the schema in the `insys_onboarding_test` database.
-  3. `$ make migratetestup`
+##### Running the service Locally
 
-## Database Migrations
-  This service uses the [goose](https://github.com/pressly/goose) library for running migrations. Mainly because it works with schema and doesn't pollute the public namespace.
+Use the `run` script to run the server locally. This script will setup environment variables to allow the local service to connect with other services.
 
-  Before using goose, the use is responsible for setting up the database:
-    1. Install goose `go get -u github.com/pressly/goose/cmd/goose`
-    2. psql: `CREATE DATABASE insys_onboarding_local";`
-    3. psql: `CREATE SCHEMA insys_onboarding;` NOTE: make sure to create the schema in the `insys_onboarding_local` database.
+```bash
+./run -d
+```
 
-### Running a migration
+Using the `-d` flag will connect the local service running to services running in the dev kubernetes environment. You can also use the `-p` flag to have the local service connect to production kubernetes environment.
 
-  See the Makefile for helper commands to run migrations. Or [RTFM](https://en.wikipedia.org/wiki/RTFM) from the [goose library](https://github.com/pressly/goose).
+## Running the tests
 
-  Example running migration on local database:
-  ```
-  make mmigratelocalup
-  ```
+The postgres tests require that the test database is setup and running. See `Setup Local Database` task on how to do this.
 
-### Creating a new migration
+```bash
+go test ./...
+```
 
-  ```
+### Break down into end to end tests
+
+Currently there are no end to end tests.
+
+## Creating a database migration
+
+This project uses the [goose](https://github.com/pressly/goose) library to manage migrations. Migrations are created in the `dbconfig/migrations/` folder.
+
+  ```bash
   goose -dir dbconfig/migrations/ create MIGRATION_NAME sql
   ```
 
-  Add the SQL for the up migration under the `-- +goose Up` comment. Add the SQL for the down under the `-- +goose Down` comment.
+Add the SQL for up under the `-- +goose Up` comment. Add the SQL for the down under the `-- +goose Down` comment.
 
-### Seed the database
-  The dbconfig/seed.sql contains the seed data for the existing database tables.
+### Run the migrations locally
 
-  Example running against local database.
-  ```
-  $ psql postgres://postgres@localhost:5432/insys_onboarding_local?sslmode=disable -f dbconfig/seed.sql
-  ```
+```bash
+make migratelocalup
+```
+
+### Run the migrations in dev environment
+
+Add your database credentials to the Makefile for the `migratedev` task (make sure you don't commit them).
+
+```bash
+make migratedev
+```
+
+### Run the migrations in prod environment
+
+Add your database credentials to the Makefile for the `migrateprod` task (make sure you don't commit them).
+
+```bash
+make migrateprod
+```
+
+## Deployment
+
+This service uses [helm](https://github.com/helm/charts) to manage our kubernetes deploys. The help charts can be found in the `charts/` folder.
+
+[Kubernetes](https://kubernetes.io/) - System for automating deployment, scaling, and management of containerized applications
+[Helm](https://github.com/helm/helm) - Kubernetes Package Manager
+[Jenkins](https://jenkins.io/) - Automated build server
+[Weave Jenkins Build Server](https://builds.weavelab.xyz/) - UI to view Weave builds.
+
+Use [bart](https://github.com/weave-lab/bart) to get the build tags from the CI/CD server.
+
+```bash
+$ bart builds
+```
+
+### Deploy to dev environment
+
+If you have added database migrations, make sure to use the `make migratedev` task before deploying.
+
+Update the build tag value in `charts/insys-onboarding/values-dev.yaml` file.
+
+```bash
+make deploydev
+```
+
+View the kubernetes dashboard for the dev environment at http://dev-dashboard.weave.local/.
+
+### Deploy to prod environment
+
+If you have added database migrations, make sure to use the `make migrateprod` task before deploying.
+
+Update the build tag in `charts/insys-onboarding/values.yaml` file.
+
+```bash
+make deployprod
+```
+View the kubernetes dashboard for the prod environment at http://dashboard-ut.weave.local/.
+
+## Built With
+
+* [Go](https://golang.org/) - Programming Language
+* [Vendor](https://github.com/kardianos/govendor) - Dependency Management
+
