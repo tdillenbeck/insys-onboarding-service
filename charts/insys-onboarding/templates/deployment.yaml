@@ -103,6 +103,12 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        - name: LOG_DNA
+          value: {{ .Values.logDNA.name }}
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: sslroots
+
 
       - name: tracing-agent
         image: weavelab/jaeger-agent:5d5a16b7
@@ -118,4 +124,7 @@ spec:
 
       imagePullSecrets:
       - name: gcr-io
-
+      volumes:
+      - hostPath:
+          path: /etc/ssl/certs
+        name: sslroots
