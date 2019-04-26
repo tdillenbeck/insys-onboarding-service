@@ -1,5 +1,9 @@
 pipeline {
   agent none
+
+  environment {
+    CI = 'true'
+  }
   stages {
     stage ('readWeave') {
       agent any
