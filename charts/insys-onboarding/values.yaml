@@ -15,6 +15,9 @@ logLevel: info
 
 useConnectString: true
 
+logDNA:
+    name: insys-onboarding-service
+
 postgres:
   maxConnectionLifetime: 30m
   maxIdleConnections: 0
