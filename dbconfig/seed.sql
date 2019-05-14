@@ -94,7 +94,7 @@
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     'c20b65d8-e281-4e62-98f0-4aebf83e0bee',
     'Watch our helpful software training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
     6,
     default,
     default,
@@ -104,7 +104,7 @@
   )
   ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
     'Watch our helpful software training videos',
-    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, automated appointment reminders, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> An online webinar - available to schedule or on demand - that will guide you through all the key features you can be using now, like two-way texting, Team Chat, and much more.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
     6,
     default,
     default,
