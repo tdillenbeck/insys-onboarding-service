@@ -156,7 +156,10 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not open seed.sql file")
 	}
-	db.ExecContext(context.Background(), string(seedFile))
+	_, err = db.ExecContext(context.Background(), string(seedFile))
+	if err != nil {
+		t.Fatalf("could not execute seed.sql query")
+	}
 
 	// create an onboarder
 	onb := &app.Onboarder{
