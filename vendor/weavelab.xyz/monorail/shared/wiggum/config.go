@@ -25,15 +25,15 @@ func VerifyKey(keyID string, alg string) (interface{}, error) {
 func (k *KeySet) VerifyKey(keyID string, alg string) (interface{}, error) {
 	key, err := k.key(keyID)
 	if err != nil {
-		return nil, werror.Wrap(err, "unable to find key")
+		return nil, werror.Wrap(err, "unable to find key").Add("keyID", keyID)
 	}
 
 	if key.Algorithm != alg {
-		return nil, werror.New("key mismatch")
+		return nil, werror.New("key mismatch").Add("keyID", keyID).Add("alg", alg)
 	}
 
 	if key.IsPublic() == false {
-		return nil, werror.New("not a valid verify key")
+		return nil, werror.New("not a valid verify key").Add("keyID", keyID)
 	}
 
 	return key.Key, nil

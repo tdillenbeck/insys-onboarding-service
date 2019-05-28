@@ -102,7 +102,12 @@ func stdoutLogger(c context.Context, mtype LogMsgType, msg string, tags []tag.Ta
 	if mtype == ERROR && msg == "" && len(tags) >= 1 && tags[0].Type == tag.WErrorType && tags[0].Key == "" {
 		werr := tags[0].WErrorVal
 
-		msg = werr.Error()
+		m := werr.Message()
+		if m != "" {
+			// add extra message if it is set
+			msg = m + " " + werr.Error()
+		}
+
 	}
 
 	StdoutPrintHeader(prefix, time.Now(), file, line, msg)

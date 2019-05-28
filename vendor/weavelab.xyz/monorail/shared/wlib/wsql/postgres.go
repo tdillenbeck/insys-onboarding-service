@@ -16,19 +16,16 @@ import (
 	"unsafe"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // need side effects from lib/pg
 	"github.com/opentracing/opentracing-go"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
-	"weavelab.xyz/monorail/shared/wlib/wmetrics"
 	"weavelab.xyz/monorail/shared/wlib/wtracer"
 )
 
 const (
-	pgPrimaryName = "primary"
-	pgReplicaName = "replica"
-
 	defaultMaxIdleConnections = 3
 	defaultMaxOpenConnections = 5
 )
@@ -50,12 +47,16 @@ type PG struct {
 type DB struct {
 	stopMetrics chan struct{}
 
-	Name     string
-	Hostname string
-	xdb      *sqlx.DB
+	Name      string
+	isPrimary bool
+	Hostname  string
+	xdb       *sqlx.DB
+	poolID    string
 }
 
 type Settings struct {
+	PoolName string
+
 	PrimaryConnectString ConnectString
 	ReplicaConnectString ConnectString
 
@@ -114,7 +115,7 @@ func (p *PG) SetupDatabase(s *Settings) error {
 	//---------------------------------------------
 	// setup a read-write connection to the primary
 	//---------------------------------------------
-	dbPrimary, err := p.connect(s, pgPrimaryName, s.PrimaryConnectString)
+	dbPrimary, err := p.connect(s, true, s.PrimaryConnectString)
 	if err != nil {
 		return werror.Wrap(err, "unable to connect to primary database server")
 	}
@@ -129,7 +130,7 @@ func (p *PG) SetupDatabase(s *Settings) error {
 	if rcs != "" {
 		wlog.Info("Connecting to replica database")
 
-		dbReplica, err = p.connect(s, pgReplicaName, s.ReplicaConnectString)
+		dbReplica, err = p.connect(s, false, s.ReplicaConnectString)
 		if err != nil {
 			return werror.Wrap(err, "unable to connect to replica database server")
 		}
@@ -165,7 +166,7 @@ func (p *PG) SetupDatabase(s *Settings) error {
 
 }
 
-func (p *PG) connect(s *Settings, name string, cs ConnectString) (*DB, error) {
+func (p *PG) connect(s *Settings, isPrimary bool, cs ConnectString) (*DB, error) {
 
 	css := cs.String()
 
@@ -182,8 +183,10 @@ func (p *PG) connect(s *Settings, name string, cs ConnectString) (*DB, error) {
 
 	db := &DB{
 		xdb:         conn,
-		Name:        name,
+		Name:        s.PoolName,
+		isPrimary:   isPrimary,
 		Hostname:    hostname,
+		poolID:      uuid.NewV4().String(),
 		stopMetrics: make(chan struct{}),
 	}
 
@@ -217,27 +220,6 @@ func randomLifetime(desired time.Duration) time.Duration {
 	n := time.Duration(int(desired) - r)
 
 	return n
-}
-
-func (p *DB) SendConnectionStatistics() {
-
-	ticker := time.NewTicker(time.Second * 10)
-	defer ticker.Stop()
-
-	description := "connection_pool." + p.Name + ".open"
-
-loop:
-	for {
-		select {
-		case <-ticker.C:
-			s := p.Stats()
-
-			wmetrics.Gauge(s.OpenConnections, description)
-		case <-p.stopMetrics:
-			break loop
-		}
-	}
-
 }
 
 func (p *DB) SetMaxIdleConns(i int) {

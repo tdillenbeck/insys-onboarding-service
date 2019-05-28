@@ -33,7 +33,8 @@ func (e *Error) Message() string {
 
 // ExtraMessages returns the extra messages added to the wrapped error
 func (e *Error) ExtraMessages() []string {
-	return e.messages
+	// append all message together, and add the original underlying error message
+	return append(e.messages, e.err.Error())
 }
 
 type Stringer interface {
