@@ -33,17 +33,17 @@ func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
 func clearExistingData(db *wsql.PG) {
 	// Clear existing database values
 	clearOnboardersQuery := "DELETE FROM insys_onboarding.onboarders;"
-	db.ExecContext(context.Background(), clearOnboardersQuery)
+	_, _ = db.ExecContext(context.Background(), clearOnboardersQuery)
 
 	clearOnboardersLocationQuery := "DELETE FROM insys_onboarding.onboarders_location;"
-	db.ExecContext(context.Background(), clearOnboardersLocationQuery)
+	_, _ = db.ExecContext(context.Background(), clearOnboardersLocationQuery)
 
 	clearOnboardingTaskInstancesQuery := "DELETE FROM insys_onboarding.onboarding_task_instances;"
-	db.ExecContext(context.Background(), clearOnboardingTaskInstancesQuery)
+	_, _ = db.ExecContext(context.Background(), clearOnboardingTaskInstancesQuery)
 
 	clearOnboardingTasksQuery := "DELETE FROM insys_onboarding.onboarding_tasks;"
-	db.ExecContext(context.Background(), clearOnboardingTasksQuery)
+	_, _ = db.ExecContext(context.Background(), clearOnboardingTasksQuery)
 
 	clearOnboardingCategoriesQuery := "DELETE FROM insys_onboarding.onboarding_categories;"
-	db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
+	_, _ = db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
 }
