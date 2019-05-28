@@ -68,11 +68,9 @@ var (
 	errConnClosing = errors.New("grpc: the connection is closing")
 	// errBalancerClosed indicates that the balancer is closed.
 	errBalancerClosed = errors.New("grpc: balancer is closed")
-	// We use an accessor so that minConnectTimeout can be
-	// atomically read and updated while testing.
-	getMinConnectTimeout = func() time.Duration {
-		return minConnectTimeout
-	}
+	// invalidDefaultServiceConfigErrPrefix is used to prefix the json parsing error for the default
+	// service config.
+	invalidDefaultServiceConfigErrPrefix = "grpc: the provided default service config is invalid"
 )
 
 // The following errors are returned from Dial and DialContext
@@ -139,6 +137,15 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		opt.apply(&cc.dopts)
 	}
 
+	chainUnaryClientInterceptors(cc)
+	chainStreamClientInterceptors(cc)
+
+	defer func() {
+		if err != nil {
+			cc.Close()
+		}
+	}()
+
 	if channelz.IsOn() {
 		if cc.dopts.channelzParentID != 0 {
 			cc.channelzID = channelz.RegisterChannel(&channelzChannel{cc}, cc.dopts.channelzParentID, target)
@@ -178,6 +185,13 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		}
 	}
 
+	if cc.dopts.defaultServiceConfigRawJSON != nil {
+		sc, err := parseServiceConfig(*cc.dopts.defaultServiceConfigRawJSON)
+		if err != nil {
+			return nil, fmt.Errorf("%s: %v", invalidDefaultServiceConfigErrPrefix, err)
+		}
+		cc.dopts.defaultServiceConfig = sc
+	}
 	cc.mkp = cc.dopts.copts.KeepaliveParams
 
 	if cc.dopts.copts.Dialer == nil {
@@ -200,16 +214,11 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		ctx, cancel = context.WithTimeout(ctx, cc.dopts.timeout)
 		defer cancel()
 	}
-
 	defer func() {
 		select {
 		case <-ctx.Done():
 			conn, err = nil, ctx.Err()
 		default:
-		}
-
-		if err != nil {
-			cc.Close()
 		}
 	}()
 
@@ -219,7 +228,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		select {
 		case sc, ok := <-cc.dopts.scChan:
 			if ok {
-				cc.sc = sc
+				cc.sc = &sc
 				scSet = true
 			}
 		default:
@@ -265,7 +274,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		select {
 		case sc, ok := <-cc.dopts.scChan:
 			if ok {
-				cc.sc = sc
+				cc.sc = &sc
 			}
 		case <-ctx.Done():
 			return nil, ctx.Err()
@@ -284,6 +293,7 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 		CredsBundle:      cc.dopts.copts.CredsBundle,
 		Dialer:           cc.dopts.copts.Dialer,
 		ChannelzParentID: cc.channelzID,
+		Target:           cc.parsedTarget,
 	}
 
 	// Build the resolver.
@@ -319,6 +329,68 @@ func DialContext(ctx context.Context, target string, opts ...DialOption) (conn *
 	}
 
 	return cc, nil
+}
+
+// chainUnaryClientInterceptors chains all unary client interceptors into one.
+func chainUnaryClientInterceptors(cc *ClientConn) {
+	interceptors := cc.dopts.chainUnaryInts
+	// Prepend dopts.unaryInt to the chaining interceptors if it exists, since unaryInt will
+	// be executed before any other chained interceptors.
+	if cc.dopts.unaryInt != nil {
+		interceptors = append([]UnaryClientInterceptor{cc.dopts.unaryInt}, interceptors...)
+	}
+	var chainedInt UnaryClientInterceptor
+	if len(interceptors) == 0 {
+		chainedInt = nil
+	} else if len(interceptors) == 1 {
+		chainedInt = interceptors[0]
+	} else {
+		chainedInt = func(ctx context.Context, method string, req, reply interface{}, cc *ClientConn, invoker UnaryInvoker, opts ...CallOption) error {
+			return interceptors[0](ctx, method, req, reply, cc, getChainUnaryInvoker(interceptors, 0, invoker), opts...)
+		}
+	}
+	cc.dopts.unaryInt = chainedInt
+}
+
+// getChainUnaryInvoker recursively generate the chained unary invoker.
+func getChainUnaryInvoker(interceptors []UnaryClientInterceptor, curr int, finalInvoker UnaryInvoker) UnaryInvoker {
+	if curr == len(interceptors)-1 {
+		return finalInvoker
+	}
+	return func(ctx context.Context, method string, req, reply interface{}, cc *ClientConn, opts ...CallOption) error {
+		return interceptors[curr+1](ctx, method, req, reply, cc, getChainUnaryInvoker(interceptors, curr+1, finalInvoker), opts...)
+	}
+}
+
+// chainStreamClientInterceptors chains all stream client interceptors into one.
+func chainStreamClientInterceptors(cc *ClientConn) {
+	interceptors := cc.dopts.chainStreamInts
+	// Prepend dopts.streamInt to the chaining interceptors if it exists, since streamInt will
+	// be executed before any other chained interceptors.
+	if cc.dopts.streamInt != nil {
+		interceptors = append([]StreamClientInterceptor{cc.dopts.streamInt}, interceptors...)
+	}
+	var chainedInt StreamClientInterceptor
+	if len(interceptors) == 0 {
+		chainedInt = nil
+	} else if len(interceptors) == 1 {
+		chainedInt = interceptors[0]
+	} else {
+		chainedInt = func(ctx context.Context, desc *StreamDesc, cc *ClientConn, method string, streamer Streamer, opts ...CallOption) (ClientStream, error) {
+			return interceptors[0](ctx, desc, cc, method, getChainStreamer(interceptors, 0, streamer), opts...)
+		}
+	}
+	cc.dopts.streamInt = chainedInt
+}
+
+// getChainStreamer recursively generate the chained client stream constructor.
+func getChainStreamer(interceptors []StreamClientInterceptor, curr int, finalStreamer Streamer) Streamer {
+	if curr == len(interceptors)-1 {
+		return finalStreamer
+	}
+	return func(ctx context.Context, desc *StreamDesc, cc *ClientConn, method string, opts ...CallOption) (ClientStream, error) {
+		return interceptors[curr+1](ctx, desc, cc, method, getChainStreamer(interceptors, curr+1, finalStreamer), opts...)
+	}
 }
 
 // connectivityStateManager keeps the connectivity.State of ClientConn.
@@ -387,14 +459,11 @@ type ClientConn struct {
 
 	mu              sync.RWMutex
 	resolverWrapper *ccResolverWrapper
-	sc              ServiceConfig
-	scRaw           string
+	sc              *ServiceConfig
 	conns           map[*addrConn]struct{}
 	// Keepalive parameter can be updated if a GoAway is received.
 	mkp             keepalive.ClientParameters
 	curBalancerName string
-	preBalancerName string // previous balancer name.
-	curAddresses    []resolver.Address
 	balancerWrapper *ccBalancerWrapper
 	retryThrottler  atomic.Value
 
@@ -436,8 +505,7 @@ func (cc *ClientConn) scWatcher() {
 			cc.mu.Lock()
 			// TODO: load balance policy runtime change is ignored.
 			// We may revisit this decision in the future.
-			cc.sc = sc
-			cc.scRaw = ""
+			cc.sc = &sc
 			cc.mu.Unlock()
 		case <-cc.ctx.Done():
 			return
@@ -464,59 +532,84 @@ func (cc *ClientConn) waitForResolvedAddrs(ctx context.Context) error {
 	}
 }
 
-func (cc *ClientConn) handleResolvedAddrs(addrs []resolver.Address, err error) {
+// gRPC should resort to default service config when:
+// * resolver service config is disabled
+// * or, resolver does not return a service config or returns an invalid one.
+func (cc *ClientConn) fallbackToDefaultServiceConfig(sc string) bool {
+	if cc.dopts.disableServiceConfig {
+		return true
+	}
+	// The logic below is temporary, will be removed once we change the resolver.State ServiceConfig field type.
+	// Right now, we assume that empty service config string means resolver does not return a config.
+	if sc == "" {
+		return true
+	}
+	// TODO: the logic below is temporary. Once we finish the logic to validate service config
+	// in resolver, we will replace the logic below.
+	_, err := parseServiceConfig(sc)
+	return err != nil
+}
+
+func (cc *ClientConn) updateResolverState(s resolver.State) error {
 	cc.mu.Lock()
 	defer cc.mu.Unlock()
+	// Check if the ClientConn is already closed. Some fields (e.g.
+	// balancerWrapper) are set to nil when closing the ClientConn, and could
+	// cause nil pointer panic if we don't have this check.
 	if cc.conns == nil {
-		// cc was closed.
-		return
+		return nil
 	}
 
-	if reflect.DeepEqual(cc.curAddresses, addrs) {
-		return
+	if cc.fallbackToDefaultServiceConfig(s.ServiceConfig) {
+		if cc.dopts.defaultServiceConfig != nil && cc.sc == nil {
+			cc.applyServiceConfig(cc.dopts.defaultServiceConfig)
+		}
+	} else {
+		// TODO: the parsing logic below will be moved inside resolver.
+		sc, err := parseServiceConfig(s.ServiceConfig)
+		if err != nil {
+			return err
+		}
+		if cc.sc == nil || cc.sc.rawJSONString != s.ServiceConfig {
+			cc.applyServiceConfig(sc)
+		}
 	}
 
-	cc.curAddresses = addrs
-	cc.firstResolveEvent.Fire()
+	// update the service config that will be sent to balancer.
+	if cc.sc != nil {
+		s.ServiceConfig = cc.sc.rawJSONString
+	}
 
 	if cc.dopts.balancerBuilder == nil {
 		// Only look at balancer types and switch balancer if balancer dial
 		// option is not set.
 		var isGRPCLB bool
-		for _, a := range addrs {
+		for _, a := range s.Addresses {
 			if a.Type == resolver.GRPCLB {
 				isGRPCLB = true
 				break
 			}
 		}
 		var newBalancerName string
+		// TODO: use new loadBalancerConfig field with appropriate priority.
 		if isGRPCLB {
 			newBalancerName = grpclbName
+		} else if cc.sc != nil && cc.sc.LB != nil {
+			newBalancerName = *cc.sc.LB
 		} else {
-			// Address list doesn't contain grpclb address. Try to pick a
-			// non-grpclb balancer.
-			newBalancerName = cc.curBalancerName
-			// If current balancer is grpclb, switch to the previous one.
-			if newBalancerName == grpclbName {
-				newBalancerName = cc.preBalancerName
-			}
-			// The following could be true in two cases:
-			// - the first time handling resolved addresses
-			//   (curBalancerName="")
-			// - the first time handling non-grpclb addresses
-			//   (curBalancerName="grpclb", preBalancerName="")
-			if newBalancerName == "" {
-				newBalancerName = PickFirstBalancerName
-			}
+			newBalancerName = PickFirstBalancerName
 		}
 		cc.switchBalancer(newBalancerName)
 	} else if cc.balancerWrapper == nil {
 		// Balancer dial option was set, and this is the first time handling
 		// resolved addresses. Build a balancer with dopts.balancerBuilder.
+		cc.curBalancerName = cc.dopts.balancerBuilder.Name()
 		cc.balancerWrapper = newCCBalancerWrapper(cc, cc.dopts.balancerBuilder, cc.balancerBuildOpts)
 	}
 
-	cc.balancerWrapper.handleResolvedAddrs(addrs, nil)
+	cc.balancerWrapper.updateResolverState(s)
+	cc.firstResolveEvent.Fire()
+	return nil
 }
 
 // switchBalancer starts the switching from current balancer to the balancer
@@ -528,11 +621,7 @@ func (cc *ClientConn) handleResolvedAddrs(addrs []resolver.Address, err error) {
 //
 // Caller must hold cc.mu.
 func (cc *ClientConn) switchBalancer(name string) {
-	if cc.conns == nil {
-		return
-	}
-
-	if strings.ToLower(cc.curBalancerName) == strings.ToLower(name) {
+	if strings.EqualFold(cc.curBalancerName, name) {
 		return
 	}
 
@@ -541,15 +630,11 @@ func (cc *ClientConn) switchBalancer(name string) {
 		grpclog.Infoln("ignoring balancer switching: Balancer DialOption used instead")
 		return
 	}
-	// TODO(bar switching) change this to two steps: drain and close.
-	// Keep track of sc in wrapper.
 	if cc.balancerWrapper != nil {
 		cc.balancerWrapper.close()
 	}
 
 	builder := balancer.Get(name)
-	// TODO(yuxuanli): If user send a service config that does not contain a valid balancer name, should
-	// we reuse previous one?
 	if channelz.IsOn() {
 		if builder == nil {
 			channelz.AddTraceEvent(cc.channelzID, &channelz.TraceEventDesc{
@@ -568,7 +653,6 @@ func (cc *ClientConn) switchBalancer(name string) {
 		builder = newPickfirstBuilder()
 	}
 
-	cc.preBalancerName = cc.curBalancerName
 	cc.curBalancerName = builder.Name()
 	cc.balancerWrapper = newCCBalancerWrapper(cc, builder, cc.balancerBuildOpts)
 }
@@ -731,6 +815,9 @@ func (cc *ClientConn) GetMethodConfig(method string) MethodConfig {
 	// TODO: Avoid the locking here.
 	cc.mu.RLock()
 	defer cc.mu.RUnlock()
+	if cc.sc == nil {
+		return MethodConfig{}
+	}
 	m, ok := cc.sc.Methods[method]
 	if !ok {
 		i := strings.LastIndex(method, "/")
@@ -742,6 +829,9 @@ func (cc *ClientConn) GetMethodConfig(method string) MethodConfig {
 func (cc *ClientConn) healthCheckConfig() *healthCheckConfig {
 	cc.mu.RLock()
 	defer cc.mu.RUnlock()
+	if cc.sc == nil {
+		return nil
+	}
 	return cc.sc.healthCheckConfig
 }
 
@@ -755,65 +845,25 @@ func (cc *ClientConn) getTransport(ctx context.Context, failfast bool, method st
 	return t, done, nil
 }
 
-// handleServiceConfig parses the service config string in JSON format to Go native
-// struct ServiceConfig, and store both the struct and the JSON string in ClientConn.
-func (cc *ClientConn) handleServiceConfig(js string) error {
-	if cc.dopts.disableServiceConfig {
-		return nil
+func (cc *ClientConn) applyServiceConfig(sc *ServiceConfig) error {
+	if sc == nil {
+		// should never reach here.
+		return fmt.Errorf("got nil pointer for service config")
 	}
-	if cc.scRaw == js {
-		return nil
-	}
-	if channelz.IsOn() {
-		channelz.AddTraceEvent(cc.channelzID, &channelz.TraceEventDesc{
-			// The special formatting of \"%s\" instead of %q is to provide nice printing of service config
-			// for human consumption.
-			Desc:     fmt.Sprintf("Channel has a new service config \"%s\"", js),
-			Severity: channelz.CtINFO,
-		})
-	}
-	sc, err := parseServiceConfig(js)
-	if err != nil {
-		return err
-	}
-	cc.mu.Lock()
-	// Check if the ClientConn is already closed. Some fields (e.g.
-	// balancerWrapper) are set to nil when closing the ClientConn, and could
-	// cause nil pointer panic if we don't have this check.
-	if cc.conns == nil {
-		cc.mu.Unlock()
-		return nil
-	}
-	cc.scRaw = js
 	cc.sc = sc
 
-	if sc.retryThrottling != nil {
+	if cc.sc.retryThrottling != nil {
 		newThrottler := &retryThrottler{
-			tokens: sc.retryThrottling.MaxTokens,
-			max:    sc.retryThrottling.MaxTokens,
-			thresh: sc.retryThrottling.MaxTokens / 2,
-			ratio:  sc.retryThrottling.TokenRatio,
+			tokens: cc.sc.retryThrottling.MaxTokens,
+			max:    cc.sc.retryThrottling.MaxTokens,
+			thresh: cc.sc.retryThrottling.MaxTokens / 2,
+			ratio:  cc.sc.retryThrottling.TokenRatio,
 		}
 		cc.retryThrottler.Store(newThrottler)
 	} else {
 		cc.retryThrottler.Store((*retryThrottler)(nil))
 	}
 
-	if sc.LB != nil && *sc.LB != grpclbName { // "grpclb" is not a valid balancer option in service config.
-		if cc.curBalancerName == grpclbName {
-			// If current balancer is grpclb, there's at least one grpclb
-			// balancer address in the resolved list. Don't switch the balancer,
-			// but change the previous balancer name, so if a new resolved
-			// address list doesn't contain grpclb address, balancer will be
-			// switched to *sc.LB.
-			cc.preBalancerName = *sc.LB
-		} else {
-			cc.switchBalancer(*sc.LB)
-			cc.balancerWrapper.handleResolvedAddrs(cc.curAddresses, nil)
-		}
-	}
-
-	cc.mu.Unlock()
 	return nil
 }
 
@@ -889,7 +939,7 @@ func (cc *ClientConn) Close() error {
 		}
 		channelz.AddTraceEvent(cc.channelzID, ted)
 		// TraceEvent needs to be called before RemoveEntry, as TraceEvent may add trace reference to
-		// the entity beng deleted, and thus prevent it from being deleted right away.
+		// the entity being deleted, and thus prevent it from being deleted right away.
 		channelz.RemoveEntry(cc.channelzID)
 	}
 	return nil
@@ -971,7 +1021,11 @@ func (ac *addrConn) resetTransport() {
 		addrs := ac.addrs
 		backoffFor := ac.dopts.bs.Backoff(ac.backoffIdx)
 		// This will be the duration that dial gets to finish.
-		dialDuration := getMinConnectTimeout()
+		dialDuration := minConnectTimeout
+		if ac.dopts.minConnectTimeout != nil {
+			dialDuration = ac.dopts.minConnectTimeout()
+		}
+
 		if dialDuration < backoffFor {
 			// Give dial more time as we keep failing to connect.
 			dialDuration = backoffFor

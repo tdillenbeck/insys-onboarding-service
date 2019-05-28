@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -56,7 +56,7 @@ func New(ctx context.Context, target string, unaryMiddleware []grpc.UnaryClientI
 	opt = append(opt, grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryMiddleware...)), grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamMiddleware...)))
 
 	info := version.Info()
-	ua := fmt.Sprintf("%s-%s-%s", info.Name, info.Version, null.Truncate(info.GitHash, 8))
+	ua := fmt.Sprintf("%s/%s-%s", info.Name, info.Version, null.Truncate(info.GitHash, 8))
 	defaultOpt := []grpc.DialOption{
 		grpc.WithBackoffMaxDelay(time.Second * 2),
 		grpc.WithUserAgent(ua),

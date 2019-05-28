@@ -73,16 +73,18 @@ func kubernetesLogin(ctx context.Context, c *wvault.Client, role string) (*token
 
 	token := token{
 		client: c,
-		role:   role,
+		tokenData: tokenData{
+			role: role,
 
-		leaseID:  k.LeaseID, // lease id is always empty
-		accessor: k.Auth.Accessor,
-		token:    k.Auth.ClientToken,
+			leaseID:  k.LeaseID, // lease id is always empty
+			accessor: k.Auth.Accessor,
+			token:    k.Auth.ClientToken,
 
-		renewable:        k.Auth.Renewable,
-		createdAt:        now,
-		expiration:       expiration,
-		requestIncrement: leaseDuration,
+			renewable:        k.Auth.Renewable,
+			createdAt:        now,
+			expiration:       expiration,
+			requestIncrement: leaseDuration,
+		},
 	}
 
 	wlog.InfoC(ctx, "[VaultAuth] kubernetes auth", tag.Int("duration", k.Auth.LeaseDuration), tag.Bool("renewable", k.Auth.Renewable), tag.String("expiration", token.expiration.Format(time.RFC3339)))

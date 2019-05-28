@@ -6,7 +6,7 @@ import (
 )
 
 //Errors to check
-var NotAuthorizedError = werror.Template("not authorized")
+var NotAuthorizedError = werror.CodedTemplate("not authorized", werror.CodePermissionDenied)
 
 // array helper include function
 func include(a []string, key string) bool {

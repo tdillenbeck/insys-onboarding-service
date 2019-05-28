@@ -139,8 +139,13 @@ func Error(code Code, werr *werror.Error) error {
 	case werror.Success, werror.ClientError:
 		// don't log
 	case werror.ServerError:
-		// log the error
-		wlog.WError(werr.Add("code", code))
+		switch code {
+		// some grpc errors are less worrisome than others
+		case werror.CodeUnavailable, werror.CodeDeadlineExceeded:
+			wlog.Info(werr.Error())
+		default:
+			wlog.WError(werr.Add("code", code))
+		}
 	default:
 		wlog.WError(werr.Add("code", code))
 	}

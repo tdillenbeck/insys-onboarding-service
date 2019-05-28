@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"context"
+
 	"github.com/nsqio/go-nsq"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
@@ -34,7 +35,7 @@ func (mq *Producer) DeferredPublish(ctx context.Context, topic string, delay tim
 	p := func(topic string, data []byte) error {
 		err := mq.Producer.DeferredPublish(topic, delay, data)
 		if err != nil {
-			return werror.Wrap(err, "could not publish message")
+			return werror.Wrap(err, "could not publish message").Add("topic", topic)
 		}
 		return nil
 	}
@@ -54,7 +55,7 @@ func (mq *Producer) Publish(ctx context.Context, topic string, data []byte) erro
 
 		err := pub(mq.Producer, topic, data)
 		if err != nil {
-			return werror.Wrap(err, "could not publish message")
+			return werror.Wrap(err, "could not publish message").Add("topic", topic)
 		}
 
 		return nil

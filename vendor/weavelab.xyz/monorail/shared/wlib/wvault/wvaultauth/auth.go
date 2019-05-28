@@ -22,10 +22,7 @@ func init() {
 	wmetrics.SetLabels(vaultAuthMetric, "authType", "action")
 }
 
-type token struct {
-	sync.Mutex
-	client *wvault.Client
-
+type tokenData struct {
 	leaseID  string
 	accessor string
 	token    string
@@ -35,6 +32,13 @@ type token struct {
 	createdAt        time.Time
 	expiration       time.Time
 	requestIncrement time.Duration
+}
+
+type token struct {
+	sync.Mutex
+	client *wvault.Client
+
+	tokenData
 }
 
 // Auth returns a vault token associated with the given role
@@ -47,12 +51,16 @@ func New(ctx context.Context, c *wvault.Client, role string) (wvault.Secret, err
 		now := wvault.Clock.Now()
 
 		t := token{
-			token:      envToken,
-			role:       role,
-			client:     c,
-			renewable:  true, // tokens are valid until they are revoked, a new token must be issued and configured
-			createdAt:  now,
-			expiration: now.AddDate(1000, 0, 0),
+			client: c,
+
+			tokenData: tokenData{
+				token: envToken,
+				role:  role,
+
+				renewable:  true, // tokens are valid until they are revoked, a new token must be issued and configured
+				createdAt:  now,
+				expiration: now.AddDate(1000, 0, 0),
+			},
 		}
 		return &t, nil
 	}
@@ -135,7 +143,7 @@ func (t *token) recreate(ctx context.Context) error {
 		return werror.Wrap(err)
 	}
 
-	*t = *(newToken.(*token))
+	t.tokenData = newToken.(*token).tokenData
 
 	return nil // token was renewed
 }
