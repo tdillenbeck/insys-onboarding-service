@@ -34,7 +34,10 @@ func TestCategoryService_ByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("could not open seed.sql file")
 	}
-	db.ExecContext(context.Background(), string(seedFile))
+	_, err = db.ExecContext(context.Background(), string(seedFile))
+	if err != nil {
+		t.Fatalf("could not execute the seeq sql")
+	}
 
 	type fields struct {
 		DB *wsql.PG
