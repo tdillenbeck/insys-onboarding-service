@@ -30,13 +30,8 @@ ON CONFLICT(user_id) DO UPDATE SET
 RETURNING id, user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;
 `
 
-	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
-	if err != nil {
-		return nil, werror.Wrap(err, "error opening a transaction")
-	}
-	defer tx.Commit()
-	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustomizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
-	err = row.Scan(
+	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustomizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
+	err := row.Scan(
 		&id,
 		&userID,
 		&onboarder.ScheduleCustomizationLink,
