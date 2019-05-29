@@ -17,7 +17,6 @@ type OnboardersLocationService struct {
 }
 
 func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *app.OnboardersLocation) (*app.OnboardersLocation, error) {
-	var id, onboarderID, location string
 	var onboardersLocation app.OnboardersLocation
 
 	query := `
@@ -31,9 +30,9 @@ RETURNING id, onboarder_id, location_id, created_at, updated_at;
 
 	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
 	err := row.Scan(
-		&id,
-		&onboarderID,
-		&location,
+		&onboardersLocation.ID,
+		&onboardersLocation.OnboarderID,
+		&onboardersLocation.LocationID,
 		&onboardersLocation.CreatedAt,
 		&onboardersLocation.UpdatedAt,
 	)
@@ -41,30 +40,11 @@ RETURNING id, onboarder_id, location_id, created_at, updated_at;
 		return nil, werror.Wrap(err, "inserting or updating onboarders location")
 	}
 
-	onboardersLocationUUID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location id into uuid")
-	}
-	onboardersLocation.ID = onboardersLocationUUID
-
-	onboarderUUID, err := uuid.Parse(onboarderID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location onboarder_id into uuid")
-	}
-	onboardersLocation.OnboarderID = onboarderUUID
-
-	locationUUID, err := uuid.Parse(location)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location location_id into uuid")
-	}
-	onboardersLocation.LocationID = locationUUID
-
 	return &onboardersLocation, nil
 }
 
 func (s *OnboardersLocationService) ReadByLocationID(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
-	var id, onboarderID, location string
-	var onbl app.OnboardersLocation
+	var onboardersLocation app.OnboardersLocation
 
 	query := `
 SELECT
@@ -75,11 +55,11 @@ WHERE location_id = $1
 
 	row := s.DB.QueryRowContext(ctx, query, locationID.String())
 	err := row.Scan(
-		&id,
-		&onboarderID,
-		&location,
-		&onbl.CreatedAt,
-		&onbl.UpdatedAt,
+		&onboardersLocation.ID,
+		&onboardersLocation.OnboarderID,
+		&onboardersLocation.LocationID,
+		&onboardersLocation.CreatedAt,
+		&onboardersLocation.UpdatedAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -88,23 +68,5 @@ WHERE location_id = $1
 		return nil, werror.Wrap(err, "error selecting onboarders location by location id")
 	}
 
-	onboardersLocationUUID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location id into uuid")
-	}
-	onbl.ID = onboardersLocationUUID
-
-	onboarderUUID, err := uuid.Parse(onboarderID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location onboarder_id into uuid")
-	}
-	onbl.OnboarderID = onboarderUUID
-
-	locationUUID, err := uuid.Parse(location)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarders location location_id into uuid")
-	}
-	onbl.LocationID = locationUUID
-
-	return &onbl, nil
+	return &onboardersLocation, nil
 }

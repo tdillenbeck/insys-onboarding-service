@@ -173,8 +173,6 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 
 // Set the status and status_updated_by fields for the task_instance record
 func (t *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*app.TaskInstance, error) {
-	var taskInstanceID, locationID, categoryID, taskID string
-
 	var taskInstance app.TaskInstance
 	var row *sql.Row
 
@@ -192,10 +190,10 @@ func (t *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status i
 	}
 
 	err := row.Scan(
-		&taskInstanceID,
-		&locationID,
-		&categoryID,
-		&taskID,
+		&taskInstance.ID,
+		&taskInstance.LocationID,
+		&taskInstance.CategoryID,
+		&taskInstance.TaskID,
 		&taskInstance.CompletedAt,
 		&taskInstance.CompletedBy,
 		&taskInstance.VerifiedAt,
@@ -217,38 +215,11 @@ func (t *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status i
 		return nil, werror.Wrap(err, "error updating taskInstance")
 	}
 
-	taskInstanceUUID, err := uuid.Parse(taskInstanceID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance id into uuid")
-	}
-	taskInstance.ID = taskInstanceUUID
-
-	locationUUID, err := uuid.Parse(locationID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance location id into uuid")
-	}
-	taskInstance.LocationID = locationUUID
-
-	categoryUUID, err := uuid.Parse(categoryID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance category id into uuid")
-	}
-	taskInstance.CategoryID = categoryUUID
-
-	taskUUID, err := uuid.Parse(taskID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse ltask id into uuid")
-	}
-	taskInstance.TaskID = taskUUID
-
 	return &taskInstance, nil
 }
 
 func (t *TaskInstanceService) UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*app.TaskInstance, error) {
-	var taskInstanceID, locationID, categoryID, taskID string
-
 	var taskInstance app.TaskInstance
-	var row *sql.Row
 
 	query := `
 UPDATE insys_onboarding.onboarding_task_instances
@@ -256,13 +227,12 @@ SET explanation=$1, updated_at=$2
 WHERE id=$3
 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at
 `
-	row = t.DB.QueryRowContext(ctx, query, explanation, time.Now(), id.String())
-
+	row := t.DB.QueryRowContext(ctx, query, explanation, time.Now(), id.String())
 	err := row.Scan(
-		&taskInstanceID,
-		&locationID,
-		&categoryID,
-		&taskID,
+		&taskInstance.ID,
+		&taskInstance.LocationID,
+		&taskInstance.CategoryID,
+		&taskInstance.TaskID,
 		&taskInstance.CompletedAt,
 		&taskInstance.CompletedBy,
 		&taskInstance.VerifiedAt,
@@ -283,30 +253,6 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 	if err != nil {
 		return nil, werror.Wrap(err, "error updating taskInstance")
 	}
-
-	taskInstanceUUID, err := uuid.Parse(taskInstanceID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance id into uuid")
-	}
-	taskInstance.ID = taskInstanceUUID
-
-	locationUUID, err := uuid.Parse(locationID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance location id into uuid")
-	}
-	taskInstance.LocationID = locationUUID
-
-	categoryUUID, err := uuid.Parse(categoryID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse taskInstance category id into uuid")
-	}
-	taskInstance.CategoryID = categoryUUID
-
-	taskUUID, err := uuid.Parse(taskID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse ltask id into uuid")
-	}
-	taskInstance.TaskID = taskUUID
 
 	return &taskInstance, nil
 }

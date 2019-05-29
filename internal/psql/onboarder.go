@@ -17,7 +17,6 @@ type OnboarderService struct {
 }
 
 func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarder) (*app.Onboarder, error) {
-	var id, userID string
 	var onboarder app.Onboarder
 
 	query := `
@@ -32,8 +31,8 @@ RETURNING id, user_id, schedule_customization_link, schedule_porting_link, sched
 
 	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.ScheduleCustomizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
 	err := row.Scan(
-		&id,
-		&userID,
+		&onboarder.ID,
+		&onboarder.UserID,
 		&onboarder.ScheduleCustomizationLink,
 		&onboarder.SchedulePortingLink,
 		&onboarder.ScheduleNetworkLink,
@@ -48,23 +47,10 @@ RETURNING id, user_id, schedule_customization_link, schedule_porting_link, sched
 		return nil, werror.Wrap(err, "inserting or updating onboarder")
 	}
 
-	onboarderUUID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarder id into uuid")
-	}
-	onboarder.ID = onboarderUUID
-
-	userUUID, err := uuid.Parse(userID)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarder user_id into uuid")
-	}
-	onboarder.UserID = userUUID
-
 	return &onboarder, nil
 }
 
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
-	var id, user string
 	var onboarder app.Onboarder
 
 	query := `
@@ -75,8 +61,8 @@ WHERE user_id = $1`
 
 	row := s.DB.QueryRowContext(ctx, query, userID.String())
 	err := row.Scan(
-		&id,
-		&user,
+		&onboarder.ID,
+		&onboarder.UserID,
 		&onboarder.ScheduleCustomizationLink,
 		&onboarder.SchedulePortingLink,
 		&onboarder.ScheduleNetworkLink,
@@ -93,18 +79,6 @@ WHERE user_id = $1`
 		}
 		return nil, werror.Wrap(err, "error selecting onboarder by user id")
 	}
-
-	onboarderUUID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarder id into uuid")
-	}
-	onboarder.ID = onboarderUUID
-
-	userUUID, err := uuid.Parse(user)
-	if err != nil {
-		return nil, werror.Wrap(err, "failed to parse onboarder user_id into uuid")
-	}
-	onboarder.UserID = userUUID
 
 	return &onboarder, nil
 }
