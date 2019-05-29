@@ -17,6 +17,36 @@ type OnboardersLocationService struct {
 }
 
 func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *app.OnboardersLocation) (*app.OnboardersLocation, error) {
+	// assign onboarder to location
+	// check existing tasks for location
+	// if tasks, update links for new onboarder
+
+	tx, err := s.DB.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelDefault, ReadOnly: false})
+	if err != nil {
+		return nil, werror.Wrap(err, "error opening a transaction")
+	}
+
+	onboardersLocation, err := assignOnboarderToLocation(ctx, tx, onbl)
+	if err != nil {
+		// abort transaction
+	}
+	locationTasks, err := getLocationTasks(ctx, tx, onboardersLocation.LocationID)
+	if err != nil {
+		// abort transaction
+	}
+	if len(locationTasks) > 0 {
+		err := updateTasksInstancesForOnboarder(ctx, tx, onboardersLocation.LocationID, onboardersLocation.OnboarderID)
+		if err != nil {
+			// abort transaction
+		}
+	}
+
+	// commit transaction
+	return onboardersLocation, nil
+
+}
+
+func assignOnboarderToLocation(ctx context.Context, tx string, onbl *app.OnboardersLocation) (*app.OnboardersLocatin, error) {
 	var onboardersLocation app.OnboardersLocation
 
 	query := `
@@ -28,7 +58,7 @@ ON CONFLICT(location_id) DO UPDATE SET
 RETURNING id, onboarder_id, location_id, created_at, updated_at;
 `
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
+	row := tx.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
 	err := row.Scan(
 		&onboardersLocation.ID,
 		&onboardersLocation.OnboarderID,
