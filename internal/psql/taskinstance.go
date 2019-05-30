@@ -256,3 +256,58 @@ RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed
 
 	return &taskInstance, nil
 }
+
+func (t *TaskInstanceService) SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error {
+	onboarderLinkToTaskMapping := []struct {
+		onboarderLinkColumnName string
+		matchingTaskID          string
+	}{
+		{
+			onboarderLinkColumnName: "schedule_customization_link",
+			matchingTaskID:          "2d2df285-9211-48fc-a057-74f7dee2d9a4",
+		},
+		{
+			onboarderLinkColumnName: "schedule_porting_link",
+			matchingTaskID:          "9aec502b-f8b8-4f10-9748-1fe4050eacde",
+		},
+		{
+			onboarderLinkColumnName: "schedule_network_link",
+			matchingTaskID:          "7b15e061-8002-4edc-9bf4-f38c6eec6364",
+		},
+		{
+			onboarderLinkColumnName: "schedule_software_install_link",
+			matchingTaskID:          "16a6dc91-ec6b-4b09-b591-a5b0dfa92932",
+		},
+		{
+			onboarderLinkColumnName: "schedule_phone_install_link",
+			matchingTaskID:          "fd4f656c-c9f1-47b8-96ad-3080b999a843",
+		},
+		{
+			onboarderLinkColumnName: "schedule_software_training_link",
+			matchingTaskID:          "c20b65d8-e281-4e62-98f0-4aebf83e0bee",
+		},
+		{
+			onboarderLinkColumnName: "schedule_phone_training_link",
+			matchingTaskID:          "47743fae-c775-45d5-8a51-dc7e3371dfa4",
+		},
+	}
+
+	query := `
+UPDATE insys_onboarding.onboarding_task_instances
+SET button_external_url = (
+	SELECT COALESCE(NULLIF((SELECT $3 FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+	FROM insys_onboarding.onboarding_tasks
+	WHERE id=$2
+)
+WHERE location_id=$1 AND onboarding_task_id=$2;
+`
+
+	for _, mapping := range onboarderLinkToTaskMapping {
+		_, err := t.DB.ExecContext(ctx, query, locationID, mapping.matchingTaskID, mapping.onboarderLinkColumnName)
+		if err != nil {
+			return werror.Wrap(err, "could not update task instance link").Add("locationID", locationID).Add("taskID", mapping.matchingTaskID)
+		}
+	}
+
+	return nil
+}

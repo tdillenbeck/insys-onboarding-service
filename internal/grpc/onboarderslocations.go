@@ -20,6 +20,7 @@ var _ insys.OnboardersLocationServer = &OnboardersLocationServer{}
 
 type OnboardersLocationServer struct {
 	onboardersLocationService app.OnboardersLocationService
+	taskInstanceService       app.TaskInstanceService
 }
 
 func NewOnboardersLocationServer(onbls app.OnboardersLocationService) *OnboardersLocationServer {
@@ -28,6 +29,10 @@ func NewOnboardersLocationServer(onbls app.OnboardersLocationService) *Onboarder
 	}
 }
 
+// CreateOrUpdate is responsible or assigning an onboarder to a location. This will:
+//  1. create or update the record in the onboarders location table
+//  2. check if the location that the onboarder is being assigned has already been setup with tasks
+//  3. if there are tasks, update their links to the new onboarder
 func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insysproto.OnboardersLocation) (*insysproto.OnboardersLocation, error) {
 	onboardersLocation, err := convertProtoToOnboardersLocation(req)
 	if err != nil {
@@ -37,6 +42,19 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 	onbl, err := s.onboardersLocationService.CreateOrUpdate(ctx, onboardersLocation)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database"))
+	}
+
+	taskInstances := s.taskInstanceService.ByLocationID(ctx, onbl.LocationID)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error looking up task instances for location"))
+	}
+
+	// TODO update the links
+	if len(taskInstances) > 0 {
+		err = s.taskInstanceService.SyncTaskInstanceLinksFromOnboarderLinks(ctx, onbl.LocationID)
+		if err != nil {
+			return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error updating the existing tasks"))
+		}
 	}
 
 	result, err := convertOnboardersLocationToProto(onbl)
