@@ -44,7 +44,7 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database"))
 	}
 
-	taskInstances := s.taskInstanceService.ByLocationID(ctx, onbl.LocationID)
+	taskInstances, err := s.taskInstanceService.ByLocationID(ctx, onbl.LocationID)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error looking up task instances for location"))
 	}
