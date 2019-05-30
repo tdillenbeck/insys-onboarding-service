@@ -23,9 +23,10 @@ type OnboardersLocationServer struct {
 	taskInstanceService       app.TaskInstanceService
 }
 
-func NewOnboardersLocationServer(onbls app.OnboardersLocationService) *OnboardersLocationServer {
+func NewOnboardersLocationServer(onbls app.OnboardersLocationService, tis app.TaskInstanceService) *OnboardersLocationServer {
 	return &OnboardersLocationServer{
 		onboardersLocationService: onbls,
+		taskInstanceService:       tis,
 	}
 }
 
@@ -49,7 +50,6 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error looking up task instances for location"))
 	}
 
-	// TODO update the links
 	if len(taskInstances) > 0 {
 		err = s.taskInstanceService.SyncTaskInstanceLinksFromOnboarderLinks(ctx, onbl.LocationID)
 		if err != nil {
