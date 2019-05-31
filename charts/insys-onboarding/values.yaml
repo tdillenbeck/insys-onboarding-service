@@ -20,7 +20,7 @@ logDNA:
 
 postgres:
   maxConnectionLifetime: 30m
-  maxIdleConnections: 0
+  maxIdleConnections: 2
   maxOpenConnections: 15
   logQueries: false
   dbPrimaryAddr: pgsql-service-1a:5432
