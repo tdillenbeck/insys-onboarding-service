@@ -70,7 +70,7 @@ func main() {
 
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
-	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService)
+	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
 
 	// setup nsq
 	nsqConfig := nsqwapp.NewConfig()

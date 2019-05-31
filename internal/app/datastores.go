@@ -16,6 +16,7 @@ type CategoryService interface {
 type TaskInstanceService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
 	CreateFromTasks(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
+	SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error
 	Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*TaskInstance, error)
 	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
 }

@@ -9,10 +9,11 @@ import (
 )
 
 type TaskInstanceService struct {
-	ByLocationIDFn      func(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error)
-	CreateFromTasksFn   func(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error)
-	UpdateFn            func(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*app.TaskInstance, error)
-	UpdateExplanationFn func(ctx context.Context, id uuid.UUID, explanation string) (*app.TaskInstance, error)
+	ByLocationIDFn                            func(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error)
+	CreateFromTasksFn                         func(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error)
+	SyncTaskInstanceLinksFromOnboarderLinksFn func(ctx context.Context, locationID uuid.UUID) error
+	UpdateFn                                  func(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*app.TaskInstance, error)
+	UpdateExplanationFn                       func(ctx context.Context, id uuid.UUID, explanation string) (*app.TaskInstance, error)
 }
 
 func (s *TaskInstanceService) ByLocationID(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error) {
@@ -21,6 +22,10 @@ func (s *TaskInstanceService) ByLocationID(ctx context.Context, locationID uuid.
 
 func (s *TaskInstanceService) CreateFromTasks(ctx context.Context, locationID uuid.UUID) ([]app.TaskInstance, error) {
 	return s.CreateFromTasksFn(ctx, locationID)
+}
+
+func (s *TaskInstanceService) SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error {
+	return s.SyncTaskInstanceLinksFromOnboarderLinksFn(ctx, locationID)
 }
 
 func (s *TaskInstanceService) Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*app.TaskInstance, error) {
