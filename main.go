@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"time"
 
 	cgrpc "google.golang.org/grpc"
 
@@ -21,15 +20,7 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
-	"weavelab.xyz/monorail/shared/wlib/wvault/wvaultdb"
 )
-
-type databaseConnectionOptions struct {
-	MaxOpenConnections    int
-	MaxIdleConnections    int
-	MaxConnectionLifetime time.Duration
-	LogQueries            bool
-}
 
 func main() {
 	err := config.Init()
@@ -39,7 +30,7 @@ func main() {
 
 	ctx := context.Background()
 
-	dbOptions := &databaseConnectionOptions{
+	dbOptions := &psql.ConnectionOptions{
 		MaxOpenConnections:    config.MaxOpenConnections,
 		MaxIdleConnections:    config.MaxIdleConnections,
 		MaxConnectionLifetime: config.MaxConnectionLifetime,
@@ -49,9 +40,9 @@ func main() {
 	var db *wsql.PG
 
 	if config.PrimaryConnString != "" && config.ReplicaConnString != "" {
-		db, err = initDBConnectionFromConnString(ctx, config.PrimaryConnString, config.ReplicaConnString, dbOptions)
+		db, err = psql.ConnectionFromConnString(ctx, config.PrimaryConnString, config.ReplicaConnString, dbOptions)
 	} else {
-		db, err = initDBConnectionFromVault(ctx, config.DBPrimaryAddr, config.DBReplicaAddr, config.DBName, dbOptions)
+		db, err = psql.ConnectionFromVault(ctx, config.DBPrimaryAddr, config.DBReplicaAddr, config.DBName, dbOptions)
 	}
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
@@ -107,56 +98,6 @@ func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grp
 	}
 }
 
-func initDBConnectionFromConnString(ctx context.Context, primaryConnString, replicaConnString string, options *databaseConnectionOptions) (*wsql.PG, error) {
-	var err error
-
-	settings := wsql.Settings{
-		MaxOpenConnections:    options.MaxOpenConnections,
-		MaxIdleConnections:    options.MaxIdleConnections,
-		MaxConnectionLifetime: options.MaxConnectionLifetime,
-		LogQueries:            options.LogQueries,
-	}
-
-	settings.PrimaryConnectString.SetConnectString(primaryConnString)
-	settings.ReplicaConnectString.SetConnectString(replicaConnString)
-
-	conn, err := wsql.New(&settings)
-	if err != nil {
-		return nil, err
-	}
-
-	return conn, nil
-}
-
-func initDBConnectionFromVault(ctx context.Context, primaryHost, replicaHost, dbName string, options *databaseConnectionOptions) (*wsql.PG, error) {
-	var err error
-
-	settings := wsql.Settings{
-		PrimaryConnectString: wsql.ConnectString{
-			Host:     primaryHost,
-			Database: dbName,
-		},
-		ReplicaConnectString: wsql.ConnectString{
-			Host:     replicaHost,
-			Database: dbName,
-		},
-		MaxOpenConnections:    options.MaxOpenConnections,
-		MaxIdleConnections:    options.MaxIdleConnections,
-		MaxConnectionLifetime: options.MaxConnectionLifetime,
-		LogQueries:            options.LogQueries,
-	}
-
-	role := "db_insys_onboarding"
-	target := "db_insys_onboarding"
-
-	conn, err := wvaultdb.New(ctx, role, target, &settings)
-	if err != nil {
-		return nil, err
-	}
-
-	return conn, nil
-}
-
 func initPortingDataClient(ctx context.Context, grpcAddr string) (insys.PortingDataServiceClient, error) {
 	defaultPortingDataGrpcAddress := "insys-porting-data.insys.svc.cluster.local.:grpc"
 
@@ -175,5 +116,4 @@ func initPortingDataClient(ctx context.Context, grpcAddr string) (insys.PortingD
 	}
 
 	return insys.NewPortingDataServiceClient(g), nil
-
 }
