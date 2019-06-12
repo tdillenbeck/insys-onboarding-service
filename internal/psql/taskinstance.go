@@ -3,6 +3,7 @@ package psql
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -191,7 +192,7 @@ func (t *TaskInstanceService) SyncTaskInstanceLinksFromOnboarderLinks(ctx contex
 UPDATE insys_onboarding.onboarding_task_instances
 SET button_external_url = (
 	SELECT
-			COALESCE(NULLIF((SELECT $3 FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
+			COALESCE(NULLIF((SELECT %s FROM insys_onboarding.onboarders AS a INNER JOIN insys_onboarding.onboarders_location AS b ON a.id = b.onboarder_id WHERE b.location_id=$1), ''), button_external_url)
 	FROM insys_onboarding.onboarding_tasks
 	WHERE id=$2
 )
@@ -199,7 +200,9 @@ WHERE location_id=$1 AND onboarding_task_id=$2;
 	`
 
 	for _, mapping := range onboarderLinkToTaskID {
-		_, err := t.DB.ExecContext(ctx, query, locationID, mapping.taskID, mapping.onboarderLinkColumnName)
+		// cannot use the column name as a bindvar in the postgres query. inject the name before executing the query.
+		formattedQuery := fmt.Sprintf(query, mapping.onboarderLinkColumnName)
+		_, err := t.DB.ExecContext(ctx, formattedQuery, locationID, mapping.taskID)
 		if err != nil {
 			return werror.Wrap(err, "could not sync task instance links for onboarder").Add("locationID", locationID).Add("taskID", mapping.taskID)
 		}
