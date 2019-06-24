@@ -83,8 +83,6 @@ spec:
         env:
         - name: ENABLE_PROM
           value: 'true'
-        - name: ENABLE_STATSD
-          value: 'true'
         resources:
           requests:
             cpu: 15m
