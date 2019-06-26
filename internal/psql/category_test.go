@@ -16,7 +16,6 @@ import (
 )
 
 func TestCategoryService_ByID(t *testing.T) {
-	skipCI(t)
 	db := initDBConnection(t, psqlConnString)
 
 	expectedTime := time.Date(1987, 10, 2, 0, 0, 0, 0, time.UTC)
