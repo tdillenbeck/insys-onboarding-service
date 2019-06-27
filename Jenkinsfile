@@ -1,44 +1,66 @@
 pipeline {
   agent none
 
-  environment {
-    CI = 'true'
-  }
+    environment {
+      CI = 'true'
+    }
   stages {
     stage ('readWeave') {
       agent any
-      steps {
-        script {
-          weave = readYaml file: '.weave.yaml'
+        steps {
+          script {
+            weave = readYaml file: '.weave.yaml'
+          }
         }
-      }
     }
     stage('goBuild') {
-      agent {
-        docker {
-          image "${env.WEAVEBUILDER}"
-          registryUrl "${env.WEAVEREGISTRY}"
-          registryCredentialsId "${env.WEAVEREGISTRYCREDS}"
-          label 'dind'
+      agent any
+        environment {
+          POSTGRES_DB = "insys_onboarding_test"
+          POSTGRES_USER = "postgres"
+          POSTGRES_SEARCH_PATH = "insys_onboarding"
         }
-      }
       steps {
-        sh '/usr/local/bin/gobuilder'
-        stash name: 'bins', includes: "${weave.slug}"
+        script {
+          // Log into Weave container registry
+          docker.withRegistry("${env.WEAVEREGISTRY}", "${env.WEAVEREGISTRYCREDS}") {
+            // Bootstrap our sidecar
+            docker.image('postgres:11-alpine').withRun("--env POSTGRES_DB=${env.POSTGRES_DB} --env POSTGRES_USER=${env.POSTGRES_USER}") { psql ->
+              // Resolve IP address for our service container since we can't rely on /etc/hosts modifications
+              psqlIP = sh(script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${psql.id}", returnStdout: true).trim()
+                // Test network connectivity / wait for sidecar to be ready (optional)
+                docker.image('postgres:11-alpine').inside("-e 'PSQL=${psqlIP}' -e 'WAIT_SECONDS=${env.BOOT_WAIT}'") {
+                  sh '''
+                    /usr/local/bin/pg_isready -h \$PSQL -t \$WAIT_SECONDS
+                    psql -U postgres -h \$PSQL -d insys_onboarding_test -c "CREATE SCHEMA insys_onboarding;"
+                  '''
+                }
+              psqlDSN = "postgresql://${POSTGRES_USER}@${psqlIP}/${env.POSTGRES_DB}?sslmode=disable&search_path=${env.POSTGRES_SEACH_PATH}"
+                docker.image("${env.WEAVEBUILDER}").inside("-e PSQL=${psqlDSN}") {
+                  sh '''
+                    go get -u github.com/pressly/goose/cmd/goose
+                    goose -dir ./dbconfig/migrations postgres $PSQL
+                    /usr/local/bin/gobuilder
+                    '''
+                    stash name: 'bins', includes: "${weave.slug}"
+                }
+            }
+          }
+        }
       }
     }
     stage('cdTools') {
       agent {
         docker {
           image "${env.CDTOOLS}"
-          registryUrl "${env.WEAVEREGISTRY}"
-          registryCredentialsId "${env.WEAVEREGISTRYCREDS}"
-          label 'dind'
+            registryUrl "${env.WEAVEREGISTRY}"
+            registryCredentialsId "${env.WEAVEREGISTRYCREDS}"
+            label 'dind'
         }
       }
       steps {
         unstash 'bins'
-        sh '/bin/cd-tools'
+          sh '/bin/cd-tools'
       }
     }
   }
