@@ -18,8 +18,6 @@ import (
 )
 
 func TestTaskInstanceService_ByLocationID(t *testing.T) {
-	skipCI(t)
-
 	db := initDBConnection(t, psqlConnString)
 	clearExistingData(db)
 
@@ -139,8 +137,6 @@ VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 }
 
 func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
-	skipCI(t)
-
 	db := initDBConnection(t, psqlConnString)
 	onboarderService := &OnboarderService{DB: db}
 	onboardersLocationService := &OnboardersLocationService{DB: db}
@@ -901,8 +897,6 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 }
 
 func TestTaskInstanceService_Update(t *testing.T) {
-	skipCI(t)
-
 	db := initDBConnection(t, psqlConnString)
 	clearExistingData(db)
 

@@ -13,12 +13,6 @@ const (
 	psqlConnString = "postgresql://127.0.0.1:5432/insys_onboarding_test?sslmode=disable"
 )
 
-func skipCI(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping testing in CI environment")
-	}
-}
-
 func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
 	connString, exists := os.LookupEnv("PG_PRIMARY_CONNECT_STRING")
 	if !exists {
