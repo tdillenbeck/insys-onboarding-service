@@ -2,7 +2,6 @@ package psql
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -32,10 +31,6 @@ func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
 		MaxConnectionLifetime: 5 * time.Minute,
 		LogQueries:            false,
 	}
-
-	fmt.Println("*********************")
-	fmt.Println(connString)
-	fmt.Println("*********************")
 
 	conn, err := ConnectionFromConnString(context.Background(), connString, connString, dbOptions)
 	if err != nil {
