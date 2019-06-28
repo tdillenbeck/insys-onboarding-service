@@ -36,10 +36,10 @@ pipeline {
                   '''
                 }
               psqlDSN = "postgresql://${POSTGRES_USER}@${psqlIP}/${env.POSTGRES_DB}?sslmode=disable&search_path=${env.POSTGRES_SEACH_PATH}"
-                docker.image("${env.WEAVEBUILDER}").inside("-e PSQL=${psqlDSN}") {
+                docker.image("${env.WEAVEBUILDER}").inside("-e PG_PRIMARY_CONNECT_STRING=${psqlDSN}") {
                   sh '''
                     go get -u github.com/pressly/goose/cmd/goose
-                    goose -dir ./dbconfig/migrations postgres $PSQL
+                    goose -dir ./dbconfig/migrations postgres $PG_PRIMARY_CONNECT_STRING
                     /usr/local/bin/gobuilder
                     '''
                     stash name: 'bins', includes: "${weave.slug}"
