@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"testing"
+	"time"
 
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
@@ -12,21 +13,25 @@ const (
 	psqlConnString = "postgresql://127.0.0.1:5432/insys_onboarding_test?sslmode=disable"
 )
 
-func skipCI(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping testing in CI environment")
-	}
-}
-
 func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
-	settings := wsql.Settings{}
-	settings.PrimaryConnectString.SetConnectString(dbConnString)
+	connString, exists := os.LookupEnv("PG_PRIMARY_CONNECT_STRING")
+	if !exists {
+		connString = psqlConnString
+	}
 
-	conn, err := wsql.New(&settings)
+	dbOptions := &ConnectionOptions{
+		MaxOpenConnections:    10,
+		MaxIdleConnections:    2,
+		MaxConnectionLifetime: 5 * time.Minute,
+		LogQueries:            false,
+	}
+
+	conn, err := ConnectionFromConnString(context.Background(), connString, connString, dbOptions)
 	if err != nil {
-		t.Errorf("could not connect to test database. make sure the test database has been created and is running. connection string: %v", psqlConnString)
+		t.Fatalf("could not connect to test database. make sure the test database has been created and is running. connection string: %v", psqlConnString)
 		return nil
 	}
+
 	return conn
 }
 
