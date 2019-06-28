@@ -2,12 +2,11 @@ package psql
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
+	"time"
 
-	"weavelab.xyz/insys-onboarding-service/internal/config"
-	"weavelab.xyz/monorail/shared/wlib/wapp"
-	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
@@ -22,21 +21,25 @@ func skipCI(t *testing.T) {
 }
 
 func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
-	err := config.Init()
-	if err != nil {
-		wapp.Exit(werror.Wrap(err, "error initializing config values"))
+	connString, exists := os.LookupEnv("PG_PRIMARY_CONNECT_STRING")
+	if !exists {
+		connString = psqlConnString
 	}
 
 	dbOptions := &ConnectionOptions{
-		MaxOpenConnections:    config.MaxOpenConnections,
-		MaxIdleConnections:    config.MaxIdleConnections,
-		MaxConnectionLifetime: config.MaxConnectionLifetime,
-		LogQueries:            config.LogQueries,
+		MaxOpenConnections:    10,
+		MaxIdleConnections:    2,
+		MaxConnectionLifetime: 5 * time.Minute,
+		LogQueries:            false,
 	}
 
-	conn, err := ConnectionFromConnString(context.Background(), config.PrimaryConnString, config.PrimaryConnString, dbOptions)
+	fmt.Println("*********************")
+	fmt.Println(connString)
+	fmt.Println("*********************")
+
+	conn, err := ConnectionFromConnString(context.Background(), connString, connString, dbOptions)
 	if err != nil {
-		t.Errorf("could not connect to test database. make sure the test database has been created and is running. connection string: %v", psqlConnString)
+		t.Fatalf("could not connect to test database. make sure the test database has been created and is running. connection string: %v", psqlConnString)
 		return nil
 	}
 

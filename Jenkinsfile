@@ -32,14 +32,14 @@ pipeline {
                 docker.image('postgres:11-alpine').inside("-e 'PSQL=${psqlIP}' -e 'WAIT_SECONDS=${env.BOOT_WAIT}'") {
                   sh '''
                     /usr/local/bin/pg_isready -h \$PSQL -t \$WAIT_SECONDS
-                    psql -U postgres -h \$PSQL -d insys_onboarding_test -c "CREATE SCHEMA insys_onboarding;"
+                    psql -U \$POSTGRES_USER -h \$PSQL -d insys_onboarding_test -c "CREATE SCHEMA insys_onboarding;"
                   '''
                 }
-              psqlDSN = "postgresql://${POSTGRES_USER}@${psqlIP}/${env.POSTGRES_DB}?sslmode=disable&search_path=${env.POSTGRES_SEACH_PATH}"
+              psqlDSN = "postgresql://${POSTGRES_USER}@${psqlIP}/${env.POSTGRES_DB}?sslmode=disable&search_path=${env.POSTGRES_SEARCH_PATH}"
                 docker.image("${env.WEAVEBUILDER}").inside("-e PG_PRIMARY_CONNECT_STRING=${psqlDSN}") {
                   sh '''
                     go get -u github.com/pressly/goose/cmd/goose
-                    goose -dir ./dbconfig/migrations postgres $PG_PRIMARY_CONNECT_STRING
+                    goose -dir ./dbconfig/migrations postgres $PG_PRIMARY_CONNECT_STRING up
                     /usr/local/bin/gobuilder
                     '''
                     stash name: 'bins', includes: "${weave.slug}"

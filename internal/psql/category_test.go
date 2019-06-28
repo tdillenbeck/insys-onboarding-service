@@ -35,7 +35,7 @@ func TestCategoryService_ByID(t *testing.T) {
 	}
 	_, err = db.ExecContext(context.Background(), string(seedFile))
 	if err != nil {
-		t.Fatalf("could not execute the seeq sql")
+		t.Fatalf("could not execute the seedsql error: %v\n", err)
 	}
 
 	type fields struct {
@@ -69,7 +69,7 @@ func TestCategoryService_ByID(t *testing.T) {
 			false,
 		},
 		{
-			"attemp toretrieve a category that doesn't exist",
+			"attempt to retrieve a category that doesn't exist",
 			fields{DB: db},
 			args{
 				ctx: context.Background(),
