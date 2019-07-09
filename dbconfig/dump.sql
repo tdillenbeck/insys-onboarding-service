@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.2
--- Dumped by pg_dump version 11.2
+-- Dumped from database version 11.4
+-- Dumped by pg_dump version 11.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,6 +12,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -79,7 +80,8 @@ CREATE TABLE insys_onboarding.onboarders (
     schedule_software_training_link text,
     schedule_phone_training_link text,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    salesforce_user_id text
 );
 
 
@@ -232,6 +234,13 @@ CREATE UNIQUE INDEX index_onboarders_location_on_location_id ON insys_onboarding
 --
 
 CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders USING btree (user_id);
+
+
+--
+-- Name: onboarding_task_instances_locaation_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE INDEX onboarding_task_instances_locaation_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
 
 
 --
