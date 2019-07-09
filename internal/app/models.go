@@ -54,17 +54,20 @@ type TaskInstance struct {
 
 // Onboarder represents a user's onboarding specific information
 type Onboarder struct {
-	ID                           uuid.UUID
-	UserID                       uuid.UUID
+	ID     uuid.UUID
+	UserID uuid.UUID
+
+	SalesforceUserID             null.String
 	ScheduleCustomizationLink    null.String
-	SchedulePortingLink          null.String
 	ScheduleNetworkLink          null.String
-	ScheduleSoftwareInstallLink  null.String
 	SchedulePhoneInstallLink     null.String
-	ScheduleSoftwareTrainingLink null.String
 	SchedulePhoneTrainingLink    null.String
-	CreatedAt                    time.Time
-	UpdatedAt                    time.Time
+	SchedulePortingLink          null.String
+	ScheduleSoftwareInstallLink  null.String
+	ScheduleSoftwareTrainingLink null.String
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // Assign an onboarder to a location
