@@ -10,17 +10,23 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/opentracing-contrib/go-stdlib/nethttp"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wmetrics"
 	"weavelab.xyz/monorail/shared/wlib/wtracer"
 )
 
 var client = http.DefaultClient
 
+const clientMetricName = "whttpclient"
+
 func init() {
 	client.Transport = &nethttp.Transport{}
+
+	wmetrics.SetLabels(clientMetricName, "Host", "Method", "StatusCode")
 }
 
 func Get(ctx context.Context, u string) (*http.Response, error) {
@@ -65,6 +71,14 @@ func PostForm(ctx context.Context, url string, data url.Values) (*http.Response,
 
 func Do(ctx context.Context, req *http.Request) (*http.Response, error) {
 
+	host := strings.Replace(req.URL.Host, ".", "_", -1)
+
+	statusCode := "unknown"
+	timer := wmetrics.StartTimer(clientMetricName, host, req.Method)
+	defer func() {
+		timer(statusCode)
+	}()
+
 	// add context to the request
 	req = req.WithContext(ctx)
 
@@ -81,6 +95,8 @@ func Do(ctx context.Context, req *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, werror.Wrap(err)
 	}
+
+	statusCode = strconv.Itoa(resp.StatusCode)
 
 	return resp, nil
 

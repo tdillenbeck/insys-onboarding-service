@@ -41,8 +41,8 @@ func init() {
 	config.Add(wmetricsdHostCfg, "127.0.0.1", "The host at which wmetricsd is running. This should normally be running on localhost, but can be overridden to point at a remote wmetricsd or statsd instance.", "WMETRICSD_HOST")
 }
 
-//WMetricsClient handles adding the prefix to every stat sent through it
-type WMetricsClient struct {
+//wmetricsClient handles adding the prefix to every stat sent through it
+type wmetricsClient struct {
 	prefix          string
 	aggregateWriter io.WriteCloser
 
@@ -50,9 +50,16 @@ type WMetricsClient struct {
 }
 
 //NewDefaultWMetricsClient returns a client with a prefix for sending metrics.
-func NewDefaultWMetricsClient(prefix ...string) (*WMetricsClient, error) {
+func NewDefaultWMetricsClient(prefix ...string) (WMetrics, error) {
 
-	wmetricsdAddr := net.JoinHostPort(config.Get(wmetricsdHostCfg), config.Get(wmetricsconfig.WMetricsDPortCfg))
+	host := config.Get(wmetricsdHostCfg)
+	port := config.Get(wmetricsconfig.WMetricsDPortCfg)
+
+	if port == "0" {
+		return nullClient{}, nil
+	}
+
+	wmetricsdAddr := net.JoinHostPort(host, port)
 
 	packetSize, err := config.GetInt(wmetricsconfig.PacketSizeCfg, false)
 	if err != nil {
@@ -68,7 +75,7 @@ func NewDefaultWMetricsClient(prefix ...string) (*WMetricsClient, error) {
 }
 
 //NewAggregateWriterWMetricsClient can be used to create a WMetrics client with configurable values for the underlying aggregated writer
-func NewAggregateWriterWMetricsClient(wmetricsdAddr string, packetSize int, sendInterval time.Duration, prefix ...string) (*WMetricsClient, error) {
+func NewAggregateWriterWMetricsClient(wmetricsdAddr string, packetSize int, sendInterval time.Duration, prefix ...string) (WMetrics, error) {
 
 	aggregateWriter, err := aggregateWriter(wmetricsdAddr, sendInterval, packetSize)
 	if err != nil {
@@ -78,7 +85,7 @@ func NewAggregateWriterWMetricsClient(wmetricsdAddr string, packetSize int, send
 	return New(aggregateWriter, prefix...), nil
 }
 
-func New(dst io.WriteCloser, prefix ...string) *WMetricsClient {
+func New(dst io.WriteCloser, prefix ...string) WMetrics {
 	prefixStr := ""
 	if len(prefix) > 0 {
 		prefix = clean(prefix...)
@@ -86,7 +93,7 @@ func New(dst io.WriteCloser, prefix ...string) *WMetricsClient {
 		prefixStr = strings.Join(prefix, ".") + "."
 	}
 
-	return &WMetricsClient{
+	return &wmetricsClient{
 		prefix:          prefixStr,
 		aggregateWriter: dst,
 
@@ -133,7 +140,7 @@ func aggregateWriter(addr string, sendInterval time.Duration, packetSize int) (i
 }
 
 //StartTimer is a convenience method for timing metrics. It returns a stop function that will stop and send the timing metric. Safe to call from multiple go-routines--stop will only send the metric for the first time it is called, otherwise it is a no-op.
-func (w *WMetricsClient) StartTimer(name string, s ...string) (stop func(...string)) {
+func (w *wmetricsClient) StartTimer(name string, s ...string) (stop func(...string)) {
 	start := time.Now()
 
 	var stopped int32
@@ -156,26 +163,26 @@ func (w *WMetricsClient) StartTimer(name string, s ...string) (stop func(...stri
 }
 
 //Time can be used to directly send a Time metrics. Usually it's easier to use StartTimer
-func (w *WMetricsClient) Time(delta time.Duration, name string, s ...string) {
+func (w *wmetricsClient) Time(delta time.Duration, name string, s ...string) {
 	w.send("%d|ms", int(delta/time.Millisecond), name, s, timerSfx)
 }
 
 //Incr increments a statistic by the given count
-func (w *WMetricsClient) Incr(count int, name string, s ...string) {
+func (w *wmetricsClient) Incr(count int, name string, s ...string) {
 	w.send("%d|c", count, name, s, countSfx)
 }
 
 //Decr decrements a statistic by the given count
-func (w *WMetricsClient) Decr(count int, name string, s ...string) {
+func (w *wmetricsClient) Decr(count int, name string, s ...string) {
 	w.send("%d|c", -count, name, s, countSfx)
 }
 
 //Gauge sets a statistic to the given value
-func (w *WMetricsClient) Gauge(value int, name string, s ...string) {
+func (w *wmetricsClient) Gauge(value int, name string, s ...string) {
 	w.send("%d|g", value, name, s, gaugeSfx)
 }
 
-func (w *WMetricsClient) send(format string, value int, name string, s []string, suffix string) {
+func (w *wmetricsClient) send(format string, value int, name string, s []string, suffix string) {
 	//If w is nil or no name has been given then simply return
 	if w == nil || name == "" {
 		return
@@ -221,7 +228,7 @@ func (w *WMetricsClient) send(format string, value int, name string, s []string,
 	w.sendToWMetricsD(format, value)
 }
 
-func (w *WMetricsClient) sendToWMetricsD(format string, value int) {
+func (w *wmetricsClient) sendToWMetricsD(format string, value int) {
 	go func() {
 		s := fmt.Sprintf(format, value)
 		if _, err := w.aggregateWriter.Write([]byte(s)); err != nil {

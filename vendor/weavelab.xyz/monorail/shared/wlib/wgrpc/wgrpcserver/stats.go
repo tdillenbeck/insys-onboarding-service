@@ -3,6 +3,7 @@ package wgrpcserver
 import (
 	"context"
 	"io"
+	"net"
 	"strconv"
 	"strings"
 	"time"
@@ -139,16 +140,24 @@ func (s *statsHandler) TagConn(ctx context.Context, tag *stats.ConnTagInfo) cont
 	return ctx
 }
 
+const unknownRemoteAddr = "unknown"
+
 // HandleConn processes the Conn stats.
 func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats) {
-	remoteAddr, ok := ctx.Value(remoteAddrKey).(string)
-	if !ok {
-		remoteAddr = "unknown"
+	remote := unknownRemoteAddr
+	remoteAddr, ok := ctx.Value(remoteAddrKey).(net.Addr)
+	if ok {
+		remote = remoteAddr.String()
 	}
+
+	// Label values may contain any Unicode characters.
+	// wmetrics treats '.' as a separator
+	remote = strings.Replace(remote, ".", "_", -1)
+
 	switch connStats.(type) {
 	case *stats.ConnBegin:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remoteAddr)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remote)
 	case *stats.ConnEnd:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remoteAddr)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remote)
 	}
 }
