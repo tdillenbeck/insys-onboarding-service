@@ -77,15 +77,16 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 	var onboarder app.Onboarder
 
 	query := `
-SELECT
-	id, user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
-FROM insys_onboarding.onboarders
-WHERE user_id = $1`
+		SELECT
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
+		FROM insys_onboarding.onboarders
+		WHERE user_id = $1`
 
 	row := s.DB.QueryRowContext(ctx, query, userID.String())
 	err := row.Scan(
 		&onboarder.ID,
 		&onboarder.UserID,
+		&onboarder.SalesforceUserID,
 		&onboarder.ScheduleCustomizationLink,
 		&onboarder.SchedulePortingLink,
 		&onboarder.ScheduleNetworkLink,
