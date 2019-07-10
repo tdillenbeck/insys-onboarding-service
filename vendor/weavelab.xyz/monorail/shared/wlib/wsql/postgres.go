@@ -15,19 +15,23 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq" // need side effects from lib/pg
-	"github.com/opentracing/opentracing-go"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 	"weavelab.xyz/monorail/shared/wlib/wtracer"
+
+	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
+	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 )
 
 const (
 	defaultMaxIdleConnections = 3
 	defaultMaxOpenConnections = 5
+
+	CloudSQLDriver = "cloudsqlpostgres"
+	PostgresDriver = "postgres"
 )
 
 type PG struct {
@@ -171,7 +175,7 @@ func (p *PG) connect(s *Settings, isPrimary bool, cs ConnectString) (*DB, error)
 	css := cs.String()
 
 	if cs.Driver == "" {
-		cs.Driver = "postgres"
+		cs.Driver = PostgresDriver
 	}
 
 	conn, err := sqlx.Connect(cs.Driver, css)

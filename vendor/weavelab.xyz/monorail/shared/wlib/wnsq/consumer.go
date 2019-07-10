@@ -108,3 +108,19 @@ func (w *Consumer) HandleMessage(message *nsq.Message) error {
 	stop("success")
 	return nil
 }
+
+// Stop stops the NSQ consumer and waits for all work to be done
+func (w *Consumer) Stop(ctx context.Context) error {
+	// after telling the consumer to stop
+	// we must wait for work to drain
+	// https://godoc.org/github.com/nsqio/go-nsq#Consumer.Stop
+	w.Consumer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-w.Consumer.StopChan:
+	}
+
+	return nil
+}

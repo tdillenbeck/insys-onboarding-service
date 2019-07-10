@@ -13,9 +13,17 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wnsq"
 )
 
+type LookupType string
+
+const (
+	NSQD     LookupType = "nsqd"
+	Lookupds LookupType = "lookupds"
+)
+
 type Config struct {
 	NSQConfig          *nsq.Config
 	ConcurrentHandlers int
+	Type               LookupType
 }
 
 // NewConfig returns an NSQ configuration with Weave appropriate default values
@@ -23,6 +31,7 @@ func NewConfig() *Config {
 	c := Config{
 		NSQConfig:          nsq.NewConfig(),
 		ConcurrentHandlers: 1,
+		Type:               Lookupds,
 	}
 
 	c.NSQConfig.MaxInFlight = 15
@@ -69,7 +78,7 @@ func bootstrapConsumer(topic string, channel string, cfg *Config, h wnsq.Handler
 }
 
 // Bootstrap takes an nsq-config, lookupd-addresses, and a wnsq.Handler and returns a Starter that can be passed to wapp.Up
-func Bootstrap(topic string, channel string, lookupdAddrs []string, cfg *Config, h wnsq.Handler) wapp.StartFunc {
+func Bootstrap(topic string, channel string, addrs []string, cfg *Config, h wnsq.Handler) wapp.StartFunc {
 
 	return func() (wapp.StopFunc, error) {
 		wmetrics.Incr(1, "wapp", "nsqwapp")
@@ -79,31 +88,20 @@ func Bootstrap(topic string, channel string, lookupdAddrs []string, cfg *Config,
 			return nil, err
 		}
 
-		err = q.ConnectToNSQLookupds(lookupdAddrs)
-		if err != nil {
-			return nil, werror.Wrap(err, "error connecting to NSQ Lookupds").Add("lookupds", strings.Join(lookupdAddrs, ", "))
+		switch cfg.Type {
+		case Lookupds:
+			err = q.ConnectToNSQLookupds(addrs)
+		case NSQD:
+			err = q.ConnectToNSQDs(addrs)
+		default:
+			return nil, werror.New("unsupported lookup type").Add("lookupType", cfg.Type)
 		}
 
-		return wapp.WrapSimpleStopFunc(q.Stop), nil
-	}
-}
-
-func BootstrapNSQD(topic string, channel string, nsqdAddress []string, cfg *Config, h wnsq.Handler) wapp.StartFunc {
-
-	return func() (wapp.StopFunc, error) {
-		wmetrics.Incr(1, "wapp", "nsqwapp")
-
-		q, err := bootstrapConsumer(topic, channel, cfg, h)
 		if err != nil {
-			return nil, err
+			return nil, werror.Wrap(err, "error connecting to nsq").Add("addrs", strings.Join(addrs, ", ")).Add("lookupType", cfg.Type)
 		}
 
-		err = q.ConnectToNSQDs(nsqdAddress)
-		if err != nil {
-			return nil, werror.Wrap(err, "error connecting to nsqd addresses").Add("nsqdAddress", strings.Join(nsqdAddress, ", "))
-		}
-
-		return wapp.WrapSimpleStopFunc(q.Stop), nil
+		return q.Stop, nil
 	}
 }
 

@@ -104,6 +104,7 @@ func convertProtoToOnboarder(proto *insysproto.Onboarder) (*app.Onboarder, error
 	return &app.Onboarder{
 		ID:                           id,
 		UserID:                       userID,
+		SalesforceUserID:             null.NewString(proto.SalesforceUserID),
 		ScheduleCustomizationLink:    null.NewString(proto.ScheduleCustomizationLink),
 		SchedulePortingLink:          null.NewString(proto.SchedulePortingLink),
 		ScheduleNetworkLink:          null.NewString(proto.ScheduleNetworkLink),
@@ -129,6 +130,7 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 	return &insysproto.Onboarder{
 		ID:                           sharedproto.UUIDToProto(onb.ID),
 		UserID:                       sharedproto.UUIDToProto(onb.UserID),
+		SalesforceUserID:             onb.SalesforceUserID.String(),
 		ScheduleCustomizationLink:    onb.ScheduleCustomizationLink.String(),
 		SchedulePortingLink:          onb.SchedulePortingLink.String(),
 		ScheduleNetworkLink:          onb.ScheduleNetworkLink.String(),

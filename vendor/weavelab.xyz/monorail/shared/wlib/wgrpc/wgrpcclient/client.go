@@ -13,7 +13,16 @@ import (
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/wlib/version"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wmetrics"
 )
+
+const (
+	grpcStatsConnPrefix = "grpc_client_conn"
+)
+
+func init() {
+	wmetrics.SetLabels(grpcStatsConnPrefix, "target")
+}
 
 func defaultUnaryMiddleware() ([]grpc.UnaryClientInterceptor, error) {
 
@@ -66,6 +75,8 @@ func New(ctx context.Context, target string, unaryMiddleware []grpc.UnaryClientI
 
 	opt = append(defaultOpt, opt...)
 
+	wmetrics.Incr(1, grpcStatsConnPrefix, strings.Replace(target, ".", "_", -1))
+
 	return grpc.DialContext(ctx, target, opt...)
 }
 
@@ -73,6 +84,8 @@ func New(ctx context.Context, target string, unaryMiddleware []grpc.UnaryClientI
 func NewVanilla(ctx context.Context, target string, unaryMiddleWare []grpc.UnaryClientInterceptor, streamMiddleware []grpc.StreamClientInterceptor, opt ...grpc.DialOption) (*grpc.ClientConn, error) {
 
 	opt = append(opt, grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(unaryMiddleWare...)), grpc.WithStreamInterceptor(grpc_middleware.ChainStreamClient(streamMiddleware...)))
+
+	wmetrics.Incr(1, grpcStatsConnPrefix, strings.Replace(target, ".", "_", -1))
 
 	return grpc.DialContext(ctx, target, opt...)
 }

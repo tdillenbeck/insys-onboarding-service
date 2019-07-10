@@ -26,10 +26,10 @@ func TestTaskInstanceService_ByLocationID(t *testing.T) {
 	// create a category
 	categoryID := uuid.NewV4()
 	query := `
-INSERT INTO insys_onboarding.onboarding_categories
-(id, display_text, display_order)
-VALUES ($1, 'testing display text', 0)
-`
+		INSERT INTO insys_onboarding.onboarding_categories
+		(id, display_text, display_order)
+		VALUES ($1, 'testing display text', 0)
+		`
 	_, err := db.ExecContext(context.Background(), query, categoryID.String())
 	if err != nil {
 		t.Fatalf("could not create onboarding category: %v\n", err)
@@ -38,10 +38,10 @@ VALUES ($1, 'testing display text', 0)
 	// create a task
 	taskID := uuid.NewV4()
 	query = `
-INSERT INTO insys_onboarding.onboarding_tasks
-(id, title, content, display_order, onboarding_category_id)
-VALUES ($1, 'testing title', 'testing content', 0, $2)
-`
+		INSERT INTO insys_onboarding.onboarding_tasks
+		(id, title, content, display_order, onboarding_category_id)
+		VALUES ($1, 'testing title', 'testing content', 0, $2)
+		`
 	_, err = db.ExecContext(context.Background(), query, taskID.String(), categoryID.String())
 	if err != nil {
 		t.Fatalf("could not create onboarding task: %v\n", err)
@@ -50,9 +50,9 @@ VALUES ($1, 'testing title', 'testing content', 0, $2)
 	// create a task instance
 	taskInstanceID := uuid.NewV4()
 	query = `
-INSERT INTO insys_onboarding.onboarding_task_instances
-(id, location_id, title, content, display_order, status, status_updated_at, onboarding_category_id, onboarding_task_id)
-VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
+		INSERT INTO insys_onboarding.onboarding_task_instances
+		(id, location_id, title, content, display_order, status, status_updated_at, onboarding_category_id, onboarding_task_id)
+		VALUES ($1, $2, 'testing title', 'testing content', 0, 0, now(), $3, $4)
 `
 	_, err = db.ExecContext(context.Background(), query, taskInstanceID.String(), locationID.String(), categoryID.String(), taskID.String())
 	if err != nil {
@@ -170,7 +170,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 	}
 	onb, err = onboarderService.CreateOrUpdate(context.Background(), onb)
 	if err != nil {
-		t.Fatalf("could not create onboarder")
+		t.Fatalf("could not create onboarder. err: %v", err)
 	}
 	partialOnboarder, err := onboarderService.CreateOrUpdate(
 		context.Background(),

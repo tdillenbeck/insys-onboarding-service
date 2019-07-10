@@ -10,7 +10,7 @@ const (
 )
 
 func init() {
-	config.Add(WMetricsDPortCfg, "3051", "UDP port to listen on. Set using environment variable WMETRICSD_PORT to change both wmetricsd and the wmetrics lib.", "WMETRICSD_PORT")
+	config.Add(WMetricsDPortCfg, "3051", "UDP port to listen on. Set using environment variable WMETRICSD_PORT to change both wmetricsd and the wmetrics lib. (Set to 0 to disable)", "WMETRICSD_PORT")
 
 	// For cross internet the max packetSize should be 508 because according to http://stackoverflow.com/questions/1098897/what-is-the-largest-safe-udp-packet-size-on-the-internet
 	// this is the number of bytes that is guaranteed to be deliverable (though not guaranteed to be delivered).

@@ -69,13 +69,8 @@ func WlogdLogger(c context.Context, mtype LogMsgType, msg string, tags []tag.Tag
 
 func wlogdConnect() {
 	waitTime := 1
-	firstError := false // only print the first !connected error
 	for {
-		connected, err := wlogdConnectOne()
-		if err != nil && (connected || !firstError) {
-			firstError = true
-			fmt.Println("Error from wlogdConnectOne!! ", err)
-		}
+		connected, _ := wlogdConnectOne()
 
 		// simple backoff
 		if connected {

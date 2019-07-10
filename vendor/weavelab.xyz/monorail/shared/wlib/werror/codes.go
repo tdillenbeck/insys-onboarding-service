@@ -44,7 +44,7 @@ var codeMap = map[Code]int{
 	CodeDeadlineExceeded:   http.StatusRequestTimeout,
 	CodeNotFound:           http.StatusNotFound,
 	CodeAlreadyExists:      http.StatusUnprocessableEntity,
-	CodePermissionDenied:   http.StatusUnauthorized,
+	CodePermissionDenied:   http.StatusForbidden,
 	CodeResourceExhausted:  http.StatusTooManyRequests,
 	CodeFailedPrecondition: http.StatusPreconditionFailed,
 	CodeAborted:            http.StatusInternalServerError,
