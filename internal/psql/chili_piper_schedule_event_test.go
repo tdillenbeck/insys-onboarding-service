@@ -2,7 +2,6 @@ package psql
 
 import (
 	"context"
-	"reflect"
 	"testing"
 	"time"
 
@@ -15,6 +14,50 @@ import (
 )
 
 func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+	currentTime := time.Now()
+
+	eventService := ChiliPiperScheduleEventService{DB: db}
+
+	// create records for us to retrieve
+	_, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+
+			AssigneeID: null.NewString("testing assignee id 1"),
+			ContactID:  null.NewString("testing contact id 1"),
+			EventID:    null.NewString("testing event id 1"),
+			RouteID:    null.NewString("testing route id 1"),
+
+			StartAt: null.NewTime(currentTime),
+			EndAt:   null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for setup in ByLocationID")
+	}
+	_, err = eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+
+			AssigneeID: null.NewString("testing assignee id 2"),
+			ContactID:  null.NewString("testing contact id 2"),
+			EventID:    null.NewString("testing event id 2"),
+			RouteID:    null.NewString("testing route id 2"),
+
+			StartAt: null.NewTime(currentTime),
+			EndAt:   null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for setup in ByLocationID")
+	}
+
 	type fields struct {
 		DB *wsql.PG
 	}
@@ -29,8 +72,46 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 		want    []app.ChiliPiperScheduleEvent
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name:   "successfully retrieve records by location id",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				locationID,
+			},
+			want: []app.ChiliPiperScheduleEvent{
+				{
+					LocationID: locationID,
+
+					AssigneeID: null.NewString("testing assignee id 1"),
+					ContactID:  null.NewString("testing contact id 1"),
+					EventID:    null.NewString("testing event id 1"),
+					RouteID:    null.NewString("testing route id 1"),
+
+					StartAt: null.NewTime(currentTime),
+					EndAt:   null.NewTime(currentTime),
+				},
+				{
+					LocationID: locationID,
+
+					AssigneeID: null.NewString("testing assignee id 2"),
+					ContactID:  null.NewString("testing contact id 2"),
+					EventID:    null.NewString("testing event id 2"),
+					RouteID:    null.NewString("testing route id 2"),
+
+					StartAt: null.NewTime(currentTime),
+					EndAt:   null.NewTime(currentTime),
+				},
+			},
+			wantErr: false,
+		},
 	}
+
+	// custom functions to ignore fields in cmp.Equal comparison
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "ID", "CreatedAt", "UpdatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ChiliPiperScheduleEventService{
@@ -41,7 +122,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 				t.Errorf("ChiliPiperScheduleService.ByLocationID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("ChiliPiperScheduleService.ByLocationID() = %v, want %v", got, tt.want)
 			}
 		})
