@@ -40,7 +40,7 @@ CREATE TABLE insys_onboarding.chili_piper_schedule_events (
     assignee_id text,
     start_at timestamp with time zone,
     end_at timestamp with time zone,
-    context_id text,
+    contact_id text,
     location_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL

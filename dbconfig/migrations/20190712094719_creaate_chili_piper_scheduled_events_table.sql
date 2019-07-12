@@ -8,7 +8,7 @@ CREATE TABLE insys_onboarding.chili_piper_schedule_events (
   assignee_id text,
   start_at timestamp with time zone,
   end_at timestamp with time zone,
-  context_id text, -- salesforce_user_id
+  contact_id text, -- salesforce_user_id
   location_id uuid,
 
   created_at timestamp with time zone NOT NULL DEFAULT now(),
