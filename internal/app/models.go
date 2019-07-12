@@ -26,30 +26,17 @@ type Category struct {
 	UpdatedAt    time.Time
 }
 
-// TaskInstance represent a location's status in a task (Waiting on Customer, Waiting on Weave, Completed, etc)
-type TaskInstance struct {
+// ChiliPiperScheduleEvent tracks scheduled appointments that happen in chili piper
+type ChiliPiperScheduleEvent struct {
 	ID         uuid.UUID
-	LocationID uuid.UUID
-	CategoryID uuid.UUID
-	TaskID     uuid.UUID
+	EventID    null.String
+	RouteID    null.String
+	AssigneeID null.String
+	StartAt    null.Time
+	EndAt      null.Time
 
-	ButtonContent     null.String
-	ButtonExternalURL null.String
-	ButtonInternalURL null.String
-	CompletedAt       null.Time
-	CompletedBy       null.String
-	VerifiedAt        null.Time
-	VerifiedBy        null.String
-	Content           string
-	DisplayOrder      int
-	Status            int
-	StatusUpdatedAt   time.Time
-	StatusUpdatedBy   null.String
-	Title             string
-	Explanation       null.String
-
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.time
+	UpdatedAt time.time
 }
 
 // Onboarder represents a user's onboarding specific information
@@ -77,4 +64,30 @@ type OnboardersLocation struct {
 	LocationID  uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+// TaskInstance represent a location's status in a task (Waiting on Customer, Waiting on Weave, Completed, etc)
+type TaskInstance struct {
+	ID         uuid.UUID
+	LocationID uuid.UUID
+	CategoryID uuid.UUID
+	TaskID     uuid.UUID
+
+	ButtonContent     null.String
+	ButtonExternalURL null.String
+	ButtonInternalURL null.String
+	CompletedAt       null.Time
+	CompletedBy       null.String
+	VerifiedAt        null.Time
+	VerifiedBy        null.String
+	Content           string
+	DisplayOrder      int
+	Status            int
+	StatusUpdatedAt   time.Time
+	StatusUpdatedBy   null.String
+	Title             string
+	Explanation       null.String
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }

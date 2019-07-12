@@ -12,13 +12,10 @@ type CategoryService interface {
 	ByID(ctx context.Context, id uuid.UUID) (*Category, error)
 }
 
-// TaskInstanceService defines the actions for the database related to TaskInstances
-type TaskInstanceService interface {
-	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
-	CreateFromTasks(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
-	SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error
-	Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*TaskInstance, error)
-	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
+type ChiliPiperScheduleEventService interface {
+	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]ChiliPiperScheduleEvent, error)
+	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
+	UpdateByEventID(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
 }
 
 type OnboarderService interface {
@@ -29,4 +26,13 @@ type OnboarderService interface {
 type OnboardersLocationService interface {
 	CreateOrUpdate(ctx context.Context, onboardersLocation *OnboardersLocation) (*OnboardersLocation, error)
 	ReadByLocationID(ctx context.Context, locationID uuid.UUID) (*OnboardersLocation, error)
+}
+
+// TaskInstanceService defines the actions for the database related to TaskInstances
+type TaskInstanceService interface {
+	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
+	CreateFromTasks(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
+	SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error
+	Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*TaskInstance, error)
+	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
 }
