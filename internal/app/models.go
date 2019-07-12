@@ -26,17 +26,20 @@ type Category struct {
 	UpdatedAt    time.Time
 }
 
-// ChiliPiperScheduleEvent tracks scheduled appointments that happen in chili piper
+// ChiliPiperScheduledEvent tracks scheduled appointments that happen in chili piper
 type ChiliPiperScheduleEvent struct {
 	ID         uuid.UUID
+	LocationID uuid.UUID
+
 	EventID    null.String
 	RouteID    null.String
 	AssigneeID null.String
-	StartAt    null.Time
-	EndAt      null.Time
 
-	CreatedAt time.time
-	UpdatedAt time.time
+	StartAt null.Time
+	EndAt   null.Time
+
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // Onboarder represents a user's onboarding specific information
