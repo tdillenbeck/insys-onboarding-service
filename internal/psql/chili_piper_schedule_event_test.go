@@ -99,7 +99,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.Onboarder{}, "ID", "CreatedAt", "UpdatedAt"),
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "ID", "CreatedAt", "UpdatedAt"),
 	}
 
 	for _, tt := range tests {

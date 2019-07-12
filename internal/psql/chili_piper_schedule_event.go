@@ -2,9 +2,11 @@ package psql
 
 import (
 	"context"
+	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
@@ -17,5 +19,56 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 }
 
 func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error) {
-	return nil, nil
+	var resultEvent app.ChiliPiperScheduleEvent
+
+	query := `
+	  INSERT INTO insys_onboarding.chili_piper_schedule_events
+	  (
+		  id,
+		  event_id,
+		  route_id,
+		  assignee_id,
+		  start_at,
+		  end_at,
+		  contact_id,
+		  location_id,
+		  created_at,
+		  updated_at
+	  )
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	  RETURNING id, created_at, updated_at`
+
+	currentTime := time.Now()
+	row := s.DB.QueryRowContext(
+		ctx,
+		query,
+		uuid.NewV4().String(),
+		scheduleEvent.EventID,
+		scheduleEvent.RouteID,
+		scheduleEvent.AssigneeID,
+		scheduleEvent.StartAt,
+		scheduleEvent.EndAt,
+		scheduleEvent.ContactID,
+		scheduleEvent.LocationID.String(),
+		currentTime,
+		currentTime,
+	)
+	err := row.Scan(
+		&resultEvent.ID,
+		&resultEvent.CreatedAt,
+		&resultEvent.UpdatedAt,
+	)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing chili piper schedule event create")
+	}
+
+	resultEvent.EventID = scheduleEvent.EventID
+	resultEvent.RouteID = scheduleEvent.RouteID
+	resultEvent.AssigneeID = scheduleEvent.AssigneeID
+	resultEvent.StartAt = scheduleEvent.StartAt
+	resultEvent.EndAt = scheduleEvent.EndAt
+	resultEvent.ContactID = scheduleEvent.ContactID
+	resultEvent.LocationID = scheduleEvent.LocationID
+
+	return &resultEvent, nil
 }

@@ -31,9 +31,10 @@ type ChiliPiperScheduleEvent struct {
 	ID         uuid.UUID
 	LocationID uuid.UUID
 
+	AssigneeID null.String
+	ContactID  null.String
 	EventID    null.String
 	RouteID    null.String
-	AssigneeID null.String
 
 	StartAt null.Time
 	EndAt   null.Time
