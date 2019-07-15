@@ -15,7 +15,6 @@ type CategoryService interface {
 type ChiliPiperScheduleEventService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]ChiliPiperScheduleEvent, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
-	UpdateByEventID(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
 }
 
 type OnboarderService interface {
