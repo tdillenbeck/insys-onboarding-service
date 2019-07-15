@@ -29,18 +29,18 @@ type Category struct {
 // ChiliPiperScheduledEvent tracks scheduled appointments that happen in chili piper
 type ChiliPiperScheduleEvent struct {
 	ID         uuid.UUID
-	LocationID uuid.UUID
+	LocationID uuid.UUID `db:"location_id"`
 
-	AssigneeID null.String
-	ContactID  null.String
-	EventID    null.String
-	RouteID    null.String
+	AssigneeID null.String `db:"assignee_id"`
+	ContactID  null.String `db:"contact_id"`
+	EventID    null.String `db:"event_id"`
+	RouteID    null.String `db:"route_id"`
 
-	StartAt null.Time
-	EndAt   null.Time
+	StartAt null.Time `db:"start_at"`
+	EndAt   null.Time `db:"end_at"`
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
 }
 
 // Onboarder represents a user's onboarding specific information

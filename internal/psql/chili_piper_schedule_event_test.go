@@ -123,7 +123,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 				return
 			}
 			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("ChiliPiperScheduleService.ByLocationID() = %v, want %v", got, tt.want)
+				t.Errorf("ChiliPiperScheduleService.ByLocationID(). Diff :%v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}

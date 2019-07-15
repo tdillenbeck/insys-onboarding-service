@@ -15,7 +15,40 @@ type ChiliPiperScheduleEventService struct {
 }
 
 func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error) {
-	return nil, nil
+	var resultEvents []app.ChiliPiperScheduleEvent
+
+	query := `
+	  SELECT
+		id,
+		location_id,
+		event_id,
+		route_id,
+		assignee_id,
+		contact_id,
+		start_at,
+		end_at,
+		created_at,
+		updated_at
+	  FROM insys_onboarding.chili_piper_schedule_events
+	  WHERE location_id = $1 `
+
+	rows, err := s.DB.QueryxContext(ctx, query, locationID.String())
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing ByLocationID query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var event app.ChiliPiperScheduleEvent
+		err = rows.StructScan(&event)
+		if err != nil {
+			return nil, werror.Wrap(err, "error scanning result from ByLocationID query into chili piper schedule event struct")
+		}
+
+		resultEvents = append(resultEvents, event)
+	}
+
+	return resultEvents, nil
 }
 
 func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error) {
