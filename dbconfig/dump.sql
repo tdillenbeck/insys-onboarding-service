@@ -35,13 +35,14 @@ SET default_with_oids = false;
 
 CREATE TABLE insys_onboarding.chili_piper_schedule_events (
     id uuid NOT NULL,
+    location_id uuid NOT NULL,
     event_id text,
+    event_type text,
     route_id text,
     assignee_id text,
+    contact_id text,
     start_at timestamp with time zone,
     end_at timestamp with time zone,
-    contact_id text,
-    location_id uuid,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
