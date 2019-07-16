@@ -246,3 +246,14 @@ func Cause(err error) error {
 
 	return nil
 }
+
+// HasCode provides an easy way to determine if the standard error contains a werror.Code
+func HasCode(err error, code Code) bool {
+	if werr, ok := err.(*Error); ok {
+		if werr.Code() == code {
+			return true
+		}
+	}
+
+	return false
+}
