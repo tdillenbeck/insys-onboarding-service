@@ -34,6 +34,7 @@ type ChiliPiperScheduleEvent struct {
 	AssigneeID null.String `db:"assignee_id"`
 	ContactID  null.String `db:"contact_id"`
 	EventID    null.String `db:"event_id"`
+	EventType  null.String `db:"event_type"`
 	RouteID    null.String `db:"route_id"`
 
 	StartAt null.Time `db:"start_at"`

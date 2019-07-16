@@ -31,6 +31,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 			AssigneeID: null.NewString("testing assignee id 1"),
 			ContactID:  null.NewString("testing contact id 1"),
 			EventID:    null.NewString("testing event id 1"),
+			EventType:  null.NewString("testing event type 1"),
 			RouteID:    null.NewString("testing route id 1"),
 
 			StartAt: null.NewTime(currentTime),
@@ -48,6 +49,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 			AssigneeID: null.NewString("testing assignee id 2"),
 			ContactID:  null.NewString("testing contact id 2"),
 			EventID:    null.NewString("testing event id 2"),
+			EventType:  null.NewString("testing event type 2"),
 			RouteID:    null.NewString("testing route id 2"),
 
 			StartAt: null.NewTime(currentTime),
@@ -86,6 +88,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 					AssigneeID: null.NewString("testing assignee id 1"),
 					ContactID:  null.NewString("testing contact id 1"),
 					EventID:    null.NewString("testing event id 1"),
+					EventType:  null.NewString("testing event type 1"),
 					RouteID:    null.NewString("testing route id 1"),
 
 					StartAt: null.NewTime(currentTime),
@@ -97,6 +100,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 					AssigneeID: null.NewString("testing assignee id 2"),
 					ContactID:  null.NewString("testing contact id 2"),
 					EventID:    null.NewString("testing event id 2"),
+					EventType:  null.NewString("testing event type 2"),
 					RouteID:    null.NewString("testing route id 2"),
 
 					StartAt: null.NewTime(currentTime),
@@ -166,6 +170,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 				&app.ChiliPiperScheduleEvent{
 					LocationID: locationID,
 					EventID:    null.NewString("testing event id"),
+					EventType:  null.NewString("testing event type"),
 					RouteID:    null.NewString("testing route id"),
 					AssigneeID: null.NewString("testing assignee id"),
 
@@ -176,6 +181,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 			want: &app.ChiliPiperScheduleEvent{
 				LocationID: locationID,
 				EventID:    null.NewString("testing event id"),
+				EventType:  null.NewString("testing event type"),
 				RouteID:    null.NewString("testing route id"),
 				AssigneeID: null.NewString("testing assignee id"),
 

@@ -22,6 +22,7 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 		id,
 		location_id,
 		event_id,
+		event_type,
 		route_id,
 		assignee_id,
 		contact_id,
@@ -59,6 +60,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	  (
 		  id,
 		  event_id,
+		  event_type,
 		  route_id,
 		  assignee_id,
 		  start_at,
@@ -68,7 +70,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		  created_at,
 		  updated_at
 	  )
-	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	  RETURNING id, created_at, updated_at`
 
 	currentTime := time.Now()
@@ -77,6 +79,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		query,
 		uuid.NewV4().String(),
 		scheduleEvent.EventID,
+		scheduleEvent.EventType,
 		scheduleEvent.RouteID,
 		scheduleEvent.AssigneeID,
 		scheduleEvent.StartAt,
@@ -96,6 +99,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	}
 
 	resultEvent.EventID = scheduleEvent.EventID
+	resultEvent.EventType = scheduleEvent.EventType
 	resultEvent.RouteID = scheduleEvent.RouteID
 	resultEvent.AssigneeID = scheduleEvent.AssigneeID
 	resultEvent.StartAt = scheduleEvent.StartAt
