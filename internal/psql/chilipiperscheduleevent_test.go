@@ -116,11 +116,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "ID", "CreatedAt", "UpdatedAt"),
 		cmp.Comparer(func(x, y null.Time) bool {
 			diff := x.Time.Sub(y.Time)
-			if diff < (1 * time.Millisecond) {
-				return true
-			}
-
-			return false
+			return diff < (1 * time.Millisecond)
 		}),
 	}
 
