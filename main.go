@@ -55,11 +55,12 @@ func main() {
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
+	chiliPiperScheduleEventsService := &psql.ChiliPiperScheduleEventService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
-	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer()
+	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventsService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)

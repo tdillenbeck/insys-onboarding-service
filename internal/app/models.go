@@ -28,20 +28,20 @@ type Category struct {
 
 // ChiliPiperScheduledEvent tracks scheduled appointments that happen in chili piper
 type ChiliPiperScheduleEvent struct {
-	ID         uuid.UUID
-	LocationID uuid.UUID `db:"location_id"`
+	ID         uuid.UUID `json:"id"`
+	LocationID uuid.UUID `db:"location_id" json:"location_id"`
 
-	AssigneeID null.String `db:"assignee_id"`
-	ContactID  null.String `db:"contact_id"`
-	EventID    null.String `db:"event_id"`
-	EventType  null.String `db:"event_type"`
-	RouteID    null.String `db:"route_id"`
+	AssigneeID null.String `db:"assignee_id" json:"assignee_id"`
+	ContactID  null.String `db:"contact_id" json:"contact_id"`
+	EventID    null.String `db:"event_id" json:"event_id"`
+	EventType  null.String `db:"event_type" json:"event_type"`
+	RouteID    null.String `db:"route_id" json:"route_id"`
 
-	StartAt null.Time `db:"start_at"`
-	EndAt   null.Time `db:"end_at"`
+	StartAt null.Time `db:"start_at" json:"start_at"`
+	EndAt   null.Time `db:"end_at" json:"end_at"`
 
-	CreatedAt time.Time `db:"created_at"`
-	UpdatedAt time.Time `db:"updated_at"`
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
 
 // Onboarder represents a user's onboarding specific information
