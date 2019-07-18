@@ -100,7 +100,7 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 		END,
 		button_internal_url,
 		display_order,
-		0, -- defualt status
+		0, -- default status
 		now(),
 		'Weave - default', -- default status_updated_by
 		now(),
