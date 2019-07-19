@@ -30,6 +30,27 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE TABLE insys_onboarding.chili_piper_schedule_events (
+    id uuid NOT NULL,
+    location_id uuid NOT NULL,
+    event_id text,
+    event_type text,
+    route_id text,
+    assignee_id text,
+    contact_id text,
+    start_at timestamp with time zone,
+    end_at timestamp with time zone,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE insys_onboarding.chili_piper_schedule_events OWNER TO postgres;
+
+--
 -- Name: goose_db_version; Type: TABLE; Schema: insys_onboarding; Owner: postgres
 --
 
@@ -172,6 +193,14 @@ ALTER TABLE insys_onboarding.onboarding_tasks OWNER TO postgres;
 --
 
 ALTER TABLE ONLY insys_onboarding.goose_db_version ALTER COLUMN id SET DEFAULT nextval('insys_onboarding.goose_db_version_id_seq'::regclass);
+
+
+--
+-- Name: chili_piper_schedule_events chili_piper_schedule_events_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY insys_onboarding.chili_piper_schedule_events
+    ADD CONSTRAINT chili_piper_schedule_events_pkey PRIMARY KEY (id);
 
 
 --

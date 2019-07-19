@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
-	"reflect"
 	"testing"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/google/go-cmp/cmp"
 	"google.golang.org/grpc"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -79,6 +79,7 @@ func TestOnboardingServer_Category(t *testing.T) {
 			false,
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &OnboardingServer{
@@ -90,7 +91,7 @@ func TestOnboardingServer_Category(t *testing.T) {
 				t.Errorf("OnboardingServer.Category() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want) {
 				t.Errorf("OnboardingServer.Category() = %v, want %v", got, tt.want)
 			}
 		})
@@ -218,7 +219,7 @@ func TestOnboardingServer_CreateTaskInstancesFromTasks(t *testing.T) {
 				t.Errorf("OnboardingServer.CreateTaskInstancesFromTasks() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want) {
 				t.Errorf("OnboardingServer.CreateTaskInstancesFromTasks() = %v, want %v", got, tt.want)
 			}
 		})
@@ -333,46 +334,8 @@ func TestOnboardingServer_TaskInstances(t *testing.T) {
 				t.Errorf("OnboardingServer.TaskInstances() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
+			if !cmp.Equal(got, tt.want) {
 				t.Errorf("OnboardingServer.TaskInstances() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestOnboardingServer_UpdateTaskInstance(t *testing.T) {
-	t.Skip("Not implemented yet")
-
-	type fields struct {
-		categoryService     app.CategoryService
-		taskInstanceService app.TaskInstanceService
-	}
-	type args struct {
-		ctx context.Context
-		req *insysproto.UpdateTaskInstanceRequest
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *insysproto.UpdateTaskInstanceResponse
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &OnboardingServer{
-				categoryService:     tt.fields.categoryService,
-				taskInstanceService: tt.fields.taskInstanceService,
-			}
-			got, err := s.UpdateTaskInstance(tt.args.ctx, tt.args.req)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("OnboardingServer.UpdateTaskInstance() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("OnboardingServer.UpdateTaskInstance() = %v, want %v", got, tt.want)
 			}
 		})
 	}

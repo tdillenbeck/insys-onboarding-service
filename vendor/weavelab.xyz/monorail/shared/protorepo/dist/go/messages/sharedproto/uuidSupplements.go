@@ -1,6 +1,7 @@
 package sharedproto
 
 import (
+	"database/sql/driver"
 	"encoding/hex"
 	"encoding/json"
 
@@ -101,6 +102,25 @@ func (u *UUID) UUID() (uuid.UUID, error) {
 	}
 
 	return result, nil
+}
+
+func (u *UUID) Value() (driver.Value, error) {
+	id, err := u.UUID()
+	if err != nil {
+		return nil, err
+	}
+
+	return id.Value()
+}
+
+func (u *UUID) Scan(src interface{}) error {
+	tmp := uuid.UUID{}
+	if err := tmp.Scan(src); err != nil {
+		return err
+	}
+
+	*u = UUID{Bytes: u.Bytes}
+	return nil
 }
 
 func UUIDToProto(u uuid.UUID) *UUID {

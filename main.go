@@ -55,10 +55,12 @@ func main() {
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
+	chiliPiperScheduleEventsService := &psql.ChiliPiperScheduleEventService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
+	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventsService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
@@ -70,7 +72,7 @@ func main() {
 
 	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
-	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(onboardingServer, onboarderServer, onboardersLocationServer))
+	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
@@ -83,13 +85,14 @@ func main() {
 	wlog.InfoC(ctx, "done")
 }
 
-func grpcBootstrap(onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
+func grpcBootstrap(chiliPiperScheduleEventServer *grpc.ChiliPiperScheduleEventServer, onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs, err := wgrpcserver.NewDefault()
 		if err != nil {
 			wapp.Exit(werror.Wrap(err, "error getting a new default wgrpc server"))
 		}
 
+		insys.RegisterChiliPiperScheduleEventServer(gs, chiliPiperScheduleEventServer)
 		insys.RegisterOnboardingServer(gs, onboardingServer)
 		insys.RegisterOnboarderServer(gs, onboarderServer)
 		insys.RegisterOnboardersLocationServer(gs, onboardersLocationServer)

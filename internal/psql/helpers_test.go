@@ -51,4 +51,7 @@ func clearExistingData(db *wsql.PG) {
 
 	clearOnboardingCategoriesQuery := "DELETE FROM insys_onboarding.onboarding_categories;"
 	_, _ = db.ExecContext(context.Background(), clearOnboardingCategoriesQuery)
+
+	clearChiliPiperScheduleEventsQuery := "DELETE FROM insys_onboarding.chili_piper_schedule_events;"
+	_, _ = db.ExecContext(context.Background(), clearChiliPiperScheduleEventsQuery)
 }
