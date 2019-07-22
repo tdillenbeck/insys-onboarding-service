@@ -337,6 +337,10 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
 		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt"),
+		cmp.Comparer(func(x, y null.Time) bool {
+			diff := x.Time.Sub(y.Time)
+			return diff < (1 * time.Millisecond)
+		}),
 	}
 
 	for _, tt := range tests {
