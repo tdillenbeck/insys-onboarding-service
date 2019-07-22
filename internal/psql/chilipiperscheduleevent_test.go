@@ -276,7 +276,6 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 		want    *app.ChiliPiperScheduleEvent
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
 			name:   "successfully reassign an onboarder",
 			fields: fields{DB: db},

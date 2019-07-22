@@ -171,7 +171,6 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 		want    *insysproto.CreateChiliPiperScheduleEventResponse
 		wantErr bool
 	}{
-		// TODO: Add test cases.
 		{
 			name:   "successfully create a chili piper schedule event",
 			fields: fields{chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService},
