@@ -62,6 +62,10 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 	return result, nil
 }
 
+func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insysproto.UpdateChiliPiperScheduleEventRequest) (*insysproto.UpdateChiliPiperScheduleEventResponse, error) {
+	return nil, nil
+}
+
 func convertChiliPiperScheduleEventsToProto(events []app.ChiliPiperScheduleEvent) (*insysproto.ByLocationIDChiliPiperScheduleEventResponse, error) {
 	var result insysproto.ByLocationIDChiliPiperScheduleEventResponse
 
