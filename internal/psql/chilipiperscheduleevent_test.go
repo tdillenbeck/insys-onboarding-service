@@ -291,13 +291,17 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 				ID:         existingEventForReassignment.ID,
 				LocationID: existingEventForReassignment.LocationID,
 
+				AssigneeID: null.NewString(reassignedAssignee),
+				ContactID:  existingEventForReassignment.ContactID,
 				EventID:    existingEventForReassignment.EventID,
 				EventType:  existingEventForReassignment.EventType,
 				RouteID:    existingEventForReassignment.RouteID,
-				AssigneeID: null.NewString(reassignedAssignee),
 
 				StartAt: existingEventForReassignment.StartAt,
 				EndAt:   existingEventForReassignment.EndAt,
+
+				CreatedAt: existingEventForReassignment.CreatedAt,
+				UpdatedAt: existingEventForReassignment.UpdatedAt,
 			},
 			wantErr: false,
 		},
@@ -315,16 +319,25 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 				ID:         existingEventForReschedule.ID,
 				LocationID: existingEventForReschedule.LocationID,
 
+				AssigneeID: existingEventForReschedule.AssigneeID,
+				ContactID:  existingEventForReschedule.ContactID,
 				EventID:    existingEventForReschedule.EventID,
 				EventType:  existingEventForReschedule.EventType,
 				RouteID:    existingEventForReschedule.RouteID,
-				AssigneeID: existingEventForReschedule.AssigneeID,
 
 				StartAt: null.NewTime(rescheduleStartAt),
 				EndAt:   null.NewTime(rescheduleEndAt),
+
+				CreatedAt: existingEventForReschedule.CreatedAt,
+				UpdatedAt: existingEventForReschedule.UpdatedAt,
 			},
 			wantErr: false,
 		},
+	}
+
+	// custom functions to ignore fields in cmp.Equal comparison
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt"),
 	}
 
 	for _, tt := range tests {
@@ -337,8 +350,8 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 				t.Errorf("ChiliPiperScheduleEventService.Update() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !cmp.Equal(got, tt.want) {
-				t.Errorf("ChiliPiperScheduleEventService.Update(). Diff: %v", cmp.Diff(got, tt.want))
+			if !cmp.Equal(got, tt.want, opts...) {
+				t.Errorf("ChiliPiperScheduleEventService.Update(). Diff: %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}
