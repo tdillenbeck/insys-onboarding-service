@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
@@ -108,4 +109,8 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	resultEvent.LocationID = scheduleEvent.LocationID
 
 	return &resultEvent, nil
+}
+
+func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, id uuid.UUID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error) {
+	return nil, nil
 }

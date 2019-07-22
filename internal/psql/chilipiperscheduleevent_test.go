@@ -209,3 +209,137 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestChiliPiperScheduleEventService_Update(t *testing.T) {
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+	eventService := ChiliPiperScheduleEventService{DB: db}
+	currentTime := time.Now()
+	reassignedAssignee := uuid.NewV4().String()
+	rescheduleStartAt := currentTime.Add(24 * time.Hour)
+	rescheduleEndAt := currentTime.Add(25 * time.Hour)
+
+	// create record to update
+	existingEventForReassignment, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+
+			AssigneeID: null.NewString("testing assignee id 1"),
+			ContactID:  null.NewString("testing contact id 1"),
+			EventID:    null.NewString("testing event id 1"),
+			EventType:  null.NewString("testing event type 1"),
+			RouteID:    null.NewString("testing route id 1"),
+
+			StartAt: null.NewTime(currentTime),
+			EndAt:   null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for update")
+	}
+	existingEventForReschedule, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+
+			AssigneeID: null.NewString("testing assignee id 1"),
+			ContactID:  null.NewString("testing contact id 1"),
+			EventID:    null.NewString("testing event id 1"),
+			EventType:  null.NewString("testing event type 1"),
+			RouteID:    null.NewString("testing route id 1"),
+
+			StartAt: null.NewTime(currentTime),
+			EndAt:   null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for reschedule in setup for update")
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx        context.Context
+		id         uuid.UUID
+		assigneeID string
+		startAt    null.Time
+		endAt      null.Time
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *app.ChiliPiperScheduleEvent
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:   "successfully reassign an onboarder",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				existingEventForReassignment.ID,
+				reassignedAssignee,
+				existingEventForReassignment.StartAt,
+				existingEventForReassignment.EndAt,
+			},
+			want: &app.ChiliPiperScheduleEvent{
+				ID:         existingEventForReassignment.ID,
+				LocationID: existingEventForReassignment.LocationID,
+
+				EventID:    existingEventForReassignment.EventID,
+				EventType:  existingEventForReassignment.EventType,
+				RouteID:    existingEventForReassignment.RouteID,
+				AssigneeID: null.NewString(reassignedAssignee),
+
+				StartAt: existingEventForReassignment.StartAt,
+				EndAt:   existingEventForReassignment.EndAt,
+			},
+			wantErr: false,
+		},
+		{
+			name:   "successfully reschedule a meeting to another time",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				existingEventForReschedule.ID,
+				existingEventForReschedule.AssigneeID.String(),
+				null.NewTime(rescheduleStartAt),
+				null.NewTime(rescheduleEndAt),
+			},
+			want: &app.ChiliPiperScheduleEvent{
+				ID:         existingEventForReschedule.ID,
+				LocationID: existingEventForReschedule.LocationID,
+
+				EventID:    existingEventForReschedule.EventID,
+				EventType:  existingEventForReschedule.EventType,
+				RouteID:    existingEventForReschedule.RouteID,
+				AssigneeID: existingEventForReschedule.AssigneeID,
+
+				StartAt: null.NewTime(rescheduleStartAt),
+				EndAt:   null.NewTime(rescheduleEndAt),
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &ChiliPiperScheduleEventService{
+				DB: tt.fields.DB,
+			}
+			got, err := s.Update(tt.args.ctx, tt.args.id, tt.args.assigneeID, tt.args.startAt, tt.args.endAt)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperScheduleEventService.Update() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("ChiliPiperScheduleEventService.Update(). Diff: %v", cmp.Diff(got, tt.want))
+			}
+		})
+	}
+}
