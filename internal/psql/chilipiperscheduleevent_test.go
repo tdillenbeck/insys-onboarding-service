@@ -27,10 +27,10 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
+			EventID:    "testing event id 1",
 
 			AssigneeID: null.NewString("testing assignee id 1"),
 			ContactID:  null.NewString("testing contact id 1"),
-			EventID:    null.NewString("testing event id 1"),
 			EventType:  null.NewString("testing event type 1"),
 			RouteID:    null.NewString("testing route id 1"),
 
@@ -45,10 +45,10 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
+			EventID:    "testing event id 2",
 
 			AssigneeID: null.NewString("testing assignee id 2"),
 			ContactID:  null.NewString("testing contact id 2"),
-			EventID:    null.NewString("testing event id 2"),
 			EventType:  null.NewString("testing event type 2"),
 			RouteID:    null.NewString("testing route id 2"),
 
@@ -84,10 +84,10 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 			want: []app.ChiliPiperScheduleEvent{
 				{
 					LocationID: locationID,
+					EventID:    "testing event id 1",
 
 					AssigneeID: null.NewString("testing assignee id 1"),
 					ContactID:  null.NewString("testing contact id 1"),
-					EventID:    null.NewString("testing event id 1"),
 					EventType:  null.NewString("testing event type 1"),
 					RouteID:    null.NewString("testing route id 1"),
 
@@ -96,10 +96,10 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 				},
 				{
 					LocationID: locationID,
+					EventID:    "testing event id 2",
 
 					AssigneeID: null.NewString("testing assignee id 2"),
 					ContactID:  null.NewString("testing contact id 2"),
-					EventID:    null.NewString("testing event id 2"),
 					EventType:  null.NewString("testing event type 2"),
 					RouteID:    null.NewString("testing route id 2"),
 
@@ -165,7 +165,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 				context.Background(),
 				&app.ChiliPiperScheduleEvent{
 					LocationID: locationID,
-					EventID:    null.NewString("testing event id"),
+					EventID:    "testing event id",
 					EventType:  null.NewString("testing event type"),
 					RouteID:    null.NewString("testing route id"),
 					AssigneeID: null.NewString("testing assignee id"),
@@ -176,7 +176,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 			},
 			want: &app.ChiliPiperScheduleEvent{
 				LocationID: locationID,
-				EventID:    null.NewString("testing event id"),
+				EventID:    "testing event id",
 				EventType:  null.NewString("testing event type"),
 				RouteID:    null.NewString("testing route id"),
 				AssigneeID: null.NewString("testing assignee id"),
@@ -226,10 +226,10 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
+			EventID:    "testing event id 1",
 
 			AssigneeID: null.NewString("testing assignee id 1"),
 			ContactID:  null.NewString("testing contact id 1"),
-			EventID:    null.NewString("testing event id 1"),
 			EventType:  null.NewString("testing event type 1"),
 			RouteID:    null.NewString("testing route id 1"),
 
@@ -244,10 +244,10 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
+			EventID:    "testing event id 2",
 
 			AssigneeID: null.NewString("testing assignee id 1"),
 			ContactID:  null.NewString("testing contact id 1"),
-			EventID:    null.NewString("testing event id 1"),
 			EventType:  null.NewString("testing event type 1"),
 			RouteID:    null.NewString("testing route id 1"),
 
@@ -264,7 +264,7 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 	}
 	type args struct {
 		ctx        context.Context
-		id         uuid.UUID
+		eventID    string
 		assigneeID string
 		startAt    null.Time
 		endAt      null.Time
@@ -281,7 +281,7 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 			fields: fields{DB: db},
 			args: args{
 				context.Background(),
-				existingEventForReassignment.ID,
+				existingEventForReassignment.EventID,
 				reassignedAssignee,
 				existingEventForReassignment.StartAt,
 				existingEventForReassignment.EndAt,
@@ -309,7 +309,7 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 			fields: fields{DB: db},
 			args: args{
 				context.Background(),
-				existingEventForReschedule.ID,
+				existingEventForReschedule.EventID,
 				existingEventForReschedule.AssigneeID.String(),
 				null.NewTime(rescheduleStartAt),
 				null.NewTime(rescheduleEndAt),
@@ -348,7 +348,7 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 			s := &ChiliPiperScheduleEventService{
 				DB: tt.fields.DB,
 			}
-			got, err := s.Update(tt.args.ctx, tt.args.id, tt.args.assigneeID, tt.args.startAt, tt.args.endAt)
+			got, err := s.Update(tt.args.ctx, tt.args.eventID, tt.args.assigneeID, tt.args.startAt, tt.args.endAt)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ChiliPiperScheduleEventService.Update() error = %v, wantErr %v", err, tt.wantErr)
 				return

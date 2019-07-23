@@ -107,7 +107,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	return &resultEvent, nil
 }
 
-func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, id uuid.UUID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error) {
+func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error) {
 	var resultEvent app.ChiliPiperScheduleEvent
 
 	query := `
@@ -116,13 +116,13 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, id uuid.UUI
 				start_at = $3,
 				end_at = $4,
 				updated_at = now()
-		 WHERE id = $1
+		 WHERE event_id = $1
 		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
 
 	row := s.DB.QueryRowxContext(
 		ctx,
 		query,
-		id,
+		eventID,
 		assigneeID,
 		startAt,
 		endAt,
