@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -67,11 +66,6 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 
 func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insysproto.UpdateChiliPiperScheduleEventRequest) (*insysproto.UpdateChiliPiperScheduleEventResponse, error) {
 
-	fmt.Println("^^^^^^^^^^^^^^^")
-	fmt.Println(req.StartAt)
-	fmt.Println(req.EndAt)
-	fmt.Println("^^^^^^^^^^^^^^^")
-
 	id, err := uuid.Parse(req.Id)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not parse request id into uuid").Add("req.Id", req.Id))
@@ -87,30 +81,15 @@ func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insyspr
 	startAt := null.NewTime(parsedStartAt)
 	endAt := null.NewTime(parsedEndAt)
 
-	fmt.Println("%%%%%%%%%%%%%%%")
-	fmt.Println(startAt)
-	fmt.Println(endAt)
-	fmt.Println("%%%%%%%%%%%%%%%")
-
 	updateResponse, err := s.chiliPiperScheduleEventService.Update(ctx, id, req.AssigneeId, startAt, endAt)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error updating chili piper schedule event").Add("id", req.Id))
 	}
 
-	fmt.Println("##############")
-	fmt.Println(updateResponse.StartAt)
-	fmt.Println(updateResponse.EndAt)
-	fmt.Println("##############")
-
 	result, err := convertChiliPiperScheduleEventToUpdateProto(updateResponse)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error converting chili piper schedule event into proto").Add("updateResponse", updateResponse))
 	}
-
-	fmt.Println("@@@@@@@@@@@")
-	fmt.Println(result.Event.StartAt)
-	fmt.Println(result.Event.EndAt)
-	fmt.Println("@@@@@@@@@@@")
 
 	return result, nil
 }
