@@ -3,8 +3,10 @@ package grpc
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
@@ -62,6 +64,32 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 	return result, nil
 }
 
+func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insysproto.UpdateChiliPiperScheduleEventRequest) (*insysproto.UpdateChiliPiperScheduleEventResponse, error) {
+
+	parsedStartAt, err := time.Parse(time.RFC3339, req.StartAt)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not parse request StartAt into null.Time").Add("req.StartAt", req.StartAt))
+	}
+	parsedEndAt, err := time.Parse(time.RFC3339, req.EndAt)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not parse request EndAt into null.Time").Add("req.EndAt", req.EndAt))
+	}
+	startAt := null.NewTime(parsedStartAt)
+	endAt := null.NewTime(parsedEndAt)
+
+	updateResponse, err := s.chiliPiperScheduleEventService.Update(ctx, req.EventId, req.AssigneeId, startAt, endAt)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error updating chili piper schedule event").Add("eventID", req.EventId))
+	}
+
+	result, err := convertChiliPiperScheduleEventToUpdateProto(updateResponse)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error converting chili piper schedule event into proto").Add("updateResponse", updateResponse))
+	}
+
+	return result, nil
+}
+
 func convertChiliPiperScheduleEventsToProto(events []app.ChiliPiperScheduleEvent) (*insysproto.ByLocationIDChiliPiperScheduleEventResponse, error) {
 	var result insysproto.ByLocationIDChiliPiperScheduleEventResponse
 
@@ -80,6 +108,22 @@ func convertChiliPiperScheduleEventsToProto(events []app.ChiliPiperScheduleEvent
 
 func convertChiliPiperScheduleEventToProto(event *app.ChiliPiperScheduleEvent) (*insysproto.CreateChiliPiperScheduleEventResponse, error) {
 	var result insysproto.CreateChiliPiperScheduleEventResponse
+
+	eventJSON, err := json.Marshal(event)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not marshal chili piper schedule event into json").Add("event", event)
+	}
+
+	err = json.Unmarshal(eventJSON, &result.Event)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not unmarshal chili piper schedule json into proto struct").Add("eventJSON", string(eventJSON))
+	}
+
+	return &result, nil
+}
+
+func convertChiliPiperScheduleEventToUpdateProto(event *app.ChiliPiperScheduleEvent) (*insysproto.UpdateChiliPiperScheduleEventResponse, error) {
+	var result insysproto.UpdateChiliPiperScheduleEventResponse
 
 	eventJSON, err := json.Marshal(event)
 	if err != nil {

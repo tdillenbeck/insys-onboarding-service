@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
@@ -15,6 +16,7 @@ type CategoryService interface {
 type ChiliPiperScheduleEventService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]ChiliPiperScheduleEvent, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
+	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
 }
 
 type OnboarderService interface {

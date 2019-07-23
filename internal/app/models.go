@@ -28,12 +28,13 @@ type Category struct {
 
 // ChiliPiperScheduledEvent tracks scheduled appointments that happen in chili piper
 type ChiliPiperScheduleEvent struct {
-	ID         uuid.UUID `json:"id"`
+	ID         uuid.UUID `db:"id" json:"id"`
 	LocationID uuid.UUID `db:"location_id" json:"location_id"`
+
+	EventID string `db:"event_id" json:"event_id"`
 
 	AssigneeID null.String `db:"assignee_id" json:"assignee_id"`
 	ContactID  null.String `db:"contact_id" json:"contact_id"`
-	EventID    null.String `db:"event_id" json:"event_id"`
 	EventType  null.String `db:"event_type" json:"event_type"`
 	RouteID    null.String `db:"route_id" json:"route_id"`
 

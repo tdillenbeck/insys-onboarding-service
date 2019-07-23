@@ -2,9 +2,9 @@ package psql
 
 import (
 	"context"
-	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
@@ -19,17 +19,17 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 
 	query := `
 	  SELECT
-		id,
-		location_id,
-		event_id,
-		event_type,
-		route_id,
-		assignee_id,
-		contact_id,
-		start_at,
-		end_at,
-		created_at,
-		updated_at
+			id,
+			location_id,
+			event_id,
+			event_type,
+			route_id,
+			assignee_id,
+			contact_id,
+			start_at,
+			end_at,
+			created_at,
+			updated_at
 	  FROM insys_onboarding.chili_piper_schedule_events
 	  WHERE location_id = $1 `
 
@@ -70,10 +70,9 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		  created_at,
 		  updated_at
 	  )
-	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
 	  RETURNING id, created_at, updated_at`
 
-	currentTime := time.Now()
 	row := s.DB.QueryRowContext(
 		ctx,
 		query,
@@ -86,8 +85,6 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		scheduleEvent.EndAt,
 		scheduleEvent.ContactID,
 		scheduleEvent.LocationID.String(),
-		currentTime,
-		currentTime,
 	)
 	err := row.Scan(
 		&resultEvent.ID,
@@ -106,6 +103,34 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	resultEvent.EndAt = scheduleEvent.EndAt
 	resultEvent.ContactID = scheduleEvent.ContactID
 	resultEvent.LocationID = scheduleEvent.LocationID
+
+	return &resultEvent, nil
+}
+
+func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error) {
+	var resultEvent app.ChiliPiperScheduleEvent
+
+	query := `
+	  UPDATE insys_onboarding.chili_piper_schedule_events
+			SET assignee_id = $2,
+				start_at = $3,
+				end_at = $4,
+				updated_at = now()
+		 WHERE event_id = $1
+		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		eventID,
+		assigneeID,
+		startAt,
+		endAt,
+	)
+	err := row.StructScan(&resultEvent)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing chili piper schedule event update")
+	}
 
 	return &resultEvent, nil
 }
