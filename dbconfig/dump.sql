@@ -36,7 +36,7 @@ SET default_with_oids = false;
 CREATE TABLE insys_onboarding.chili_piper_schedule_events (
     id uuid NOT NULL,
     location_id uuid NOT NULL,
-    event_id text,
+    event_id text NOT NULL,
     event_type text,
     route_id text,
     assignee_id text,
@@ -249,6 +249,20 @@ ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
 
 ALTER TABLE ONLY insys_onboarding.onboarding_tasks
     ADD CONSTRAINT onboarding_tasks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: index_chili_piper_schedule_events_on_event_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE UNIQUE INDEX index_chili_piper_schedule_events_on_event_id ON insys_onboarding.chili_piper_schedule_events USING btree (event_id);
+
+
+--
+-- Name: index_chili_piper_schedule_events_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE INDEX index_chili_piper_schedule_events_on_location_id ON insys_onboarding.chili_piper_schedule_events USING btree (location_id);
 
 
 --
