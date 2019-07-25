@@ -127,6 +127,68 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 	}
 }
 
+func TestOnboarderService_Delete(t *testing.T) {
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	existingID := uuid.NewV4()
+	ctx := context.Background()
+
+	//create existing onoarder to test update functionality
+	query := `INSERT INTO insys_onboarding.onboarders (id, user_id) VALUES ($1, $2)`
+	_, err := db.ExecContext(ctx, query, existingID, uuid.NewV4())
+	if err != nil {
+		t.Fatalf("could not create onboarder: %v\n", err)
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx context.Context
+		id  uuid.UUID
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		{
+			name:   "successfully soft deletes and onboarder",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				existingID,
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &OnboarderService{
+				DB: tt.fields.DB,
+			}
+			if err := s.Delete(tt.args.ctx, tt.args.id); (err != nil) != tt.wantErr {
+				t.Errorf("OnboarderService.Delete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			var gotDeletedAt null.Time
+			query := `SELECT deleted_at FROM insys_onboarding.onboarders WHERE id = $1`
+			row := db.QueryRowContext(ctx, query, tt.args.id)
+			err := row.Scan(&gotDeletedAt)
+			if err != nil {
+				t.Errorf("OnboarderService.Delete() error in test = %v", err)
+			}
+			if !gotDeletedAt.Valid {
+				t.Errorf("OnboarderService.Delete(). Did not delete onboarder. id = %v", tt.args.id)
+			}
+
+		})
+	}
+}
+
 func TestOnboarderService_ReadByUserID(t *testing.T) {
 	db := initDBConnection(t, psqlConnString)
 	clearExistingData(db)

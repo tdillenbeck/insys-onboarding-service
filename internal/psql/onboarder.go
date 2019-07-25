@@ -73,12 +73,24 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 	return &onboarder, nil
 }
 
+// Delete will soft delete the onboarder. This allows us to preserve a history of which onboarder
+// handled which location
 func (s *OnboarderService) Delete(ctx context.Context, id uuid.UUID) error {
+	query := `
+	  UPDATE insys_onboarding.onboarders
+			SET deleted_at = now()
+		 WHERE id=$1`
+	_, err := s.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return werror.Wrap(err, "could not soft delete onboarder").Add("id", id)
+	}
+
 	return nil
 }
 
 func (s *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
 	return nil, nil
+
 }
 
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
