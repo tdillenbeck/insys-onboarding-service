@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -45,6 +46,14 @@ func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.On
 	}
 
 	return result, nil
+}
+
+func (s *OnboarderServer) Delete(context.Context, *insysproto.DeleteOnboarderRequest) (*empty.Empty, error) {
+	return nil, nil
+}
+
+func (s *OnboarderServer) ListOnboarders(context.Context, *insysproto.ListOnboardersRequest) (*insysproto.ListOnboardersResponse, error) {
+	return nil, nil
 }
 
 func (s *OnboarderServer) ReadByUserID(ctx context.Context, req *insysproto.Onboarder) (*insysproto.Onboarder, error) {

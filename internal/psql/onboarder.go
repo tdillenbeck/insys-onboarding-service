@@ -73,6 +73,14 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 	return &onboarder, nil
 }
 
+func (s *OnboarderService) Delete(ctx context.Context, id uuid.UUID) error {
+	return nil
+}
+
+func (s *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
+	return nil, nil
+}
+
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
 	var onboarder app.Onboarder
 
