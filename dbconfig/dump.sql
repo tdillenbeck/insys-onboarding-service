@@ -102,7 +102,8 @@ CREATE TABLE insys_onboarding.onboarders (
     schedule_phone_training_link text,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    salesforce_user_id text
+    salesforce_user_id text,
+    deleted_at timestamp with time zone
 );
 
 
