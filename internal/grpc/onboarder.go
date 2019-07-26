@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -51,19 +52,29 @@ func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.On
 func (s *OnboarderServer) Delete(ctx context.Context, req *insysproto.DeleteOnboarderRequest) (*empty.Empty, error) {
 	id, err := uuid.Parse(req.Id)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse id for delete into uuid.UUID")).Add("req.Id", req.Id)
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse id for delete into uuid.UUID").Add("req.Id", req.Id))
 	}
 
-	err = onboarderService.Delete(ctx, id)
+	err = s.onboarderService.Delete(ctx, id)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not soft delete onboarder")).Add("req.Id", req.Id)
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not soft delete onboarder").Add("req.Id", req.Id))
 	}
 
 	return &empty.Empty{}, nil
 }
 
-func (s *OnboarderServer) ListOnboarders(context.Context, *insysproto.ListOnboardersRequest) (*insysproto.ListOnboardersResponse, error) {
-	return nil, nil
+func (s *OnboarderServer) ListOnboarders(ctx context.Context, req *insysproto.ListOnboardersRequest) (*insysproto.ListOnboardersResponse, error) {
+	onboarders, err := s.onboarderService.List(ctx)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not list onboarders from db"))
+	}
+
+	result, err := convertOnboardersToListProto(onboarders)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not convert internal onboarder into proto struct for list"))
+	}
+
+	return result, nil
 }
 
 func (s *OnboarderServer) ReadByUserID(ctx context.Context, req *insysproto.Onboarder) (*insysproto.Onboarder, error) {
@@ -134,6 +145,21 @@ func convertProtoToOnboarder(proto *insysproto.Onboarder) (*app.Onboarder, error
 		CreatedAt:                    createdAt,
 		UpdatedAt:                    updatedAt,
 	}, nil
+}
+
+func convertOnboardersToListProto(onboarders []app.Onboarder) (*insysproto.ListOnboardersResponse, error) {
+	var result insysproto.ListOnboardersResponse
+	onboardersJSON, err := json.Marshal(onboarders)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not marshal onboarders into json").Add("onboarders", onboarders)
+	}
+
+	err = json.Unmarshal(onboardersJSON, &result)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not unmarshal onboarders into proto").Add("onboarders", onboarders)
+	}
+
+	return &result, nil
 }
 
 func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) {
