@@ -13,7 +13,7 @@ import (
 )
 
 func TestOnboarderService_CreateOrUpdate(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	userID := uuid.NewV4()
@@ -128,7 +128,7 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 }
 
 func TestOnboarderService_Delete(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	existingID := uuid.NewV4()
@@ -190,7 +190,7 @@ func TestOnboarderService_Delete(t *testing.T) {
 }
 
 func TestOnboarderService_List(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	onboarderService := OnboarderService{DB: db}
@@ -286,7 +286,7 @@ func TestOnboarderService_List(t *testing.T) {
 }
 
 func TestOnboarderService_ReadByUserID(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	id := uuid.NewV4()

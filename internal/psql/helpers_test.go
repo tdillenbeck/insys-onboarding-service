@@ -13,7 +13,7 @@ const (
 	psqlConnString = "postgresql://127.0.0.1:5432/insys_onboarding_test?sslmode=disable"
 )
 
-func initDBConnection(t *testing.T, dbConnString string) *wsql.PG {
+func initDBConnection(t *testing.T) *wsql.PG {
 	connString, exists := os.LookupEnv("PG_PRIMARY_CONNECT_STRING")
 	if !exists {
 		connString = psqlConnString

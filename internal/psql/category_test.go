@@ -16,7 +16,7 @@ import (
 )
 
 func TestCategoryService_ByID(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 
 	expectedTime := time.Date(1987, 10, 2, 0, 0, 0, 0, time.UTC)
 	categoryUUID, err := uuid.Parse("26ba2237-c452-42dd-95ca-a5e59dd2853b")

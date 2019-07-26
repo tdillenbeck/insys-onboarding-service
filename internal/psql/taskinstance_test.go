@@ -18,7 +18,7 @@ import (
 )
 
 func TestTaskInstanceService_ByLocationID(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	locationID := uuid.NewV4()
@@ -137,7 +137,7 @@ func TestTaskInstanceService_ByLocationID(t *testing.T) {
 }
 
 func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	onboarderService := &OnboarderService{DB: db}
 	onboardersLocationService := &OnboardersLocationService{DB: db}
 
@@ -897,7 +897,7 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 }
 
 func TestTaskInstanceService_Update(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	locationID := uuid.NewV4()
