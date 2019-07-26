@@ -32,7 +32,7 @@ func NewOnboarderServer(onbs app.OnboarderService) *OnboarderServer {
 func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.Onboarder) (*insysproto.Onboarder, error) {
 	onboarder, err := convertProtoToOnboarder(req)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not parse proto request to internal struct"))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse proto request to internal struct"))
 	}
 
 	onb, err := s.onboarderService.CreateOrUpdate(ctx, onboarder)
@@ -48,8 +48,18 @@ func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.On
 	return result, nil
 }
 
-func (s *OnboarderServer) Delete(context.Context, *insysproto.DeleteOnboarderRequest) (*empty.Empty, error) {
-	return nil, nil
+func (s *OnboarderServer) Delete(ctx context.Context, req *insysproto.DeleteOnboarderRequest) (*empty.Empty, error) {
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse id for delete into uuid.UUID")).Add("req.Id", req.Id)
+	}
+
+	err = onboarderService.Delete(ctx, id)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not soft delete onboarder")).Add("req.Id", req.Id)
+	}
+
+	return &empty.Empty{}, nil
 }
 
 func (s *OnboarderServer) ListOnboarders(context.Context, *insysproto.ListOnboardersRequest) (*insysproto.ListOnboardersResponse, error) {
