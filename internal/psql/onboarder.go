@@ -119,25 +119,15 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 
 	query := `
 		SELECT
-			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at
 		FROM insys_onboarding.onboarders
 		WHERE user_id = $1`
 
-	row := s.DB.QueryRowContext(ctx, query, userID.String())
-	err := row.Scan(
-		&onboarder.ID,
-		&onboarder.UserID,
-		&onboarder.SalesforceUserID,
-		&onboarder.ScheduleCustomizationLink,
-		&onboarder.SchedulePortingLink,
-		&onboarder.ScheduleNetworkLink,
-		&onboarder.ScheduleSoftwareInstallLink,
-		&onboarder.SchedulePhoneInstallLink,
-		&onboarder.ScheduleSoftwareTrainingLink,
-		&onboarder.SchedulePhoneTrainingLink,
-		&onboarder.CreatedAt,
-		&onboarder.UpdatedAt,
-	)
+	row := s.DB.QueryRowxContext(ctx, query, userID.String())
+	err := row.StructScan(&onboarder)
+	if err != nil {
+		return nil, werror.Wrap(err, "error scanning onboarder into struct for List onboarders")
+	}
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
