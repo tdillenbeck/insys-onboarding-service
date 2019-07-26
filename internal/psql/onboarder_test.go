@@ -189,6 +189,102 @@ func TestOnboarderService_Delete(t *testing.T) {
 	}
 }
 
+func TestOnboarderService_List(t *testing.T) {
+	db := initDBConnection(t, psqlConnString)
+	clearExistingData(db)
+
+	onboarderService := OnboarderService{DB: db}
+	onboarders := []app.Onboarder{
+		{
+			UserID: uuid.NewV4(),
+
+			SalesforceUserID:             null.NewString("testing salesforce user id 1"),
+			ScheduleCustomizationLink:    null.NewString("testing schedule customization link 1"),
+			ScheduleNetworkLink:          null.NewString("testing schedule network link 1"),
+			SchedulePhoneInstallLink:     null.NewString("testing schedule phone install link 1"),
+			SchedulePhoneTrainingLink:    null.NewString("testing schedule phone training link 1"),
+			SchedulePortingLink:          null.NewString("testing schedule porting link 1"),
+			ScheduleSoftwareInstallLink:  null.NewString("testing schedule sfotware install link 1"),
+			ScheduleSoftwareTrainingLink: null.NewString("testing software training link 1"),
+		},
+		{
+			UserID: uuid.NewV4(),
+
+			SalesforceUserID:             null.NewString("testing salesforce user id 2"),
+			ScheduleCustomizationLink:    null.NewString("testing schedule customization link 2"),
+			ScheduleNetworkLink:          null.NewString("testing schedule network link 2"),
+			SchedulePhoneInstallLink:     null.NewString("testing schedule phone install link 2"),
+			SchedulePhoneTrainingLink:    null.NewString("testing schedule phone training link 2"),
+			SchedulePortingLink:          null.NewString("testing schedule porting link 2"),
+			ScheduleSoftwareInstallLink:  null.NewString("testing schedule sfotware install link 2"),
+			ScheduleSoftwareTrainingLink: null.NewString("testing software training link 2"),
+		},
+		{
+			UserID: uuid.NewV4(),
+
+			SalesforceUserID:             null.NewString("testing salesforce user id 3"),
+			ScheduleCustomizationLink:    null.NewString("testing schedule customization link 3"),
+			ScheduleNetworkLink:          null.NewString("testing schedule network link 3"),
+			SchedulePhoneInstallLink:     null.NewString("testing schedule phone install link 3"),
+			SchedulePhoneTrainingLink:    null.NewString("testing schedule phone training link 3"),
+			SchedulePortingLink:          null.NewString("testing schedule porting link 3"),
+			ScheduleSoftwareInstallLink:  null.NewString("testing schedule sfotware install link 3"),
+			ScheduleSoftwareTrainingLink: null.NewString("testing software training link 3"),
+		},
+	}
+
+	for i := 0; i < len(onboarders); i++ {
+		result, err := onboarderService.CreateOrUpdate(
+			context.Background(),
+			&onboarders[i],
+		)
+		if err != nil {
+			t.Fatalf("could not create onboarder: %v\n", err)
+		}
+		onboarders[i].ID = result.ID
+		onboarders[i].CreatedAt = result.CreatedAt
+		onboarders[i].UpdatedAt = result.UpdatedAt
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx context.Context
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    []app.Onboarder
+		wantErr bool
+	}{
+		{
+			name:    "successfully lists all the onboarders",
+			fields:  fields{DB: db},
+			args:    args{context.Background()},
+			want:    onboarders,
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &OnboarderService{
+				DB: tt.fields.DB,
+			}
+			got, err := s.List(tt.args.ctx)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("OnboarderService.List() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("OnboarderService.List(). Diff = %v", cmp.Diff(got, tt.want))
+			}
+		})
+	}
+}
+
 func TestOnboarderService_ReadByUserID(t *testing.T) {
 	db := initDBConnection(t, psqlConnString)
 	clearExistingData(db)

@@ -89,8 +89,29 @@ func (s *OnboarderService) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (s *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
-	return nil, nil
+	var result []app.Onboarder
+	query := `
+		SELECT
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at
+		FROM insys_onboarding.onboarders`
 
+	rows, err := s.DB.QueryxContext(ctx, query)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing ByLocationID query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var onboarder app.Onboarder
+		err = rows.StructScan(&onboarder)
+		if err != nil {
+			return nil, werror.Wrap(err, "error scanning onboarder into struct for List onboarders")
+		}
+
+		result = append(result, onboarder)
+	}
+
+	return result, nil
 }
 
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
