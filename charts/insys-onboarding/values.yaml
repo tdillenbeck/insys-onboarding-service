@@ -1,5 +1,5 @@
 image:
-  tag: 1.0.1907232042-sha.c50040d
+  tag: 1.0.1907291933-sha.9a286c9
   registry: gcr.io/weave-lab/insys/insys-onboarding-service
 
 replicas: 1
