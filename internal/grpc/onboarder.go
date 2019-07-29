@@ -170,6 +170,11 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 		return nil, werror.Wrap(err, "could not convert onboarder updated at time")
 	}
 
+	deletedAt, err := ptypes.TimestampProto(onb.DeletedAt.Time)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not convert onboarder deleted at time")
+	}
+
 	return &insysproto.Onboarder{
 		ID:                           sharedproto.UUIDToProto(onb.ID),
 		UserID:                       sharedproto.UUIDToProto(onb.UserID),
@@ -183,5 +188,6 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 		SchedulePhoneTrainingLink:    onb.SchedulePhoneTrainingLink.String(),
 		CreatedAt:                    createdAt,
 		UpdatedAt:                    updatedAt,
+		DeletedAt:                    deletedAt,
 	}, nil
 }
