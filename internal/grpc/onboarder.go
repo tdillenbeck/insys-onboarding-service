@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"encoding/json"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -149,14 +148,13 @@ func convertProtoToOnboarder(proto *insysproto.Onboarder) (*app.Onboarder, error
 
 func convertOnboardersToListProto(onboarders []app.Onboarder) (*insysproto.ListOnboardersResponse, error) {
 	var result insysproto.ListOnboardersResponse
-	onboardersJSON, err := json.Marshal(onboarders)
-	if err != nil {
-		return nil, werror.Wrap(err, "could not marshal onboarders into json").Add("onboarders", onboarders)
-	}
 
-	err = json.Unmarshal(onboardersJSON, &result)
-	if err != nil {
-		return nil, werror.Wrap(err, "could not unmarshal onboarders into proto").Add("onboarders", onboarders)
+	for _, o := range onboarders {
+		proto, err := convertOnboarderToProto(&o)
+		if err != nil {
+			return nil, werror.Wrap(err, "could not convert onboarder to proto").Add("o.ID", o.ID)
+		}
+		result.Onboarders = append(result.Onboarders, proto)
 	}
 
 	return &result, nil
