@@ -14,7 +14,7 @@ import (
 )
 
 func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	locationID := uuid.NewV4()
@@ -138,7 +138,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 }
 
 func TestChiliPiperScheduleService_Create(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	locationID := uuid.NewV4()
@@ -211,7 +211,7 @@ func TestChiliPiperScheduleService_Create(t *testing.T) {
 }
 
 func TestChiliPiperScheduleEventService_Update(t *testing.T) {
-	db := initDBConnection(t, psqlConnString)
+	db := initDBConnection(t)
 	clearExistingData(db)
 
 	locationID := uuid.NewV4()

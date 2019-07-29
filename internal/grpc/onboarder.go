@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
+	"github.com/golang/protobuf/ptypes/empty"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -31,7 +32,7 @@ func NewOnboarderServer(onbs app.OnboarderService) *OnboarderServer {
 func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.Onboarder) (*insysproto.Onboarder, error) {
 	onboarder, err := convertProtoToOnboarder(req)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not parse proto request to internal struct"))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse proto request to internal struct"))
 	}
 
 	onb, err := s.onboarderService.CreateOrUpdate(ctx, onboarder)
@@ -42,6 +43,34 @@ func (s *OnboarderServer) CreateOrUpdate(ctx context.Context, req *insysproto.On
 	result, err := convertOnboarderToProto(onb)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not parse internal struct to proto"))
+	}
+
+	return result, nil
+}
+
+func (s *OnboarderServer) Delete(ctx context.Context, req *insysproto.DeleteOnboarderRequest) (*empty.Empty, error) {
+	id, err := uuid.Parse(req.Id)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.New("could not parse id for delete into uuid.UUID").Add("req.Id", req.Id))
+	}
+
+	err = s.onboarderService.Delete(ctx, id)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not soft delete onboarder").Add("req.Id", req.Id))
+	}
+
+	return &empty.Empty{}, nil
+}
+
+func (s *OnboarderServer) ListOnboarders(ctx context.Context, req *insysproto.ListOnboardersRequest) (*insysproto.ListOnboardersResponse, error) {
+	onboarders, err := s.onboarderService.List(ctx)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not list onboarders from db"))
+	}
+
+	result, err := convertOnboardersToListProto(onboarders)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not convert internal onboarder into proto struct for list"))
 	}
 
 	return result, nil
@@ -117,6 +146,20 @@ func convertProtoToOnboarder(proto *insysproto.Onboarder) (*app.Onboarder, error
 	}, nil
 }
 
+func convertOnboardersToListProto(onboarders []app.Onboarder) (*insysproto.ListOnboardersResponse, error) {
+	var result insysproto.ListOnboardersResponse
+
+	for _, o := range onboarders {
+		proto, err := convertOnboarderToProto(&o)
+		if err != nil {
+			return nil, werror.Wrap(err, "could not convert onboarder to proto").Add("o.ID", o.ID)
+		}
+		result.Onboarders = append(result.Onboarders, proto)
+	}
+
+	return &result, nil
+}
+
 func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) {
 	createdAt, err := ptypes.TimestampProto(onb.CreatedAt)
 	if err != nil {
@@ -125,6 +168,11 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 	updatedAt, err := ptypes.TimestampProto(onb.UpdatedAt)
 	if err != nil {
 		return nil, werror.Wrap(err, "could not convert onboarder updated at time")
+	}
+
+	deletedAt, err := ptypes.TimestampProto(onb.DeletedAt.Time)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not convert onboarder deleted at time")
 	}
 
 	return &insysproto.Onboarder{
@@ -140,5 +188,6 @@ func convertOnboarderToProto(onb *app.Onboarder) (*insysproto.Onboarder, error) 
 		SchedulePhoneTrainingLink:    onb.SchedulePhoneTrainingLink.String(),
 		CreatedAt:                    createdAt,
 		UpdatedAt:                    updatedAt,
+		DeletedAt:                    deletedAt,
 	}, nil
 }

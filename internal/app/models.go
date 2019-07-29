@@ -47,20 +47,21 @@ type ChiliPiperScheduleEvent struct {
 
 // Onboarder represents a user's onboarding specific information
 type Onboarder struct {
-	ID     uuid.UUID
-	UserID uuid.UUID
+	ID     uuid.UUID `db:"id"`
+	UserID uuid.UUID `db:"user_id"`
 
-	SalesforceUserID             null.String
-	ScheduleCustomizationLink    null.String
-	ScheduleNetworkLink          null.String
-	SchedulePhoneInstallLink     null.String
-	SchedulePhoneTrainingLink    null.String
-	SchedulePortingLink          null.String
-	ScheduleSoftwareInstallLink  null.String
-	ScheduleSoftwareTrainingLink null.String
+	SalesforceUserID             null.String `db:"salesforce_user_id"`
+	ScheduleCustomizationLink    null.String `db:"schedule_customization_link"`
+	ScheduleNetworkLink          null.String `db:"schedule_network_link"`
+	SchedulePhoneInstallLink     null.String `db:"schedule_phone_install_link"`
+	SchedulePhoneTrainingLink    null.String `db:"schedule_phone_training_link"`
+	SchedulePortingLink          null.String `db:"schedule_porting_link"`
+	ScheduleSoftwareInstallLink  null.String `db:"schedule_software_install_link"`
+	ScheduleSoftwareTrainingLink null.String `db:"schedule_software_training_link"`
 
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+	DeletedAt null.Time `db:"deleted_at"`
 }
 
 // Assign an onboarder to a location

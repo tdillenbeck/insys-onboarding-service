@@ -73,30 +73,58 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 	return &onboarder, nil
 }
 
+// Delete will soft delete the onboarder. This allows us to preserve a history of which onboarder
+// handled which location
+func (s *OnboarderService) Delete(ctx context.Context, id uuid.UUID) error {
+	query := `
+	  UPDATE insys_onboarding.onboarders
+			SET deleted_at = now()
+		 WHERE id=$1`
+	_, err := s.DB.ExecContext(ctx, query, id)
+	if err != nil {
+		return werror.Wrap(err, "could not soft delete onboarder").Add("id", id)
+	}
+
+	return nil
+}
+
+func (s *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
+	var result []app.Onboarder
+	query := `
+		SELECT
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at
+		FROM insys_onboarding.onboarders`
+
+	rows, err := s.DB.QueryxContext(ctx, query)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing ByLocationID query")
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var onboarder app.Onboarder
+		err = rows.StructScan(&onboarder)
+		if err != nil {
+			return nil, werror.Wrap(err, "error scanning onboarder into struct for List onboarders")
+		}
+
+		result = append(result, onboarder)
+	}
+
+	return result, nil
+}
+
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
 	var onboarder app.Onboarder
 
 	query := `
 		SELECT
-			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at
 		FROM insys_onboarding.onboarders
 		WHERE user_id = $1`
 
-	row := s.DB.QueryRowContext(ctx, query, userID.String())
-	err := row.Scan(
-		&onboarder.ID,
-		&onboarder.UserID,
-		&onboarder.SalesforceUserID,
-		&onboarder.ScheduleCustomizationLink,
-		&onboarder.SchedulePortingLink,
-		&onboarder.ScheduleNetworkLink,
-		&onboarder.ScheduleSoftwareInstallLink,
-		&onboarder.SchedulePhoneInstallLink,
-		&onboarder.ScheduleSoftwareTrainingLink,
-		&onboarder.SchedulePhoneTrainingLink,
-		&onboarder.CreatedAt,
-		&onboarder.UpdatedAt,
-	)
+	row := s.DB.QueryRowxContext(ctx, query, userID.String())
+	err := row.StructScan(&onboarder)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
