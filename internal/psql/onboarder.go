@@ -127,9 +127,9 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 	err := row.StructScan(&onboarder)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
+			return nil, werror.Wrap(err, "no rows returned for user").Add("userID", userID).SetCode(wgrpc.CodeNotFound)
 		}
-		return nil, werror.Wrap(err, "error selecting onboarder by user id")
+		return nil, werror.Wrap(err, "error selecting onboarder by user id").Add("userID", userID)
 	}
 
 	return &onboarder, nil
