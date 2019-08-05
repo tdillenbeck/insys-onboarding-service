@@ -2,13 +2,11 @@ package psql
 
 import (
 	"context"
-	"database/sql"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
-	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
@@ -126,9 +124,6 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 	row := s.DB.QueryRowxContext(ctx, query, userID.String())
 	err := row.StructScan(&onboarder)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, werror.Wrap(err, "no rows returned for user").Add("userID", userID).SetCode(wgrpc.CodeNotFound)
-		}
 		return nil, werror.Wrap(err, "error selecting onboarder by user id").Add("userID", userID)
 	}
 
