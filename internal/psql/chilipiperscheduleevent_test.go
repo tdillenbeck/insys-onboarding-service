@@ -109,6 +109,16 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 			},
 			wantErr: false,
 		},
+		{
+			name:   "returns nil when there are no scheduled events for a location",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				uuid.NewV4(),
+			},
+			want:    nil,
+			wantErr: false,
+		},
 	}
 
 	// custom functions to ignore fields in cmp.Equal comparison
