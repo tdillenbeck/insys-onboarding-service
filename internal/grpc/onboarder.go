@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -79,12 +80,15 @@ func (s *OnboarderServer) ListOnboarders(ctx context.Context, req *insysproto.Li
 func (s *OnboarderServer) ReadByUserID(ctx context.Context, req *insysproto.Onboarder) (*insysproto.Onboarder, error) {
 	userID, err := req.UserID.UUID()
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not parse request user id into a uuid").Add("req.UserID", req.UserID))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not parse request user id into a uuid").Add("req.UserID", req.UserID))
 	}
 
 	onb, err := s.onboarderService.ReadByUserID(ctx, userID)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error reading onboarder by user id from the database").Add("userID", userID))
+		if err == sql.ErrNoRows {
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "could not find onbaorder").Add("userID", userID))
+		}
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error reading onboarder by user id from the database").Add("userID", userID))
 	}
 
 	result, err := convertOnboarderToProto(onb)
