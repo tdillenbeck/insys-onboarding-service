@@ -124,7 +124,7 @@ func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (
 	row := s.DB.QueryRowxContext(ctx, query, userID.String())
 	err := row.StructScan(&onboarder)
 	if err != nil {
-		return nil, werror.Wrap(err, "error selecting onboarder by user id").Add("userID", userID)
+		return nil, err
 	}
 
 	return &onboarder, nil

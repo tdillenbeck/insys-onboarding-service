@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"database/sql"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -27,6 +28,12 @@ func TestOnboarderServer_ReadByUserID(t *testing.T) {
 		},
 	}
 
+	missingOnboarderService := &mock.OnboarderService{
+		ReadByUserIDFn: func(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
+			return nil, sql.ErrNoRows
+		},
+	}
+
 	type fields struct {
 		onboarderService app.OnboarderService
 	}
@@ -49,19 +56,23 @@ func TestOnboarderServer_ReadByUserID(t *testing.T) {
 				ID:               sharedproto.UUIDToProto(existingOnboarderID),
 				UserID:           sharedproto.UUIDToProto(existingOnboarderID),
 				SalesforceUserID: "testing salesforce user id",
-				CreatedAt:        nil,
-				UpdatedAt:        nil,
 			},
 			wantErr: false,
 		},
-		//		{
-		//			name:    "invalid user id in request",
-		//			wantErr: true,
-		//		},
-		//		{
-		//			name:    "no user found",
-		//			wantErr: true,
-		//		},
+		{
+			name:    "invalid user id in request",
+			fields:  fields{onboarderService: successfulOnboarderService},
+			args:    args{context.Background(), &insysproto.Onboarder{UserID: &sharedproto.UUID{}}},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "no user found",
+			fields:  fields{onboarderService: missingOnboarderService},
+			args:    args{context.Background(), &insysproto.Onboarder{UserID: sharedproto.UUIDToProto(uuid.NewV4())}},
+			want:    nil,
+			wantErr: true,
+		},
 	}
 
 	opts := []cmp.Option{

@@ -86,7 +86,7 @@ func (s *OnboarderServer) ReadByUserID(ctx context.Context, req *insysproto.Onbo
 	onb, err := s.onboarderService.ReadByUserID(ctx, userID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, werror.Wrap(err, "no rows returned for user").Add("userID", userID).SetCode(wgrpc.CodeNotFound)
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "could not find onbaorder").Add("userID", userID))
 		}
 		werr := werror.Cast(err)
 		return nil, wgrpc.Error(werr.Code(), werror.Wrap(werr, "error reading onboarder by user id from the database").Add("userID", userID))
