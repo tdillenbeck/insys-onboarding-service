@@ -44,26 +44,27 @@ func (s *OnboarderService) CreateOrUpdate(ctx context.Context, onb *app.Onboarde
 			schedule_phone_install_link,
 			schedule_software_training_link,
 			schedule_phone_training_link,
-			updated_at
-		) = ($3, $4, $5, $6, $7, $8, $9, $10, now())
-		RETURNING id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at;
+			updated_at,
+			deleted_at
+		) = ($3, $4, $5, $6, $7, $8, $9, $10, now(), null)
+		RETURNING id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link, schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at;
 		`
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onb.UserID.String(), onb.SalesforceUserID, onb.ScheduleCustomizationLink, onb.SchedulePortingLink, onb.ScheduleNetworkLink, onb.ScheduleSoftwareInstallLink, onb.SchedulePhoneInstallLink, onb.ScheduleSoftwareTrainingLink, onb.SchedulePhoneTrainingLink)
-	err := row.Scan(
-		&onboarder.ID,
-		&onboarder.UserID,
-		&onboarder.SalesforceUserID,
-		&onboarder.ScheduleCustomizationLink,
-		&onboarder.SchedulePortingLink,
-		&onboarder.ScheduleNetworkLink,
-		&onboarder.ScheduleSoftwareInstallLink,
-		&onboarder.SchedulePhoneInstallLink,
-		&onboarder.ScheduleSoftwareTrainingLink,
-		&onboarder.SchedulePhoneTrainingLink,
-		&onboarder.CreatedAt,
-		&onboarder.UpdatedAt,
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		uuid.NewV4(),
+		onb.UserID,
+		onb.SalesforceUserID,
+		onb.ScheduleCustomizationLink,
+		onb.SchedulePortingLink,
+		onb.ScheduleNetworkLink,
+		onb.ScheduleSoftwareInstallLink,
+		onb.SchedulePhoneInstallLink,
+		onb.ScheduleSoftwareTrainingLink,
+		onb.SchedulePhoneTrainingLink,
 	)
+	err := row.StructScan(&onboarder)
 	if err != nil {
 		return nil, werror.Wrap(err, "inserting or updating onboarder")
 	}
