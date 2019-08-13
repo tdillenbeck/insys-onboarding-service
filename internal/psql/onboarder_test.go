@@ -16,15 +16,15 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 	db := initDBConnection(t)
 	clearExistingData(db)
 
-	userID := uuid.NewV4()
-	existingUserID := uuid.NewV4()
+	newOnboarderUserID := uuid.NewV4()
+	existingOnboarderUserID := uuid.NewV4()
 	softDeletedOnboarderUserID := uuid.NewV4()
 
 	//create existing onoarder to test update functionality
 	query := `INSERT INTO insys_onboarding.onboarders
 		(id, user_id, schedule_customization_link)
 		VALUES ($1, $2, 'testing existing_schedule_customization_link')`
-	_, err := db.ExecContext(context.Background(), query, uuid.NewV4(), existingUserID)
+	_, err := db.ExecContext(context.Background(), query, uuid.NewV4(), existingOnboarderUserID)
 	if err != nil {
 		t.Fatalf("could not create onboarder: %v\n", err)
 	}
@@ -65,7 +65,7 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 					SchedulePortingLink:          null.NewString("testing schedule porting link"),
 					ScheduleSoftwareInstallLink:  null.NewString("testing software install link"),
 					ScheduleSoftwareTrainingLink: null.NewString("testing software training link"),
-					UserID:                       userID,
+					UserID:                       newOnboarderUserID,
 				},
 			},
 			want: &app.Onboarder{
@@ -77,7 +77,7 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 				SchedulePortingLink:          null.NewString("testing schedule porting link"),
 				ScheduleSoftwareInstallLink:  null.NewString("testing software install link"),
 				ScheduleSoftwareTrainingLink: null.NewString("testing software training link"),
-				UserID:                       userID,
+				UserID:                       newOnboarderUserID,
 			},
 			wantErr: false,
 		},
@@ -95,7 +95,7 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 					SchedulePortingLink:          null.NewString("testing schedule porting link"),
 					ScheduleSoftwareInstallLink:  null.NewString("testing software install link"),
 					ScheduleSoftwareTrainingLink: null.NewString("testing software training link"),
-					UserID:                       existingUserID,
+					UserID:                       existingOnboarderUserID,
 				},
 			},
 			want: &app.Onboarder{
@@ -107,7 +107,7 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 				SchedulePortingLink:          null.NewString("testing schedule porting link"),
 				ScheduleSoftwareInstallLink:  null.NewString("testing software install link"),
 				ScheduleSoftwareTrainingLink: null.NewString("testing software training link"),
-				UserID:                       existingUserID,
+				UserID:                       existingOnboarderUserID,
 			},
 			wantErr: false,
 		},
