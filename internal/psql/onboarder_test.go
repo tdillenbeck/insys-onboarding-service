@@ -17,16 +17,24 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 	clearExistingData(db)
 
 	userID := uuid.NewV4()
-	id := uuid.NewV4()
 	existingUserID := uuid.NewV4()
+	softDeletedOnboarderUserID := uuid.NewV4()
 
 	//create existing onoarder to test update functionality
 	query := `INSERT INTO insys_onboarding.onboarders
 		(id, user_id, schedule_customization_link)
-		VALUES ($1, $2, 'testing exsinting_schedule_customization_link')`
-	_, err := db.ExecContext(context.Background(), query, id, existingUserID)
+		VALUES ($1, $2, 'testing existing_schedule_customization_link')`
+	_, err := db.ExecContext(context.Background(), query, uuid.NewV4(), existingUserID)
 	if err != nil {
 		t.Fatalf("could not create onboarder: %v\n", err)
+	}
+
+	deletedOnboarderQuery := `INSERT INTO insys_onboarding.onboarders
+		(id, user_id, schedule_customization_link, deleted_at)
+		VALUES ($1, $2, 'testing existing soft deleted onboarder', now())`
+	_, err = db.ExecContext(context.Background(), deletedOnboarderQuery, uuid.NewV4(), softDeletedOnboarderUserID)
+	if err != nil {
+		t.Fatalf("could not create soft deleted onboarder: %v\n", err)
 	}
 
 	type fields struct {
@@ -100,6 +108,37 @@ func TestOnboarderService_CreateOrUpdate(t *testing.T) {
 				ScheduleSoftwareInstallLink:  null.NewString("testing software install link"),
 				ScheduleSoftwareTrainingLink: null.NewString("testing software training link"),
 				UserID:                       existingUserID,
+			},
+			wantErr: false,
+		},
+		{
+			name:   "when updating an existing onboarder who has been deleted, un delete that onboarder",
+			fields: fields{DB: db},
+			args: args{
+				ctx: context.Background(),
+				onb: &app.Onboarder{
+					SalesforceUserID:             null.NewString("testing soft deleted salesforce user id"),
+					ScheduleCustomizationLink:    null.NewString("testing soft deleted schedule customization link"),
+					ScheduleNetworkLink:          null.NewString("testing soft deleted schedule network link"),
+					SchedulePhoneInstallLink:     null.NewString("testing soft deleted schedule phone install link"),
+					SchedulePhoneTrainingLink:    null.NewString("testing soft deleted schedule phone training link"),
+					SchedulePortingLink:          null.NewString("testing soft deleted schedule porting link"),
+					ScheduleSoftwareInstallLink:  null.NewString("testing soft deleted software install link"),
+					ScheduleSoftwareTrainingLink: null.NewString("testing soft deleted software training link"),
+					UserID:                       softDeletedOnboarderUserID,
+				},
+			},
+			want: &app.Onboarder{
+				SalesforceUserID:             null.NewString("testing soft deleted salesforce user id"),
+				ScheduleCustomizationLink:    null.NewString("testing soft deleted schedule customization link"),
+				ScheduleNetworkLink:          null.NewString("testing soft deleted schedule network link"),
+				SchedulePhoneInstallLink:     null.NewString("testing soft deleted schedule phone install link"),
+				SchedulePhoneTrainingLink:    null.NewString("testing soft deleted schedule phone training link"),
+				SchedulePortingLink:          null.NewString("testing soft deleted schedule porting link"),
+				ScheduleSoftwareInstallLink:  null.NewString("testing soft deleted software install link"),
+				ScheduleSoftwareTrainingLink: null.NewString("testing soft deleted software training link"),
+				UserID:                       softDeletedOnboarderUserID,
+				DeletedAt:                    null.Time{},
 			},
 			wantErr: false,
 		},
