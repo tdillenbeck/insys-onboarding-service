@@ -3,6 +3,7 @@ package tag
 import (
 	"fmt"
 	"time"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
@@ -51,6 +52,10 @@ func Float(key string, val float64) Tag {
 
 func Bool(key string, val bool) Tag {
 	return Tag{Key: key, Type: BoolType, BoolVal: val}
+}
+
+func UUID(key string, val uuid.UUID) Tag {
+	return Tag{Key: key, Type: StringType, StringVal: val.String()}
 }
 
 func WError(key string, val *werror.Error) Tag {

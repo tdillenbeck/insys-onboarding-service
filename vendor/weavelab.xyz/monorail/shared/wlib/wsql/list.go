@@ -7,7 +7,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"weavelab.xyz/monorail/shared/wlib/werror"
-	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 func BuildListSelect(returnTotalRows bool, columns []string, tables string, allowed Parameters, options QueryOptions) (Query, map[string]interface{}, error) {
@@ -104,7 +103,7 @@ func (pg *PG) ListQueryHelperContext(ctx context.Context, total bool, query stri
 	// check number of results
 	l := sliceLength(results)
 	if l > 500 {
-		wlog.WErrorC(ctx, werror.New("too many results").Add("count", l).Add("query", query))
+		wsqlLogger.WErrorC(ctx, werror.New("too many results").Add("count", l).Add("query", query))
 	}
 
 	return results, nil

@@ -11,12 +11,16 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 )
 
-//go:generate go get -u github.com/golang/protobuf/proto
-//go:generate go get -u github.com/golang/protobuf/protoc-gen-go
-//go:generate protoc --go_out=import_path=wlogproto:proto -I $GOPATH/src/weavelab.xyz/monorail/shared/wlogd/proto/ $GOPATH/src/weavelab.xyz/monorail/shared/wlogd/wlogproto/wlog.proto
-
 // DefaultLogger is where all global wlog.Info etc. forwards to
-var defaultLogger = NewWLogger(WlogdLogger)
+var currentLogger = NewWLogger(WlogdLogger)
+
+func SetLogger(logger *WLogger) {
+	currentLogger = logger
+}
+
+func Logger() *WLogger {
+	return currentLogger
+}
 
 // LogHandlerFunc gets all log messages and can do what it likes with them.
 // The messages are untouched at this point, so it is this function's responsibility to add
@@ -32,16 +36,22 @@ const (
 	INFO  = LogMsgType(1)
 	ERROR = LogMsgType(2)
 	DEBUG = LogMsgType(3)
+	TRACE = LogMsgType(4)
+	WARN  = LogMsgType(5)
 )
 
 func (m LogMsgType) String() string {
 	switch m {
-	case INFO:
-		return "INFO"
 	case ERROR:
 		return "ERROR"
+	case WARN:
+		return "WARN"
+	case INFO:
+		return "INFO"
 	case DEBUG:
 		return "DEBUG"
+	case TRACE:
+		return "TRACE"
 	}
 	return "UNKNOWN"
 }
@@ -85,12 +95,16 @@ var StdoutPrintTag = func(t tag.Tag) {
 func stdoutLogger(c context.Context, mtype LogMsgType, msg string, tags []tag.Tag, file string, line int) {
 	var prefix string
 	switch mtype {
-	case INFO:
-		prefix = "INFO "
 	case ERROR:
 		prefix = "ERROR"
+	case WARN:
+		prefix = "WARN "
+	case INFO:
+		prefix = "INFO "
 	case DEBUG:
 		prefix = "DEBUG"
+	case TRACE:
+		prefix = "TRACE"
 	}
 
 	parts := strings.Split(file, "/")
@@ -119,30 +133,30 @@ func stdoutLogger(c context.Context, mtype LogMsgType, msg string, tags []tag.Ta
 }
 
 func SetDebugLogging(l bool) {
-	defaultLogger.SetDebugLogging(l)
+	currentLogger.SetDebugLogging(l)
 }
 
 func SetLogHandler(h LogHandlerFunc) {
-	defaultLogger.SetLogHandler(h)
+	currentLogger.SetLogHandler(h)
 }
 
 func AddMiddleware(fn LogMiddlewareFunc) {
-	defaultLogger.AddMiddleware(fn)
+	currentLogger.AddMiddleware(fn)
 }
 
 // Deprecated: should use InfoC
 func Info(msg string, tags ...tag.Tag) {
-	defaultLogger.logMessage(nil, INFO, msg, tags)
+	currentLogger.logMessage(nil, INFO, msg, append(currentLogger.tags, tags...))
 }
 
 // Deprecated: should use DebugC
 func Debug(msg string, tags ...tag.Tag) {
-	if defaultLogger.debugLogging == 1 {
-		defaultLogger.logMessage(nil, DEBUG, msg, tags)
+	if currentLogger.debugLogging == 1 {
+		currentLogger.logMessage(nil, DEBUG, msg, append(currentLogger.tags, tags...))
 	}
 }
 
 // Deprecated, should use WErrorC
 func WError(werr *werror.Error) {
-	defaultLogger.logMessage(nil, ERROR, "", []tag.Tag{tag.WError("", werr)})
+	currentLogger.logMessage(nil, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, currentLogger.tags...))
 }

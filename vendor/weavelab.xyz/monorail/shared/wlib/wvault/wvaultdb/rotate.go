@@ -29,14 +29,12 @@ func (c *Creator) setDB(db refreshableCredentials) {
 	c.db = db
 }
 
-/* Refresh attempts to extend the database credentials lease, if
-   the lease cannot be extend by at least half of the requested
-   extension, new credentials will be requested.
-   Returns bool (able to be refreshed), error
-*/
-
 var dbForceRecreateIfLessThan = time.Second * 10
 
+// Refresh attempts to extend the database credentials lease, if
+// the lease cannot be extend by at least half of the requested
+// extension, new credentials will be requested.
+// Returns bool (able to be refreshed), error
 func (c *Creator) Refresh(ctx context.Context, recreate bool) (bool, error) {
 
 	// if the token is expiring soon, force recreate
@@ -53,12 +51,6 @@ func (c *Creator) Refresh(ctx context.Context, recreate bool) (bool, error) {
 		err := c.createCredentials(ctx)
 		if err != nil {
 			return false, werror.Wrap(err)
-		}
-
-		// tell the database that the credentials changed
-		err = c.db.UpdateCredentials(c.Username(), c.Password())
-		if err != nil {
-			return false, werror.Wrap(err, "unable to update credentials")
 		}
 
 		return false, nil

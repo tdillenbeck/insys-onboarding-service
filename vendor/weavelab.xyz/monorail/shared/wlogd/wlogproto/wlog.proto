@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package wlogproto;
 
-option go_package = "weavelab.xyz/wlogd/wlogproto";
+option go_package = "weavelab.xyz/monorail/shared/wlogd/wlogproto";
 
 message Log {
 	Level level = 1;
@@ -31,5 +31,7 @@ enum Level {
 	DEBUG = 0;
 	INFO = 1;
 	ERROR = 2;
+	WARN = 3;
+	TRACE = 4;
 	DDEBUG = 99;
 }

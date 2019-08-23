@@ -17,7 +17,6 @@ import (
 
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
-	"weavelab.xyz/monorail/shared/wlib/wlog"
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 	"weavelab.xyz/monorail/shared/wlib/wtracer"
 
@@ -114,7 +113,7 @@ func (p *PG) SetupDatabase(s *Settings) error {
 	defer p.setupLock.Unlock()
 
 	// don't log database credentials
-	wlog.Info("Connecting to primary database")
+	wsqlLogger.Info("Connecting to primary database")
 
 	//---------------------------------------------
 	// setup a read-write connection to the primary
@@ -132,7 +131,7 @@ func (p *PG) SetupDatabase(s *Settings) error {
 	//--------------------------------------------
 	rcs := s.ReplicaConnectString.String()
 	if rcs != "" {
-		wlog.Info("Connecting to replica database")
+		wsqlLogger.Info("Connecting to replica database")
 
 		dbReplica, err = p.connect(s, false, s.ReplicaConnectString)
 		if err != nil {
@@ -200,7 +199,7 @@ func (p *PG) connect(s *Settings, isPrimary bool, cs ConnectString) (*DB, error)
 
 	primaryLifetime := randomLifetime(s.MaxConnectionLifetime)
 
-	wlog.Info("Setting db connection settings",
+	wsqlLogger.Info("Setting db connection settings",
 		tag.Int("max_idle", s.MaxIdleConnections),
 		tag.Int("max_open", s.MaxOpenConnections),
 		tag.Duration("max_connection_lifetime", primaryLifetime))
@@ -281,7 +280,7 @@ func (p *PG) rw(ctx context.Context) *sqlx.DB {
 	dbPointer := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.db)))
 
 	db := (*DB)(dbPointer)
-	wlog.DebugC(ctx, "sending query to read-write connection", tag.String("host", db.Hostname))
+	wsqlLogger.DebugC(ctx, "sending query to read-write connection", tag.String("host", db.Hostname))
 
 	return db.xdb
 }
@@ -290,7 +289,7 @@ func (p *PG) r(ctx context.Context) *sqlx.DB {
 	dbPointer := atomic.LoadPointer((*unsafe.Pointer)(unsafe.Pointer(&p.dbReplica)))
 
 	db := (*DB)(dbPointer)
-	wlog.DebugC(ctx, "sending query to read-only connection", tag.String("host", db.Hostname))
+	wsqlLogger.DebugC(ctx, "sending query to read-only connection", tag.String("host", db.Hostname))
 
 	return db.xdb
 }
