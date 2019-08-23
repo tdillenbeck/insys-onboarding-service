@@ -28,6 +28,8 @@ type TokenInterface interface {
 	UserID() uuid.UUID
 	Username() string
 	AclType() ACLType
+	Audience() []string
+	HasAudience(string) bool
 	Expiration() float64
 	HTTPStatus() int
 	JSON() string
@@ -133,6 +135,31 @@ func (t *Token) ACLType() ACLType {
 	return ""
 }
 
+func (t *Token) Audience() []string {
+	if !t.ValidSkipExpiration() {
+		return nil
+	}
+	audience, ok := t.Claims()["aud"]
+	if !ok {
+		return nil
+	}
+	switch a := audience.(type) {
+	case string:
+		return []string{a}
+	case []string:
+		return a
+	case []interface{}:
+		aud := make([]string, 0, len(a))
+		for i := range a {
+			if str, ok := a[i].(string); ok {
+				aud = append(aud, str)
+			}
+		}
+		return aud
+	}
+	return nil
+}
+
 func (t *Token) Expiration() float64 {
 	if !t.ValidSkipExpiration() {
 		return float64(0)
@@ -183,6 +210,21 @@ func (t *Token) LocationACLs(locationID uuid.UUID) []Permission {
 	}
 
 	return permissions
+}
+
+// HasAudience returns true if the token carries the specified audience.
+// https://tools.ietf.org/html/rfc7519#section-4.1.3 specifies that the
+// "aud" field can be a string or and array of strings. We will most likely
+// end up using the field as a single string value but while we transition,
+// some weave type users might have more than one audience (eg. ["us", "ca"]).
+func (t *Token) HasAudience(audience string) bool {
+	audiences := t.Audience()
+	for i := range audiences {
+		if audiences[i] == audience {
+			return true
+		}
+	}
+	return false
 }
 
 /*

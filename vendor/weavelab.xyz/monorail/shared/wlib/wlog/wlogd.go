@@ -157,12 +157,16 @@ func formatMsg(queueMsg wlogQueueMsg) wlogproto.Log {
 	log.Timestamp = time.Now().Unix()
 
 	switch mtype {
-	case INFO:
-		log.Level = wlogproto.Level_INFO
 	case ERROR:
 		log.Level = wlogproto.Level_ERROR
+	case WARN:
+		log.Level = wlogproto.Level_WARN
+	case INFO:
+		log.Level = wlogproto.Level_INFO
 	case DEBUG:
 		log.Level = wlogproto.Level_DEBUG
+	case TRACE:
+		log.Level = wlogproto.Level_TRACE
 	}
 
 	log.Message = msg

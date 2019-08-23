@@ -55,7 +55,8 @@ func New(ctx context.Context, role string, target string, s *wsql.Settings) (*ws
 	return db, nil
 }
 
-// VaultDBCredentials looks up database credentials assigned to the given role
+// createCredentials looks up database credentials assigned to the given role
+// and returns a Creator that can manage the lifecycle of the credentials
 func createCredentials(ctx context.Context, role string, target string) (*Creator, error) {
 
 	client, err := wvault.New(ctx)
@@ -185,6 +186,18 @@ func (c *Creator) createCredentials(ctx context.Context) error {
 	err = json.NewDecoder(resp.Body).Decode(&cr)
 	if err != nil {
 		return werror.Wrap(err)
+	}
+
+	// tell the database that the credentials changed
+	// if this fails, don't apply updates to
+	// the creator meta data
+	if c.db != nil {
+		// TODO: this or the update credentials needs to be smarter
+		//  about handling replication delay
+		err = c.db.UpdateCredentials(c.Username(), c.Password())
+		if err != nil {
+			werror.Wrap(err, "unable to apply updated credentials")
+		}
 	}
 
 	leaseDuration := time.Duration(cr.LeaseDuration) * time.Second

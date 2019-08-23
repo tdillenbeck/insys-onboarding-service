@@ -3,10 +3,10 @@ package wgrpcserver
 import (
 	"context"
 
+	"google.golang.org/grpc"
 	"weavelab.xyz/monorail/shared/wiggum"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver/wrapstream"
-	"google.golang.org/grpc"
 )
 
 /*
@@ -23,6 +23,21 @@ func UnaryToken(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo
 
 	return handler(ctx, req)
 
+}
+
+func UnaryAudienceInterceptor(audience string) grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (resp interface{}, err error) {
+		token, found := wiggum.ContextToken(ctx)
+		if !found {
+			return nil, wiggum.NotAuthorizedError.Here("no token found for audience check")
+		}
+		if token.ACLType() == wiggum.WeaveACLType {
+			if !token.HasAudience(audience) {
+				return nil, wiggum.NotAuthorizedError.Here("mismatched audience")
+			}
+		}
+		return handler(ctx, req)
+	}
 }
 
 /*

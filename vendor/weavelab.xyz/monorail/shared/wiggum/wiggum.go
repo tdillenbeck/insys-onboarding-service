@@ -32,7 +32,7 @@ func Register(verifyKey []byte, cookie string) error {
 }
 
 // Makes a new signed JWT token string
-func (k *KeySet) Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, buffer int64, keyID string) (string, error) {
+func (k *KeySet) Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, buffer int64, keyID string, audience ...string) (string, error) {
 
 	key, err := k.key(keyID)
 	if err != nil {
@@ -51,6 +51,9 @@ func (k *KeySet) Make(acls ACL, userID uuid.UUID, username string, aclT ACLType,
 	t.Claims["user_id"] = userID
 	t.Claims["username"] = username
 	t.Claims["type"] = aclT
+	if len(audience) > 0 {
+		t.Claims["aud"] = audience
+	}
 	t.Claims["exp"] = exp
 	t.Claims["expBuffer"] = buffer
 	t.Claims["iat"] = time.Now().Unix()
