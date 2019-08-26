@@ -7,5 +7,5 @@ import (
 )
 
 type ChiliPiperScheduleEventPublisher interface {
-	PublishCreated(ctx context.Context, pd *insysproto.CreateChiliPiperScheduleEventResponse) error
+	PublishCreated(ctx context.Context, response *insysproto.CreateChiliPiperScheduleEventResponse) error
 }
