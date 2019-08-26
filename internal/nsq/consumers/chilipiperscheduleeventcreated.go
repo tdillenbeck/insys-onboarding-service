@@ -29,11 +29,12 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		return werror.Wrap(err, "could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct")
 	}
 
-	// Only assign the onboarder on the next steps call event
+	// Only assign the onboarder on the next steps call event. Assigning the onbaorder will turn on the tracker
 	if strings.Contains(chiliPiperScheduleEventResponse.EventType, "next_steps") {
 
 		onboarderID, err := c.onboarderService.ReadBySalesforceUserID(chiliPiperScheduleEventResponse.AssigneeID)
 		if err != nil {
+			return werror.Wrap(err, "could not read onboarder by salesforce user id").Add("salesforce user id", chiliPiperScheduleEventResponse.AssigneeID)
 		}
 
 		_, err := c.onboarderLocationService.CreateOrUpdate(ctx, &app.OnboardersLocation{
@@ -41,5 +42,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 			LocationID:  chiliPiperScheduleEventResponse.LocationID,
 		})
 	}
-
+	if err != nil {
+		return werror.Wrap(err, "could not assign onboarder to location").Add("onboarderID", onboarderID).Add("locationID", chiliPiperScheduleEventResponse.LocationID)
+	}
 }
