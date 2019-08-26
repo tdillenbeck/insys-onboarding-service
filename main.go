@@ -75,6 +75,7 @@ func main() {
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
 
+	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(ctx, onboarderService, onboardersLocationService)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
