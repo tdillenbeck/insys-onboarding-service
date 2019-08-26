@@ -140,7 +140,7 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 	locationUUID := uuid.NewV4()
 	currentTime := time.Now()
 
-	noOpChiliPiperScheduleEventPublisher := &mock.ChiliPiperScheduledEventPublisher{
+	noOpChiliPiperScheduleEventPublisher := &mock.ChiliPiperScheduleEventPublisher{
 		PublishCreatedFn: func(ctx context.Context, response *insysproto.CreateChiliPiperScheduleEventResponse) error {
 			return nil
 		},

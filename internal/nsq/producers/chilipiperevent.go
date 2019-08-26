@@ -26,7 +26,7 @@ func (p ChiliPiperScheduleEventPublisher) PublishCreated(ctx context.Context, re
 
 	err = sendToNSQ(ctx, p.createdTopic, msg)
 	if err != nil {
-		return werror.Wrap(err, "unable to publish message to NSQ created topic")
+		return werror.Wrap(err, "unable to publish message to NSQ chili piper schedule event created topic")
 	}
 
 	return nil
