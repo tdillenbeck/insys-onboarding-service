@@ -65,12 +65,12 @@ func main() {
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
 
-	// setup nsq
+	// setup nsq consumers
 	nsqConfig := nsqwapp.NewConfig()
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
 
-	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
+	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
@@ -78,7 +78,7 @@ func main() {
 	wapp.Up(
 		ctx,
 		grpcStarter,
-		nsqwapp.Bootstrap(config.NSQTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, subscriber),
+		nsqwapp.Bootstrap(config.NSQPortingDataRecordCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, portingDataRecordCreatedSubscriber),
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return

@@ -27,7 +27,8 @@ const (
 	nsqdAddrConfig              = "nsqd-addr"
 	nsqLookupdAddrsConfig       = "nsq-lookupd-addrs"
 	nsqChannelConfig            = "nsq-listen-channel"
-	nsqTopicConfig              = "nsq-topic"
+
+	nsqPortingDataRecordCreatedTopic = "nsq-porting-data-record-created-topic"
 
 	portingDataGRPCAddress = "porting-data-grpc-address"
 )
@@ -50,7 +51,8 @@ var (
 	NSQDAddr       string
 	NSQLookupAddrs []string
 	NSQChannel     string
-	NSQTopic       string
+
+	NSQPortingDataRecordCreatedTopic string
 
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
@@ -76,7 +78,7 @@ func init() {
 	config.Add(nsqChannelConfig, "Onboarding", "The channel on which to consume")
 	config.Add(nsqdAddrConfig, "nsqd.nsq.svc.cluster.local.:4150", "nsqd addresses")
 	config.Add(nsqLookupdAddrsConfig, "lookupd-0.lookupd.nsq.svc.cluster.local.:4161;lookupd-1.lookupd.nsq.svc.cluster.local.:4161;lookupd-2.lookupd.nsq.svc.cluster.local.:4161", "NSQ lookupd addresses")
-	config.Add(nsqTopicConfig, "PortingDataCreated", "The topic NSQ to consume")
+	config.Add(nsqPortingDataRecordCreatedTopic, "PortingDataCreated", "The topic NSQ to consume for Porting Data Record Created events")
 
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
@@ -141,7 +143,7 @@ func Init() error {
 		return werror.Wrap(err, "error getting nsqd-addr")
 	}
 
-	NSQTopic = config.Get(nsqTopicConfig)
+	NSQPortingDataRecordCreatedTopic = config.Get(nsqPortingDataRecordCreatedTopic)
 	NSQChannel = config.Get(nsqChannelConfig)
 
 	NSQMaxInFlight, err = config.GetInt(nsqMaxInFlightConfig, false)
