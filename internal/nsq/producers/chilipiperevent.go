@@ -12,13 +12,13 @@ type ChiliPiperScheduleEventPublisher struct {
 	createdTopic string
 }
 
-func NewPortingDataRecordCreatedPublisher(createdTopic string) *ChiliPiperScheduleEventPublisher {
+func NewChiliPiperScheduleEventCreatedPublisher(createdTopic string) *ChiliPiperScheduleEventPublisher {
 	return &ChiliPiperScheduleEventPublisher{
 		createdTopic: createdTopic,
 	}
 }
 
-func (p ChiliPiperScheduleEventPublisher) PublishCreated(ctx context.Context, reponse *insysproto.CreateChiliPiperScheduleEventResponse) error {
+func (p ChiliPiperScheduleEventPublisher) PublishCreated(ctx context.Context, response *insysproto.CreateChiliPiperScheduleEventResponse) error {
 	msg, err := proto.Marshal(response)
 	if err != nil {
 		return werror.Wrap(err, "unable to marshal CreateChiliPiperScheduleEventResponse to proto for publishing on nsq")

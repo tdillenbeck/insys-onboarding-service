@@ -28,7 +28,8 @@ const (
 	nsqLookupdAddrsConfig       = "nsq-lookupd-addrs"
 	nsqChannelConfig            = "nsq-listen-channel"
 
-	nsqPortingDataRecordCreatedTopic = "nsq-porting-data-record-created-topic"
+	nsqChiliPiperScheduleEventCreatedTopic = "nsq-chili-piper-schedule-event-created-topic"
+	nsqPortingDataRecordCreatedTopic       = "nsq-porting-data-record-created-topic"
 
 	portingDataGRPCAddress = "porting-data-grpc-address"
 )
@@ -52,7 +53,8 @@ var (
 	NSQLookupAddrs []string
 	NSQChannel     string
 
-	NSQPortingDataRecordCreatedTopic string
+	NSQChiliPiperScheduleEventCreatedTopic string
+	NSQPortingDataRecordCreatedTopic       string
 
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
@@ -78,7 +80,9 @@ func init() {
 	config.Add(nsqChannelConfig, "Onboarding", "The channel on which to consume")
 	config.Add(nsqdAddrConfig, "nsqd.nsq.svc.cluster.local.:4150", "nsqd addresses")
 	config.Add(nsqLookupdAddrsConfig, "lookupd-0.lookupd.nsq.svc.cluster.local.:4161;lookupd-1.lookupd.nsq.svc.cluster.local.:4161;lookupd-2.lookupd.nsq.svc.cluster.local.:4161", "NSQ lookupd addresses")
-	config.Add(nsqPortingDataRecordCreatedTopic, "PortingDataCreated", "The topic NSQ to consume for Porting Data Record Created events")
+
+	config.Add(nsqChiliPiperScheduleEventCreatedTopic, "ChiliPiperScheduleEventCreated", "The topic NSQ to consume for chili piper created events")
+	config.Add(nsqPortingDataRecordCreatedTopic, "PortingDataCreated", "The topic NSQ to consume for porting data record created events")
 
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
@@ -143,7 +147,9 @@ func Init() error {
 		return werror.Wrap(err, "error getting nsqd-addr")
 	}
 
+	NSQChiliPiperScheduleEventCreatedTopic = config.Get(nsqChiliPiperScheduleEventCreatedTopic)
 	NSQPortingDataRecordCreatedTopic = config.Get(nsqPortingDataRecordCreatedTopic)
+
 	NSQChannel = config.Get(nsqChannelConfig)
 
 	NSQMaxInFlight, err = config.GetInt(nsqMaxInFlightConfig, false)

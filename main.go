@@ -8,6 +8,7 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/config"
 	"weavelab.xyz/insys-onboarding-service/internal/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
+	"weavelab.xyz/insys-onboarding-service/internal/nsq/producers"
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
 
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
@@ -48,10 +49,14 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
+	// setup grpc clients
 	portingDataClient, err := initPortingDataClient(ctx, config.PortingDataGRPCAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up porting data client"))
 	}
+
+	// setup nsq publishers
+	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
@@ -60,7 +65,7 @@ func main() {
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
-	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventsService)
+	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventCreatedPublisher, chiliPiperScheduleEventsService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)

@@ -18,13 +18,14 @@ import (
 var _ insys.ChiliPiperScheduleEventServer = &ChiliPiperScheduleEventServer{}
 
 type ChiliPiperScheduleEventServer struct {
-	chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
 	chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
+	chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
 }
 
-func NewChiliPiperScheduleEventServer(s app.ChiliPiperScheduleEventService) *ChiliPiperScheduleEventServer {
+func NewChiliPiperScheduleEventServer(p app.ChiliPiperScheduleEventPublisher, s app.ChiliPiperScheduleEventService) *ChiliPiperScheduleEventServer {
 	return &ChiliPiperScheduleEventServer{
-		chiliPiperScheduleEventService: s,
+		chiliPiperScheduleEventPublisher: p,
+		chiliPiperScheduleEventService:   s,
 	}
 }
 
