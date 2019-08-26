@@ -56,6 +56,7 @@ func main() {
 	}
 
 	// setup nsq publishers
+	producers.Init(config.NSQDAddr)
 	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
 
 	// setup grpc
