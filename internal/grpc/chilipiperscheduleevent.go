@@ -12,12 +12,14 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 var _ insys.ChiliPiperScheduleEventServer = &ChiliPiperScheduleEventServer{}
 
 type ChiliPiperScheduleEventServer struct {
-	chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+	chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
+	chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
 }
 
 func NewChiliPiperScheduleEventServer(s app.ChiliPiperScheduleEventService) *ChiliPiperScheduleEventServer {
@@ -59,6 +61,12 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 	result, err := convertChiliPiperScheduleEventToProto(createResponse)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error converting chili piper schedule event into proto").Add("createResponse", createResponse))
+	}
+
+	err = s.chiliPiperScheduleEventPublisher.PublishCreated(ctx, result)
+	if err != nil {
+		// Do not fail RPC request if NSQ publisher doesn't work. we still want the chili piper created rpc call to return
+		wlog.ErrorC(ctx, "could not publish chili piper created event to NSQ")
 	}
 
 	return result, nil
