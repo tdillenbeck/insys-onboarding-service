@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -35,6 +36,7 @@ func NewOnboardersLocationServer(onbls app.OnboardersLocationService, tis app.Ta
 //  2. check if the location that the onboarder is being assigned has already been setup with tasks
 //  3. if there are tasks, update their links to the new onboarder
 func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insysproto.OnboardersLocation) (*insysproto.OnboardersLocation, error) {
+	fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 	onboardersLocation, err := convertProtoToOnboardersLocation(req)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("could not parse proto request to internal struct"))
@@ -50,6 +52,9 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error looking up task instances for location"))
 	}
 
+	fmt.Println("*********************************")
+	fmt.Println(len(taskInstances))
+	fmt.Println("*********************************")
 	if len(taskInstances) > 0 {
 		err = s.taskInstanceService.SyncTaskInstanceLinksFromOnboarderLinks(ctx, onbl.LocationID)
 		if err != nil {

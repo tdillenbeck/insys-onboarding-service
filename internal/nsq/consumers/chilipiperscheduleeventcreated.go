@@ -8,18 +8,20 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
 type ChiliPiperScheduleEventCreatedSubscriber struct {
-	onboarderLocationService app.OnboardersLocationService
 	onboarderService         app.OnboarderService
+	onboardersLocationServer insys.OnboardersLocationServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(os app.OnboarderService, ols app.OnboardersLocationService) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(os app.OnboarderService, ols insys.OnboardersLocationServer) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
-		onboarderLocationService: ols,
+		onboardersLocationServer: ols,
 		onboarderService:         os,
 	}
 }
@@ -38,15 +40,13 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		if err != nil {
 			return werror.Wrap(err, "could not read onboarder by salesforce user id").Add("salesforce user id", chiliPiperScheduleEventResponse.Event.AssigneeId)
 		}
-
 		locationID, err := uuid.Parse(chiliPiperScheduleEventResponse.Event.LocationId)
 		if err != nil {
 			return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", chiliPiperScheduleEventResponse.Event.LocationId)
 		}
-
-		_, err = c.onboarderLocationService.CreateOrUpdate(ctx, &app.OnboardersLocation{
-			OnboarderID: onboarder.ID,
-			LocationID:  locationID,
+		_, err = c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
+			OnboarderID: sharedproto.UUIDToProto(onboarder.ID),
+			LocationID:  sharedproto.UUIDToProto(locationID),
 		})
 		if err != nil {
 			return werror.Wrap(err, "could not assign onboarder to location").Add("onboarder.ID", onboarder.ID).Add("locationID", locationID)
