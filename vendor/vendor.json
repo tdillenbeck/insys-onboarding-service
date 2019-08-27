@@ -235,6 +235,12 @@
 			"revisionTime": "2019-07-04T17:58:13Z"
 		},
 		{
+			"checksumSHA1": "W8mzTLRjnooGtHwWaxSX8eq8hlY=",
+			"path": "github.com/patrickmn/go-cache",
+			"revision": "5633e0862627c011927fa39556acae8b1f1df58a",
+			"revisionTime": "2018-08-15T05:31:27Z"
+		},
+		{
 			"checksumSHA1": "I7hloldMJZTqUx6hbVDp5nk9fZQ=",
 			"path": "github.com/pkg/errors",
 			"revision": "27936f6d90f9c8e1145f11ed52ffffbfdb9e0af7",
@@ -901,16 +907,34 @@
 			"revisionTime": "2019-08-22T17:47:38Z"
 		},
 		{
+			"checksumSHA1": "pNTPPOsB5/eLT+xE1CaiAM+ZDIY=",
+			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient",
+			"revision": "40ac742914cd3459e1f07e9dfbd46be9c7ae5b94",
+			"revisionTime": "2019-08-26T21:41:44Z"
+		},
+		{
 			"checksumSHA1": "ULiiHiUAbLpwGwW2tpUQk40KP4c=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums",
 			"revision": "a0086c6da03ad5f67c56026afe9459f54fcc260a",
 			"revisionTime": "2019-08-22T17:47:38Z"
 		},
 		{
+			"checksumSHA1": "pklXx2xXav97NuqVfvDgpklUn0Y=",
+			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/platformenums",
+			"revision": "40ac742914cd3459e1f07e9dfbd46be9c7ae5b94",
+			"revisionTime": "2019-08-26T21:41:44Z"
+		},
+		{
 			"checksumSHA1": "iGNEcNi4gfAmdiAWMMscxmqGLCU=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
 			"revision": "a0086c6da03ad5f67c56026afe9459f54fcc260a",
 			"revisionTime": "2019-08-22T17:47:38Z"
+		},
+		{
+			"checksumSHA1": "HiDk2CJHg3TdeBN4y8oCDgHZ4Hc=",
+			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/platformproto",
+			"revision": "40ac742914cd3459e1f07e9dfbd46be9c7ae5b94",
+			"revisionTime": "2019-08-26T21:41:44Z"
 		},
 		{
 			"checksumSHA1": "7fVh4EMiwycUkb42pC1rrBCo498=",
@@ -923,6 +947,12 @@
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
 			"revision": "a0086c6da03ad5f67c56026afe9459f54fcc260a",
 			"revisionTime": "2019-08-22T17:47:38Z"
+		},
+		{
+			"checksumSHA1": "oyoAIRmGKHR2zpojmaAqmdn7evM=",
+			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/platform",
+			"revision": "40ac742914cd3459e1f07e9dfbd46be9c7ae5b94",
+			"revisionTime": "2019-08-26T21:41:44Z"
 		},
 		{
 			"checksumSHA1": "i+LIbOvlAGR52598Qp+lxZrBRXA=",
