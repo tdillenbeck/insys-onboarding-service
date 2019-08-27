@@ -54,6 +54,7 @@ case $env in
         export NSQ_CHILI_PIPER_SCHEDULE_EVENT_CREATED_TOPIC=ChiliPiperScheduleEventCreated
         export NSQ_PORTING_DATA_RECORD_CREATED_TOPIC=PortingDataCreated
 
+        export FEATURE_FLAGS_ADDRESS=dev-kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=dev-kube-load:30707
         ;;
     2)
@@ -73,8 +74,11 @@ case $env in
         export NSQD_ADDR=127.0.0.1:4150
         export NSQ_LOOKUPD_ADDRS=127.0.0.1:4161
         export NSQ_LISTEN_CHANNEL=Onboarding
-        export NSQ_TOPIC=PortingDataCreated
 
+        export NSQ_CHILI_PIPER_SCHEDULE_EVENT_CREATED_TOPIC=ChiliPiperScheduleEventCreated
+        export NSQ_PORTING_DATA_RECORD_CREATED_TOPIC=PortingDataCreated
+
+        export FEATURE_FLAGS_ADDRESS=kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=kube-load:30707
         ;;
     *)

@@ -31,6 +31,8 @@ const (
 	nsqChiliPiperScheduleEventCreatedTopic = "nsq-chili-piper-schedule-event-created-topic"
 	nsqPortingDataRecordCreatedTopic       = "nsq-porting-data-record-created-topic"
 
+	// grpc client settings
+	featureFlagsAddress    = "feature-flags-address"
 	portingDataGRPCAddress = "porting-data-grpc-address"
 )
 
@@ -59,6 +61,7 @@ var (
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
 
+	FeatureFlagsAddr    string
 	PortingDataGRPCAddr string
 )
 
@@ -87,7 +90,9 @@ func init() {
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
 
+	config.Add(featureFlagsAddress, "client-feature-flags.client.svc.cluster.local.:grpc", "The grpc address of the feature flags service")
 	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
+
 }
 
 func Init() error {
@@ -160,6 +165,11 @@ func Init() error {
 	NSQConcurrentHandlers, err = config.GetInt(nsqConcurrentHandlersConfig, false)
 	if err != nil {
 		return werror.Wrap(err, "error getting concurrent handlers")
+	}
+
+	FeatureFlagsAddr, err = config.GetAddress(featureFlagsAddress, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting feature flags grpc address")
 	}
 
 	PortingDataGRPCAddr, err = config.GetAddress(portingDataGRPCAddress, false)

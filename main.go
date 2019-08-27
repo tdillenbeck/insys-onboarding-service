@@ -12,7 +12,6 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
 
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/locationfeaturesclient"
 
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/wapp"
@@ -57,11 +56,6 @@ func main() {
 	featureFlagsClient, err := featureflagsclient.New(ctx, config.FeatureFlagsAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up feature flags client"))
-	}
-
-	locationFeaturesClient, err := locationfeaturesclient.New(ctx, config.LocationFeaturesAddress)
-	if err != nil {
-		wapp.Exit(werror.Wrap(err, "error setting up location features client"))
 	}
 
 	portingDataClient, err := initPortingDataClient(ctx, config.PortingDataGRPCAddr)
