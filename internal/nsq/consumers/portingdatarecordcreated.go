@@ -30,7 +30,7 @@ func (p PortingDataRecordCreatedSubscriber) HandleMessage(ctx context.Context, m
 	var pd insysproto.PortingData
 	err := proto.Unmarshal(m.Body, &pd)
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshall PortingDataCreated message body into proto for insysproto.PortingData struct")
+		return werror.Wrap(err, "could not unmarshal PortingDataCreated message body into proto for insysproto.PortingData struct")
 	}
 
 	locationUUID, err := uuid.Parse(pd.LocationId)

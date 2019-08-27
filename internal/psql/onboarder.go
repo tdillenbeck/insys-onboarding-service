@@ -113,6 +113,24 @@ func (s *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
 	return result, nil
 }
 
+func (s *OnboarderService) ReadBySalesforceUserID(ctx context.Context, salesforceUserID string) (*app.Onboarder, error) {
+	var onboarder app.Onboarder
+
+	query := `
+		SELECT
+			id, user_id, salesforce_user_id, schedule_customization_link, schedule_porting_link, schedule_network_link, schedule_software_install_link, schedule_phone_install_link,schedule_software_training_link, schedule_phone_training_link, created_at, updated_at, deleted_at
+		FROM insys_onboarding.onboarders
+		WHERE salesforce_user_id = $1`
+
+	row := s.DB.QueryRowxContext(ctx, query, salesforceUserID)
+	err := row.StructScan(&onboarder)
+	if err != nil {
+		return nil, err
+	}
+
+	return &onboarder, nil
+}
+
 func (s *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {
 	var onboarder app.Onboarder
 

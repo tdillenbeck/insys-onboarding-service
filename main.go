@@ -8,7 +8,10 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/config"
 	"weavelab.xyz/insys-onboarding-service/internal/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
+	"weavelab.xyz/insys-onboarding-service/internal/nsq/producers"
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
+
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/wapp"
@@ -30,6 +33,7 @@ func main() {
 
 	ctx := context.Background()
 
+	// setup database connection
 	dbOptions := &psql.ConnectionOptions{
 		MaxOpenConnections:    config.MaxOpenConnections,
 		MaxIdleConnections:    config.MaxIdleConnections,
@@ -48,10 +52,20 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
+	// setup grpc clients
+	featureFlagsClient, err := featureflagsclient.New(ctx, config.FeatureFlagsAddr)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up feature flags client"))
+	}
+
 	portingDataClient, err := initPortingDataClient(ctx, config.PortingDataGRPCAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up porting data client"))
 	}
+
+	// setup nsq publishers
+	producers.Init(config.NSQDAddr)
+	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
@@ -60,17 +74,18 @@ func main() {
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 
-	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventsService)
+	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventCreatedPublisher, chiliPiperScheduleEventsService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
 
-	// setup nsq
+	// setup nsq consumers
 	nsqConfig := nsqwapp.NewConfig()
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
 
-	subscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
+	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
+	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
@@ -78,7 +93,8 @@ func main() {
 	wapp.Up(
 		ctx,
 		grpcStarter,
-		nsqwapp.Bootstrap(config.NSQTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, subscriber),
+		nsqwapp.Bootstrap(config.NSQChiliPiperScheduleEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, chiliPiperScheduleEventCreatedSubscriber),
+		nsqwapp.Bootstrap(config.NSQPortingDataRecordCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, portingDataRecordCreatedSubscriber),
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return

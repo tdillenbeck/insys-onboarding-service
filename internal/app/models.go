@@ -26,7 +26,7 @@ type Category struct {
 	UpdatedAt    time.Time
 }
 
-// ChiliPiperScheduledEvent tracks scheduled appointments that happen in chili piper
+// ChiliPiperScheduleEvent tracks scheduled appointments that happen in chili piper
 type ChiliPiperScheduleEvent struct {
 	ID         uuid.UUID `db:"id" json:"id"`
 	LocationID uuid.UUID `db:"location_id" json:"location_id"`

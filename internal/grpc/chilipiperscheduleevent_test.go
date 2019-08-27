@@ -60,7 +60,8 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 	}
 
 	type fields struct {
-		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+		chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
+		chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
 	}
 	type args struct {
 		ctx context.Context
@@ -119,7 +120,8 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ChiliPiperScheduleEventServer{
-				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
+				chiliPiperScheduleEventPublisher: tt.fields.chiliPiperScheduleEventPublisher,
+				chiliPiperScheduleEventService:   tt.fields.chiliPiperScheduleEventService,
 			}
 			got, err := s.ByLocationID(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
@@ -137,6 +139,12 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 	id := uuid.NewV4()
 	locationUUID := uuid.NewV4()
 	currentTime := time.Now()
+
+	noOpChiliPiperScheduleEventPublisher := &mock.ChiliPiperScheduleEventPublisher{
+		PublishCreatedFn: func(ctx context.Context, response *insysproto.CreateChiliPiperScheduleEventResponse) error {
+			return nil
+		},
+	}
 
 	successfulChiliPiperScheduleEventService := &mock.ChiliPiperScheduleEventService{
 		CreateFn: func(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error) {
@@ -161,7 +169,8 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 	}
 
 	type fields struct {
-		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+		chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
+		chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
 	}
 	type args struct {
 		ctx context.Context
@@ -175,8 +184,11 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:   "successfully create a chili piper schedule event",
-			fields: fields{chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService},
+			name: "successfully create a chili piper schedule event",
+			fields: fields{
+				chiliPiperScheduleEventPublisher: noOpChiliPiperScheduleEventPublisher,
+				chiliPiperScheduleEventService:   successfulChiliPiperScheduleEventService,
+			},
 			args: args{
 				context.Background(),
 				&insysproto.CreateChiliPiperScheduleEventRequest{
@@ -214,7 +226,8 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ChiliPiperScheduleEventServer{
-				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
+				chiliPiperScheduleEventPublisher: tt.fields.chiliPiperScheduleEventPublisher,
+				chiliPiperScheduleEventService:   tt.fields.chiliPiperScheduleEventService,
 			}
 			got, err := s.Create(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
@@ -257,7 +270,8 @@ func TestChiliPiperScheduleEventServer_Update(t *testing.T) {
 	}
 
 	type fields struct {
-		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+		chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
+		chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
 	}
 	type args struct {
 		ctx context.Context
@@ -304,7 +318,8 @@ func TestChiliPiperScheduleEventServer_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ChiliPiperScheduleEventServer{
-				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
+				chiliPiperScheduleEventPublisher: tt.fields.chiliPiperScheduleEventPublisher,
+				chiliPiperScheduleEventService:   tt.fields.chiliPiperScheduleEventService,
 			}
 			got, err := s.Update(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {

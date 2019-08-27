@@ -8,10 +8,11 @@ import (
 )
 
 type OnboarderService struct {
-	CreateOrUpdateFn func(ctx context.Context, onboarder *app.Onboarder) (*app.Onboarder, error)
-	DeleteFn         func(ctx context.Context, id uuid.UUID) error
-	ListFn           func(ctx context.Context) ([]app.Onboarder, error)
-	ReadByUserIDFn   func(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error)
+	CreateOrUpdateFn         func(ctx context.Context, onboarder *app.Onboarder) (*app.Onboarder, error)
+	DeleteFn                 func(ctx context.Context, id uuid.UUID) error
+	ListFn                   func(ctx context.Context) ([]app.Onboarder, error)
+	ReadBySalesforceUserIDFn func(ctx context.Context, salesforceUserID string) (*app.Onboarder, error)
+	ReadByUserIDFn           func(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error)
 }
 
 func (o *OnboarderService) CreateOrUpdate(ctx context.Context, onboarder *app.Onboarder) (*app.Onboarder, error) {
@@ -24,6 +25,10 @@ func (o *OnboarderService) Delete(ctx context.Context, id uuid.UUID) error {
 
 func (o *OnboarderService) List(ctx context.Context) ([]app.Onboarder, error) {
 	return o.ListFn(ctx)
+}
+
+func (o *OnboarderService) ReadBySalesforceUserID(ctx context.Context, salesforceUserID string) (*app.Onboarder, error) {
+	return o.ReadBySalesforceUserIDFn(ctx, salesforceUserID)
 }
 
 func (o *OnboarderService) ReadByUserID(ctx context.Context, userID uuid.UUID) (*app.Onboarder, error) {

@@ -23,6 +23,7 @@ type OnboarderService interface {
 	CreateOrUpdate(ctx context.Context, onboarder *Onboarder) (*Onboarder, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 	List(ctx context.Context) ([]Onboarder, error)
+	ReadBySalesforceUserID(ctx context.Context, salesforceUserID string) (*Onboarder, error)
 	ReadByUserID(ctx context.Context, userID uuid.UUID) (*Onboarder, error)
 }
 
