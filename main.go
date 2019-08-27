@@ -11,6 +11,9 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/producers"
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
 
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/locationfeaturesclient"
+
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/wapp"
 	"weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp"
@@ -31,6 +34,7 @@ func main() {
 
 	ctx := context.Background()
 
+	// setup database connection
 	dbOptions := &psql.ConnectionOptions{
 		MaxOpenConnections:    config.MaxOpenConnections,
 		MaxIdleConnections:    config.MaxIdleConnections,
@@ -50,6 +54,16 @@ func main() {
 	}
 
 	// setup grpc clients
+	featureFlagsClient, err := featureflagsclient.New(ctx, config.FeatureFlagsAddr)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up feature flags client"))
+	}
+
+	locationFeaturesClient, err := locationfeaturesclient.New(ctx, config.LocationFeaturesAddress)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up location features client"))
+	}
+
 	portingDataClient, err := initPortingDataClient(ctx, config.PortingDataGRPCAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up porting data client"))
@@ -76,7 +90,7 @@ func main() {
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
 
-	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer)
+	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))

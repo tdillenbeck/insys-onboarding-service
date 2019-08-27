@@ -14,16 +14,28 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
+const (
+	onboardingFeatureFlagName = "onboardingBetaEnabled"
+)
+
+type FeatureFlagsClient interface {
+	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
+}
+
 type ChiliPiperScheduleEventCreatedSubscriber struct {
 	onboarderService app.OnboarderService
+
+	featureFlagsClient FeatureFlagsClient
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService: onboarderService,
+
+		featureFlagsClient: ff,
 
 		onboardersLocationServer: ols,
 		onboardingServer:         onboardingServer,
@@ -58,6 +70,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 	return nil
 }
 
+// turnOnOnboardingTracker will assign an onboarder to a location, create the task instances, and turn on the feature flag for a location.
 func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx context.Context, onboarderID, locationID uuid.UUID) error {
 	locationUUID := sharedproto.UUIDToProto(locationID)
 
@@ -69,15 +82,13 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 		return werror.Wrap(err, "could not assign onboarder to location").Add("onboarderID", onboarderID).Add("locationID", locationID)
 	}
 
-	// should the CreateTaskInstancesFromTasks not create if the tasks are already created??
-
 	tasks, err := c.onboardingServer.TaskInstances(ctx, &insysproto.TaskInstancesRequest{LocationID: locationUUID})
 	if err != nil {
 		return werror.Wrap(err, "could not look up task instances for location").Add("locationID", locationID)
 	}
 
-	// only create tasks if there are no tasks created
-	if len(tasks) == 0 {
+	// only create tasks if there are no tasks already created
+	if len(tasks.TaskInstances) == 0 {
 		_, err = c.onboardingServer.CreateTaskInstancesFromTasks(
 			ctx,
 			&insysproto.CreateTaskInstancesFromTasksRequest{LocationID: locationUUID},
@@ -87,7 +98,10 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 		}
 	}
 
-	// TODO: turn on customization flag
+	err = c.featureFlagsClient.Update(ctx, locationID, onboardingFeatureFlagName, true)
+	if err != nil {
+		return werror.Wrap(err, "failed to turn on onboarding feature flag")
+	}
 
 	return nil
 }
