@@ -74,20 +74,12 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx context.Context, onboarderID, locationID uuid.UUID) error {
 	locationUUID := sharedproto.UUIDToProto(locationID)
 
-	_, err := c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
-		OnboarderID: sharedproto.UUIDToProto(onboarderID),
-		LocationID:  locationUUID,
-	})
-	if err != nil {
-		return werror.Wrap(err, "could not assign onboarder to location").Add("onboarderID", onboarderID).Add("locationID", locationID)
-	}
-
+	// if the onboarding tracker has already been setup, don't do anything
 	tasks, err := c.onboardingServer.TaskInstances(ctx, &insysproto.TaskInstancesRequest{LocationID: locationUUID})
 	if err != nil {
 		return werror.Wrap(err, "could not look up task instances for location").Add("locationID", locationID)
 	}
 
-	// only create tasks if there are no tasks already created
 	if len(tasks.TaskInstances) == 0 {
 		_, err = c.onboardingServer.CreateTaskInstancesFromTasks(
 			ctx,
@@ -96,6 +88,14 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 		if err != nil {
 			return werror.Wrap(err, "could not create tasks instances from tasks").Add("locationID", locationID)
 		}
+	}
+
+	_, err = c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
+		OnboarderID: sharedproto.UUIDToProto(onboarderID),
+		LocationID:  locationUUID,
+	})
+	if err != nil {
+		return werror.Wrap(err, "could not assign onboarder to location").Add("onboarderID", onboarderID).Add("locationID", locationID)
 	}
 
 	err = c.featureFlagsClient.Update(ctx, locationID, onboardingFeatureFlagName, true)
