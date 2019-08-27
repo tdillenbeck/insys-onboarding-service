@@ -50,7 +50,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		return werror.Wrap(err, "could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct")
 	}
 
-	// Only assign the onboarder on the next steps call event. Assigning the onbaorder will turn on the tracker
+	// only turn on the onboarding tracker if the chili piper event is a next_steps call
 	if strings.Contains(chiliPiperScheduleEventResponse.Event.EventType, "next_steps") {
 		onboarder, err := c.onboarderService.ReadBySalesforceUserID(ctx, chiliPiperScheduleEventResponse.Event.AssigneeId)
 		if err != nil {
