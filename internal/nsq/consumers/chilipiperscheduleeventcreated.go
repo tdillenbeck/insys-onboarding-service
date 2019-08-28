@@ -16,6 +16,10 @@ import (
 
 const (
 	onboardingFeatureFlagName = "onboardingBetaEnabled"
+
+	installWeaveTaskID    = "720af494-38a4-499f-8633-9c8d5169cd43" // Install weave on other workstations in your office
+	installNewPhoneTaskID = "fd4f656c-c9f1-47b8-96ad-3080b999a843" // Install your new phones
+	syncPatientDataTaskID = "16a6dc91-ec6b-4b09-b591-a5b0dfa92932" // Sync your patient data to weave
 )
 
 type FeatureFlagsClient interface {
@@ -81,13 +85,28 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 	}
 
 	if len(tasks.TaskInstances) == 0 {
-		_, err = c.onboardingServer.CreateTaskInstancesFromTasks(
+		createdTasks, err := c.onboardingServer.CreateTaskInstancesFromTasks(
 			ctx,
 			&insysproto.CreateTaskInstancesFromTasksRequest{LocationID: locationUUID},
 		)
 		if err != nil {
 			return werror.Wrap(err, "could not create tasks instances from tasks").Add("locationID", locationID)
 		}
+
+		// update the installed schedule tasks to be completed
+		for _, taskInstance := range createdTasks.TaskInstances {
+			taskInstanceTaskID := taskInstance.TaskID.String()
+
+			if taskInstanceTaskID == installWeaveTaskID ||
+				taskInstanceTaskID == installNewPhoneTaskID ||
+				taskInstanceTaskID == syncPatientDataTaskID {
+				_, err := c.onboardingServer.UpdateTaskInstance(ctx, &insysproto.UpdateTaskInstanceRequest{ID: taskInstance.ID, Status: 2})
+				if err != nil {
+					return werror.Wrap(err, "could not set status for task instance").Add("taskInstance.ID", taskInstance.ID).Add("locationID", taskInstance.LocationID)
+				}
+			}
+		}
+
 	}
 
 	_, err = c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
