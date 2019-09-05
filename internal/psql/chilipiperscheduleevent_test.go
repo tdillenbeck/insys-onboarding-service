@@ -91,8 +91,9 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 1"),
 					RouteID:    null.NewString("testing route id 1"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 				},
 				{
 					LocationID: locationID,
@@ -103,8 +104,9 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 2"),
 					RouteID:    null.NewString("testing route id 2"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 				},
 			},
 			wantErr: false,
@@ -125,6 +127,10 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 	opts := []cmp.Option{
 		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "ID", "CreatedAt", "UpdatedAt"),
 		cmp.Comparer(func(x, y null.Time) bool {
+			// xor the valid fields to handle empty null.Time struct comparison
+			if x.Valid != y.Valid {
+				return true
+			}
 			diff := x.Time.Sub(y.Time)
 			return diff < (1 * time.Millisecond)
 		}),
@@ -140,6 +146,7 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 				t.Errorf("ChiliPiperScheduleService.ByLocationID() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
+
 			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("ChiliPiperScheduleService.ByLocationID(). Diff :%v", cmp.Diff(got, tt.want, opts...))
 			}

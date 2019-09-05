@@ -32,8 +32,9 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 1"),
 					RouteID:    null.NewString("testing route id 1"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 
 					CreatedAt: currentTime,
 					UpdatedAt: currentTime,
@@ -49,8 +50,9 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 2"),
 					RouteID:    null.NewString("testing route id 2"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 
 					CreatedAt: currentTime,
 					UpdatedAt: currentTime,
@@ -95,6 +97,7 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 						ContactId:  "testing contact id 1",
 						StartAt:    currentTime.Format(time.RFC3339),
 						EndAt:      currentTime.Format(time.RFC3339),
+						CanceledAt: "",
 						CreatedAt:  currentTime.Format(time.RFC3339Nano),
 						UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 					},
@@ -108,6 +111,7 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 						ContactId:  "testing contact id 2",
 						StartAt:    currentTime.Format(time.RFC3339),
 						EndAt:      currentTime.Format(time.RFC3339),
+						CanceledAt: "",
 						CreatedAt:  currentTime.Format(time.RFC3339Nano),
 						UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 					},
@@ -159,8 +163,9 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 				EventType:  null.NewString("testing event type 1"),
 				RouteID:    null.NewString("testing route id 1"),
 
-				StartAt: null.NewTime(currentTime),
-				EndAt:   null.NewTime(currentTime),
+				StartAt:    null.NewTime(currentTime),
+				EndAt:      null.NewTime(currentTime),
+				CanceledAt: null.Time{},
 
 				CreatedAt: currentTime,
 				UpdatedAt: currentTime,
@@ -215,6 +220,7 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 					ContactId:  "testing contact id 1",
 					StartAt:    currentTime.Format(time.RFC3339),
 					EndAt:      currentTime.Format(time.RFC3339),
+					CanceledAt: "",
 					CreatedAt:  currentTime.Format(time.RFC3339Nano),
 					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 				},
@@ -260,8 +266,9 @@ func TestChiliPiperScheduleEventServer_Update(t *testing.T) {
 				EventType:  null.NewString("testing event type 1"),
 				RouteID:    null.NewString("testing route id 1"),
 
-				StartAt: startAt,
-				EndAt:   endAt,
+				StartAt:    startAt,
+				EndAt:      endAt,
+				CanceledAt: null.Time{},
 
 				CreatedAt: currentTime,
 				UpdatedAt: currentTime,
@@ -356,7 +363,7 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 
 				StartAt:    existingStart,
 				EndAt:      existingEnd,
-				CanceledAt: null.NewTime(currentTime),
+				CanceledAt: null.Time{},
 
 				CreatedAt: currentTime,
 				UpdatedAt: currentTime,
@@ -399,7 +406,7 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 					ContactId:  "testing contact id 1",
 					StartAt:    currentTime.Format(time.RFC3339),
 					EndAt:      currentTime.Format(time.RFC3339),
-					CanceledAt: currentTime.Format(time.RFC3339),
+					CanceledAt: "", //null.Time{}.Time.String() prints the Time zero-value, not an empty struct ("")
 					CreatedAt:  currentTime.Format(time.RFC3339Nano),
 					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 				},

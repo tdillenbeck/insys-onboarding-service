@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -101,8 +100,6 @@ func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insyspr
 }
 
 func (s *ChiliPiperScheduleEventServer) Cancel(ctx context.Context, req *insysproto.CancelChiliPiperScheduleEventRequest) (*insysproto.CancelChiliPiperScheduleEventResponse, error) {
-	fmt.Printf("+++++++++++\n")
-	defer fmt.Printf("+++++++++++\n")
 	cancelResponse, err := s.chiliPiperScheduleEventService.Cancel(ctx, req.EventId)
 	if err != nil {
 		if werror.HasCode(err, werror.CodeNotFound) {
