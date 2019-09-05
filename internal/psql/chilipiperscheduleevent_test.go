@@ -432,7 +432,7 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
 		cmp.Comparer(func(x, y null.Time) bool {
 			diff := x.Time.Sub(y.Time)
-			return diff < (1 * time.Millisecond)
+			return diff < (5 * time.Millisecond)
 		}),
 	}
 
@@ -453,12 +453,12 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 
 			//a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
 			updatedDiff := time.Now().Sub(got.UpdatedAt)
-			if updatedDiff > (1 * time.Millisecond) {
+			if updatedDiff > (5 * time.Millisecond) {
 				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
 			}
 
 			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
-			if canceledDiff > (1 * time.Millisecond) {
+			if canceledDiff > (5 * time.Millisecond) {
 				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
 			}
 		})
