@@ -191,10 +191,7 @@ func convertChiliPiperScheduleEventToCancelProto(event *app.ChiliPiperScheduleEv
 		return nil, werror.Wrap(err, "could not marshal chili piper schedule event into json").Add("event", event)
 	}
 
-	fmt.Println("HERE!")
-	fmt.Printf("----------%+v\n", string(eventJSON))
-
-	err = json.Unmarshal(eventJSON, &result)
+	err = json.Unmarshal(eventJSON, &result.Event)
 	if err != nil {
 		return nil, werror.Wrap(err, "could not unmarshal chili piper schedule json into proto struct").Add("eventJSON", string(eventJSON))
 	}

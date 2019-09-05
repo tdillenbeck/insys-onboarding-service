@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -338,6 +337,9 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 	currentTime := time.Now()
 	locationUUID := uuid.NewV4()
 	existingID := uuid.NewV4()
+	existingStart := null.NewTime(currentTime)
+	existingEnd := null.NewTime(currentTime)
+
 	eventID := "testing event id"
 
 	successfulChiliPiperScheduleEventService := &mock.ChiliPiperScheduleEventService{
@@ -346,15 +348,18 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 				ID:         existingID,
 				LocationID: locationUUID,
 
-				EventID: eventID,
+				EventID:    eventID,
+				AssigneeID: null.NewString("testing assignee id 1"),
+				ContactID:  null.NewString("testing contact id 1"),
+				EventType:  null.NewString("testing event type 1"),
+				RouteID:    null.NewString("testing route id 1"),
 
-				ContactID: null.NewString("testing contact id 1"),
-				EventType: null.NewString("testing event type 1"),
-				RouteID:   null.NewString("testing route id 1"),
+				StartAt:    existingStart,
+				EndAt:      existingEnd,
+				CanceledAt: null.NewTime(currentTime),
 
-				CreatedAt:   currentTime,
-				UpdatedAt:   currentTime,
-				CancelledAt: currentTime,
+				CreatedAt: currentTime,
+				UpdatedAt: currentTime,
 			}, nil
 		},
 	}
@@ -375,7 +380,7 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:   "successfully cancelled a chili piper schedule event",
+			name:   "successfully cancel a chili piper schedule event",
 			fields: fields{chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService},
 			args: args{
 				context.Background(),
@@ -390,10 +395,11 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 					EventId:    eventID,
 					EventType:  "testing event type 1",
 					RouteId:    "testing route id 1",
-					AssigneeId: "new assignee id",
+					AssigneeId: "testing assignee id 1",
 					ContactId:  "testing contact id 1",
 					StartAt:    currentTime.Format(time.RFC3339),
 					EndAt:      currentTime.Format(time.RFC3339),
+					CanceledAt: currentTime.Format(time.RFC3339),
 					CreatedAt:  currentTime.Format(time.RFC3339Nano),
 					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 				},
@@ -401,7 +407,6 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 			wantErr: false,
 		},
 	}
-	fmt.Printf("*_*_*_*_*_*%#v", tests[0])
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -409,13 +414,11 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 				chiliPiperScheduleEventPublisher: tt.fields.chiliPiperScheduleEventPublisher,
 				chiliPiperScheduleEventService:   tt.fields.chiliPiperScheduleEventService,
 			}
-			fmt.Printf("=========%#v \n", tt)
 			got, err := s.Cancel(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ChiliPiperScheduleEventServer.Cancel() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-
 			if !cmp.Equal(got, tt.want) {
 				t.Errorf("ChiliPiperScheduleEventServer.Cancel(). Diff: %v", cmp.Diff(got, tt.want))
 			}

@@ -374,34 +374,21 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 	db := initDBConnection(t)
 	clearExistingData(db)
 
+	currentTime := time.Now()
 	locationID := uuid.NewV4()
 	eventService := ChiliPiperScheduleEventService{DB: db}
 
-	// create two records.  The second will be cancelled
-	_, err := eventService.Create(
+	existingEventForCancelation, err := eventService.Create(
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
-			EventID:    "testing event id 1",
-		},
-	)
-	if err != nil {
-		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 1")
-	}
-
-	existingEventForCancellation2, err := eventService.Create(
-		context.Background(),
-		&app.ChiliPiperScheduleEvent{
-			LocationID:  locationID,
-			EventID:     "testing event id 2",
-			CancelledAt: time.Now(),
+			EventID:    "testing event id 2",
+			CanceledAt: null.NewTime(currentTime),
 		},
 	)
 	if err != nil {
 		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 2")
 	}
-	//TODO: toss this if it isn't used
-	//eventService.Cancel(context.Background(), existingEventForCancellation2.EventID)
 
 	type fields struct {
 		DB *wsql.PG
@@ -418,27 +405,24 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:   "successfully cancel an appointment; cancel the most recently created event",
+			name:   "successfully cancel an appointment",
 			fields: fields{DB: db},
 			args: args{
 				context.Background(),
-				existingEventForCancellation2.EventID,
+				existingEventForCancelation.EventID,
 			},
 			want: &app.ChiliPiperScheduleEvent{
-				ID:          existingEventForCancellation2.ID,
-				LocationID:  existingEventForCancellation2.LocationID,
-				CreatedAt:   existingEventForCancellation2.CreatedAt,
-				EventID:     existingEventForCancellation2.EventID,
-				UpdatedAt:   existingEventForCancellation2.UpdatedAt,
-				CancelledAt: existingEventForCancellation2.CancelledAt.UTC(),
+				ID:         existingEventForCancelation.ID,
+				LocationID: existingEventForCancelation.LocationID,
+				CreatedAt:  existingEventForCancelation.CreatedAt,
+				EventID:    existingEventForCancelation.EventID,
 			},
 			wantErr: false,
 		},
 	}
 
-	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "EndAt", "StartAt", "AssigneeID", "ContactID", "RouteID", "EventType"),
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
 		cmp.Comparer(func(x, y null.Time) bool {
 			diff := x.Time.Sub(y.Time)
 			return diff < (1 * time.Millisecond)
@@ -458,6 +442,17 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 
 			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("ChiliPiperScheduleEventService.Cancel(). Diff: %v", cmp.Diff(got, tt.want, opts...))
+			}
+
+			//a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
+			updatedDiff := time.Now().Sub(got.UpdatedAt)
+			if updatedDiff > (1 * time.Millisecond) {
+				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
+			}
+
+			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
+			if canceledDiff > (1 * time.Millisecond) {
+				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
 			}
 		})
 	}

@@ -31,7 +31,7 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 			end_at,
 			created_at,
 			updated_at,
-			cancelled_at
+			canceled_at
 	  FROM insys_onboarding.chili_piper_schedule_events
 	  WHERE location_id = $1 `
 
@@ -71,7 +71,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		  location_id,
 		  created_at,
 		  updated_at,
-		  cancelled_at
+		  canceled_at
 	  )
 	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now(), $10)
 	  RETURNING id, created_at, updated_at`
@@ -88,7 +88,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		scheduleEvent.EndAt,
 		scheduleEvent.ContactID,
 		scheduleEvent.LocationID.String(),
-		scheduleEvent.CancelledAt,
+		scheduleEvent.CanceledAt,
 	)
 	err := row.Scan(
 		&resultEvent.ID,
@@ -107,7 +107,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	resultEvent.EndAt = scheduleEvent.EndAt
 	resultEvent.ContactID = scheduleEvent.ContactID
 	resultEvent.LocationID = scheduleEvent.LocationID
-	resultEvent.CancelledAt = scheduleEvent.CancelledAt
+	resultEvent.CanceledAt = scheduleEvent.CanceledAt
 
 	return &resultEvent, nil
 }
@@ -147,7 +147,7 @@ func (s *ChiliPiperScheduleEventService) Cancel(ctx context.Context, eventID str
 	  UPDATE insys_onboarding.chili_piper_schedule_events
 			SET
 				updated_at = now(),
-				cancelled_at = now()
+				canceled_at = now()
 		 WHERE event_id = $1
 		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
 
