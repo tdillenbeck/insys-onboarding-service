@@ -16,7 +16,6 @@ func WithDebugPrint(c context.Context, printDebug bool) context.Context {
 	return context.WithValue(c, debugKey, printDebug)
 }
 
-
 func TraceC(c context.Context, msg string, tags ...tag.Tag) {
 	shouldPrint, ok := c.Value(debugKey).(bool)
 	if currentLogger.debugLogging == 1 || (ok && shouldPrint) {
@@ -52,30 +51,29 @@ func WErrorC(c context.Context, werr *werror.Error) {
 func (w *WLogger) TraceC(c context.Context, msg string, tags ...tag.Tag) {
 	shouldPrint, ok := c.Value(debugKey).(bool)
 	if w.debugLogging == 1 || (ok && shouldPrint) {
-		w.logMessage(c, TRACE, msg, append(w.tags, tags...))
+		w.logMessage(c, TRACE, msg, append(w.flattenTags(), tags...))
 	}
 }
 
 func (w *WLogger) DebugC(c context.Context, msg string, tags ...tag.Tag) {
 	shouldPrint, ok := c.Value(debugKey).(bool)
 	if w.debugLogging == 1 || (ok && shouldPrint) {
-		w.logMessage(c, DEBUG, msg, append(w.tags, tags...))
+		w.logMessage(c, DEBUG, msg, append(w.flattenTags(), tags...))
 	}
 }
 
 func (w *WLogger) InfoC(c context.Context, msg string, tags ...tag.Tag) {
-	w.logMessage(c, INFO, msg, append(w.tags, tags...))
+	w.logMessage(c, INFO, msg, append(w.flattenTags(), tags...))
 }
 
 func (w *WLogger) WarnC(c context.Context, msg string, tags ...tag.Tag) {
-	w.logMessage(c, WARN, msg, append(w.tags, tags...))
+	w.logMessage(c, WARN, msg, append(w.flattenTags(), tags...))
 }
 
-
 func (w *WLogger) ErrorC(c context.Context, msg string, tags ...tag.Tag) {
-	w.logMessage(c, ERROR, msg, append(w.tags, tags...))
+	w.logMessage(c, ERROR, msg, append(w.flattenTags(), tags...))
 }
 
 func (w *WLogger) WErrorC(c context.Context, werr *werror.Error) {
-	w.logMessage(c, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, w.tags...))
+	w.logMessage(c, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, w.flattenTags()...))
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_retry "github.com/grpc-ecosystem/go-grpc-middleware/retry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -93,6 +94,19 @@ func NewVanilla(ctx context.Context, target string, unaryMiddleWare []grpc.Unary
 // NewDefault creates a gRPC client with defaults
 func NewDefault(ctx context.Context, target string, opt ...grpc.DialOption) (*grpc.ClientConn, error) {
 	return New(ctx, target, nil, nil, opt...)
+}
+
+// NewRetry creates a gRPC client using defaults + grpc_retry middleware.
+// Sample:
+// retryOptions := []grpc_retry.CallOption {
+//     grpc_retry.WithMax(3),
+//     grpc_retry.WithBackoff(grpc_retry.BackoffLinear(100 * time.Millisecond),
+//     grpc_retry.WithCodes(codes.Unavailable),
+// }
+// client, err := wgrpcclient.NewRetry(ctx, target, retryOptions...)
+// See https://github.com/grpc-ecosystem/go-grpc-middleware/tree/master/retry for options
+func NewRetry(ctx context.Context, target string, opt ...grpc_retry.CallOption) (*grpc.ClientConn, error) {
+	return New(ctx, target, []grpc.UnaryClientInterceptor{grpc_retry.UnaryClientInterceptor(opt...)}, []grpc.StreamClientInterceptor{grpc_retry.StreamClientInterceptor(opt...)})
 }
 
 func setScheme(target string) (string, error) {
