@@ -13,7 +13,7 @@ type WLogger struct {
 	debugLogging int32
 	logHandler   LogHandlerFunc
 
-	tags []tag.Tag
+	tags map[string]tag.Tag
 
 	// this is * because AddMiddleware uses atomic.StorePointer to set it
 	logMiddleware *[]LogMiddlewareFunc
@@ -31,15 +31,20 @@ func NewWLogger(handler LogHandlerFunc) *WLogger {
 }
 
 func (w *WLogger) Extend(tags ...tag.Tag) *WLogger {
-	newTags := make([]tag.Tag, 0, len(w.tags) + len(tags))
-	copy(newTags, w.tags)
-	newTags = append(newTags, tags...)
+	newTags := make(map[string]tag.Tag)
+	for k, v := range w.tags {
+		newTags[k] = v
+	}
+
+	for _, tag := range tags {
+		newTags[tag.Key] = tag
+	}
 
 	sub := WLogger{
 		debugLogging:  w.debugLogging,
 		logHandler:    w.logHandler,
 		logMiddleware: w.logMiddleware,
-		tags: newTags,
+		tags:          newTags,
 	}
 
 	return &sub
@@ -76,19 +81,30 @@ func (w *WLogger) logMessage(c context.Context, mtype LogMsgType, msg string, ta
 }
 
 func (w *WLogger) Info(msg string, tags ...tag.Tag) {
-	w.logMessage(nil, INFO, msg, append(w.tags, tags...))
+	w.logMessage(nil, INFO, msg, append(w.flattenTags(), tags...))
 }
 
 func (w *WLogger) Debug(msg string, tags ...tag.Tag) {
 	if w.debugLogging == 1 {
-		w.logMessage(nil, DEBUG, msg, append(w.tags, tags...))
+		w.logMessage(nil, DEBUG, msg, append(w.flattenTags(), tags...))
 	}
 }
 
 func (w *WLogger) Error(msg string, tags ...tag.Tag) {
-	w.logMessage(nil, ERROR, msg, append(w.tags, tags...))
+	w.logMessage(nil, ERROR, msg, append(w.flattenTags(), tags...))
 }
 
 func (w *WLogger) WError(werr *werror.Error) {
-	w.logMessage(nil, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, w.tags...)) // Some methods expect the error to be first
+	w.logMessage(nil, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, w.flattenTags()...)) // Some methods expect the error to be first
+}
+
+func (w *WLogger) flattenTags() []tag.Tag {
+	flattened := make([]tag.Tag, len(w.tags))
+	count := 0
+	for _, v := range w.tags {
+		flattened[count] = v
+		count++
+	}
+
+	return flattened
 }

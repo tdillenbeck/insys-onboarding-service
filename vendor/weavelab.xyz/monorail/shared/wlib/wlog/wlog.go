@@ -146,17 +146,17 @@ func AddMiddleware(fn LogMiddlewareFunc) {
 
 // Deprecated: should use InfoC
 func Info(msg string, tags ...tag.Tag) {
-	currentLogger.logMessage(nil, INFO, msg, append(currentLogger.tags, tags...))
+	currentLogger.logMessage(nil, INFO, msg, append(currentLogger.flattenTags(), tags...))
 }
 
 // Deprecated: should use DebugC
 func Debug(msg string, tags ...tag.Tag) {
 	if currentLogger.debugLogging == 1 {
-		currentLogger.logMessage(nil, DEBUG, msg, append(currentLogger.tags, tags...))
+		currentLogger.logMessage(nil, DEBUG, msg, append(currentLogger.flattenTags(), tags...))
 	}
 }
 
 // Deprecated, should use WErrorC
 func WError(werr *werror.Error) {
-	currentLogger.logMessage(nil, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, currentLogger.tags...))
+	currentLogger.logMessage(nil, ERROR, "", append([]tag.Tag{tag.WError("", werr)}, currentLogger.flattenTags()...))
 }
