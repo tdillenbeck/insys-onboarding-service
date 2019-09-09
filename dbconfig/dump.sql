@@ -281,6 +281,13 @@ CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders U
 
 
 --
+-- Name: index_onboarding_task_instances_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE INDEX index_onboarding_task_instances_on_location_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
+
+
+--
 -- Name: onboarders_location onboarders_location_onboarder_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
 --
 
