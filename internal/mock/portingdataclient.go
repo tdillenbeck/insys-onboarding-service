@@ -9,19 +9,17 @@ import (
 )
 
 type PortingDataClient struct {
-	BatchCreateFn                     func(ctx context.Context, in *insysproto.PortingDataBatchCreateRequest, opts []grpc.CallOption) (*insysproto.PortingDataBatchCreateResponse, error)
-	ByLocationIDFn                    func(ctx context.Context, in *insysproto.PortingDataByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PortingDataByLocationIDResponse, error)
-	CreateFn                          func(ctx context.Context, in *insysproto.PortingDataCreateRequest, opts []grpc.CallOption) (*insysproto.PortingDataCreateResponse, error)
-	DeleteRequestFn                   func(ctx context.Context, in *insysproto.PortingRequestDeleteRequest, opts []grpc.CallOption) (*empty.Empty, error)
-	FirstAvailableFOCDateFn           func(ctx context.Context, in *insysproto.FirstAvailableFOCDateRequest, opts []grpc.CallOption) (*insysproto.FirstAvailableFOCDateResponse, error)
-	PortInCreateByPortingDataIDFn     func(ctx context.Context, in *insysproto.PortInCreateByPortingDataIDRequest, opts []grpc.CallOption) (*insysproto.PortInCreateByPortingDataIDResponse, error)
-	PortInCreateBySalesforceBatchIDFn func(ctx context.Context, in *insysproto.PortInCreateBySalesforceBatchIDRequest, opts []grpc.CallOption) (*insysproto.PortInCreateBySalesforceBatchIDResponse, error)
-	PortInCreateFn                    func(ctx context.Context, in *insysproto.PortInCreateRequest, opts []grpc.CallOption) (*insysproto.PortInCreateResponse, error)
-	PortInStatusByPortingDataIDFn     func(ctx context.Context, in *insysproto.PortInStatusByPortingDataIDRequest, opts []grpc.CallOption) (*insysproto.PortInStatusByPortingDataIDResponse, error)
-	PortInStatusBySalesforceBatchIDFn func(ctx context.Context, in *insysproto.PortInStatusBySalesforceBatchIDRequest, opts []grpc.CallOption) (*insysproto.PortInStatusBySalesforceBatchIDResponse, error)
-	PortInStatusFn                    func(ctx context.Context, in *insysproto.PortInStatusRequest, opts []grpc.CallOption) (*insysproto.PortInStatusResponse, error)
-	PortabilityCheckFn                func(ctx context.Context, in *insysproto.PortabilityCheckRequest, opts []grpc.CallOption) (*insysproto.PortabilityCheckResponse, error)
-	UpdateFn                          func(ctx context.Context, in *insysproto.PortingDataUpdateRequest, opts []grpc.CallOption) (*insysproto.PortingDataUpdateResponse, error)
+	BatchCreateFn                 func(ctx context.Context, in *insysproto.PortingDataBatchCreateRequest, opts []grpc.CallOption) (*insysproto.PortingDataBatchCreateResponse, error)
+	ByLocationIDFn                func(ctx context.Context, in *insysproto.PortingDataByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PortingDataByLocationIDResponse, error)
+	CreateFn                      func(ctx context.Context, in *insysproto.PortingDataCreateRequest, opts []grpc.CallOption) (*insysproto.PortingDataCreateResponse, error)
+	DeleteRequestFn               func(ctx context.Context, in *insysproto.PortingRequestDeleteRequest, opts []grpc.CallOption) (*empty.Empty, error)
+	FirstAvailableFOCDateFn       func(ctx context.Context, in *insysproto.FirstAvailableFOCDateRequest, opts []grpc.CallOption) (*insysproto.FirstAvailableFOCDateResponse, error)
+	PortInCreateByPortingDataIDFn func(ctx context.Context, in *insysproto.PortInCreateByPortingDataIDRequest, opts []grpc.CallOption) (*insysproto.PortInCreateByPortingDataIDResponse, error)
+	PortInCreateFn                func(ctx context.Context, in *insysproto.PortInCreateRequest, opts []grpc.CallOption) (*insysproto.PortInCreateResponse, error)
+	PortInStatusByPortingDataIDFn func(ctx context.Context, in *insysproto.PortInStatusByPortingDataIDRequest, opts []grpc.CallOption) (*insysproto.PortInStatusByPortingDataIDResponse, error)
+	PortInStatusFn                func(ctx context.Context, in *insysproto.PortInStatusRequest, opts []grpc.CallOption) (*insysproto.PortInStatusResponse, error)
+	PortabilityCheckFn            func(ctx context.Context, in *insysproto.PortabilityCheckRequest, opts []grpc.CallOption) (*insysproto.PortabilityCheckResponse, error)
+	UpdateFn                      func(ctx context.Context, in *insysproto.PortingDataUpdateRequest, opts []grpc.CallOption) (*insysproto.PortingDataUpdateResponse, error)
 }
 
 func (pdc *PortingDataClient) ByLocationID(ctx context.Context, in *insysproto.PortingDataByLocationIDRequest, opts ...grpc.CallOption) (*insysproto.PortingDataByLocationIDResponse, error) {
@@ -48,20 +46,12 @@ func (pdc *PortingDataClient) PortInCreateByPortingDataID(ctx context.Context, i
 	return pdc.PortInCreateByPortingDataIDFn(ctx, in, opts)
 }
 
-func (pdc *PortingDataClient) PortInCreateBySalesforceBatchID(ctx context.Context, in *insysproto.PortInCreateBySalesforceBatchIDRequest, opts ...grpc.CallOption) (*insysproto.PortInCreateBySalesforceBatchIDResponse, error) {
-	return pdc.PortInCreateBySalesforceBatchIDFn(ctx, in, opts)
-}
-
 func (pdc *PortingDataClient) PortInCreate(ctx context.Context, in *insysproto.PortInCreateRequest, opts ...grpc.CallOption) (*insysproto.PortInCreateResponse, error) {
 	return pdc.PortInCreateFn(ctx, in, opts)
 }
 
 func (pdc *PortingDataClient) PortInStatusByPortingDataID(ctx context.Context, in *insysproto.PortInStatusByPortingDataIDRequest, opts ...grpc.CallOption) (*insysproto.PortInStatusByPortingDataIDResponse, error) {
 	return pdc.PortInStatusByPortingDataIDFn(ctx, in, opts)
-}
-
-func (pdc *PortingDataClient) PortInStatusBySalesforceBatchID(ctx context.Context, in *insysproto.PortInStatusBySalesforceBatchIDRequest, opts ...grpc.CallOption) (*insysproto.PortInStatusBySalesforceBatchIDResponse, error) {
-	return pdc.PortInStatusBySalesforceBatchIDFn(ctx, in, opts)
 }
 
 func (pdc *PortingDataClient) PortInStatus(ctx context.Context, in *insysproto.PortInStatusRequest, opts ...grpc.CallOption) (*insysproto.PortInStatusResponse, error) {
