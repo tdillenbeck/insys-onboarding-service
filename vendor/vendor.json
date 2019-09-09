@@ -193,12 +193,6 @@
 			"revisionTime": "2019-09-04T14:44:50Z"
 		},
 		{
-			"checksumSHA1": "UThRII2e7MEeIJ2sTHbCXC+4tKU=",
-			"path": "github.com/hashicorp/golang-lru/simplelru",
-			"revision": "7f827b33c0f158ec5dfbba01bb0b14a4541fd81d",
-			"revisionTime": "2019-07-26T16:11:22Z"
-		},
-		{
 			"checksumSHA1": "wdQsAmeyO1xN9iixpLmQ3vbSEs4=",
 			"path": "github.com/jmoiron/sqlx",
 			"revision": "d7d95172beb5a538ff08c50a6e98aee6e7c41f40",
