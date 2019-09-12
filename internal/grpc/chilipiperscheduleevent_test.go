@@ -32,8 +32,9 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 1"),
 					RouteID:    null.NewString("testing route id 1"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 
 					CreatedAt: currentTime,
 					UpdatedAt: currentTime,
@@ -49,8 +50,9 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 					EventType:  null.NewString("testing event type 2"),
 					RouteID:    null.NewString("testing route id 2"),
 
-					StartAt: null.NewTime(currentTime),
-					EndAt:   null.NewTime(currentTime),
+					StartAt:    null.NewTime(currentTime),
+					EndAt:      null.NewTime(currentTime),
+					CanceledAt: null.Time{},
 
 					CreatedAt: currentTime,
 					UpdatedAt: currentTime,
@@ -95,6 +97,7 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 						ContactId:  "testing contact id 1",
 						StartAt:    currentTime.Format(time.RFC3339),
 						EndAt:      currentTime.Format(time.RFC3339),
+						CanceledAt: "",
 						CreatedAt:  currentTime.Format(time.RFC3339Nano),
 						UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 					},
@@ -108,6 +111,7 @@ func TestChiliPiperScheduleEventServer_ByLocationID(t *testing.T) {
 						ContactId:  "testing contact id 2",
 						StartAt:    currentTime.Format(time.RFC3339),
 						EndAt:      currentTime.Format(time.RFC3339),
+						CanceledAt: "",
 						CreatedAt:  currentTime.Format(time.RFC3339Nano),
 						UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 					},
@@ -159,8 +163,9 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 				EventType:  null.NewString("testing event type 1"),
 				RouteID:    null.NewString("testing route id 1"),
 
-				StartAt: null.NewTime(currentTime),
-				EndAt:   null.NewTime(currentTime),
+				StartAt:    null.NewTime(currentTime),
+				EndAt:      null.NewTime(currentTime),
+				CanceledAt: null.Time{},
 
 				CreatedAt: currentTime,
 				UpdatedAt: currentTime,
@@ -215,6 +220,7 @@ func TestChiliPiperScheduleEventServer_Create(t *testing.T) {
 					ContactId:  "testing contact id 1",
 					StartAt:    currentTime.Format(time.RFC3339),
 					EndAt:      currentTime.Format(time.RFC3339),
+					CanceledAt: "",
 					CreatedAt:  currentTime.Format(time.RFC3339Nano),
 					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 				},
@@ -260,8 +266,9 @@ func TestChiliPiperScheduleEventServer_Update(t *testing.T) {
 				EventType:  null.NewString("testing event type 1"),
 				RouteID:    null.NewString("testing route id 1"),
 
-				StartAt: startAt,
-				EndAt:   endAt,
+				StartAt:    startAt,
+				EndAt:      endAt,
+				CanceledAt: null.Time{},
 
 				CreatedAt: currentTime,
 				UpdatedAt: currentTime,
@@ -328,6 +335,99 @@ func TestChiliPiperScheduleEventServer_Update(t *testing.T) {
 			}
 			if !cmp.Equal(got, tt.want) {
 				t.Errorf("ChiliPiperScheduleEventServer.Update(). Diff: %v", cmp.Diff(got, tt.want))
+			}
+		})
+	}
+}
+
+func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
+	currentTime := time.Now()
+	locationUUID := uuid.NewV4()
+	existingID := uuid.NewV4()
+	existingStart := null.NewTime(currentTime)
+	existingEnd := null.NewTime(currentTime)
+
+	eventID := "testing event id"
+
+	successfulChiliPiperScheduleEventService := &mock.ChiliPiperScheduleEventService{
+		CancelFn: func(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error) {
+			return &app.ChiliPiperScheduleEvent{
+				ID:         existingID,
+				LocationID: locationUUID,
+
+				EventID:    eventID,
+				AssigneeID: null.NewString("testing assignee id 1"),
+				ContactID:  null.NewString("testing contact id 1"),
+				EventType:  null.NewString("testing event type 1"),
+				RouteID:    null.NewString("testing route id 1"),
+
+				StartAt:    existingStart,
+				EndAt:      existingEnd,
+				CanceledAt: null.Time{},
+
+				CreatedAt: currentTime,
+				UpdatedAt: currentTime,
+			}, nil
+		},
+	}
+
+	type fields struct {
+		chiliPiperScheduleEventPublisher app.ChiliPiperScheduleEventPublisher
+		chiliPiperScheduleEventService   app.ChiliPiperScheduleEventService
+	}
+	type args struct {
+		ctx context.Context
+		req *insysproto.CancelChiliPiperScheduleEventRequest
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *insysproto.CancelChiliPiperScheduleEventResponse
+		wantErr bool
+	}{
+		{
+			name:   "successfully cancel a chili piper schedule event",
+			fields: fields{chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService},
+			args: args{
+				context.Background(),
+				&insysproto.CancelChiliPiperScheduleEventRequest{
+					EventId: eventID,
+				},
+			},
+			want: &insysproto.CancelChiliPiperScheduleEventResponse{
+				Event: &insysproto.ChiliPiperScheduleEventRecord{
+					Id:         existingID.String(),
+					LocationId: locationUUID.String(),
+					EventId:    eventID,
+					EventType:  "testing event type 1",
+					RouteId:    "testing route id 1",
+					AssigneeId: "testing assignee id 1",
+					ContactId:  "testing contact id 1",
+					StartAt:    currentTime.Format(time.RFC3339),
+					EndAt:      currentTime.Format(time.RFC3339),
+					CanceledAt: "",
+					CreatedAt:  currentTime.Format(time.RFC3339Nano),
+					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
+				},
+			},
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &ChiliPiperScheduleEventServer{
+				chiliPiperScheduleEventPublisher: tt.fields.chiliPiperScheduleEventPublisher,
+				chiliPiperScheduleEventService:   tt.fields.chiliPiperScheduleEventService,
+			}
+			got, err := s.Cancel(tt.args.ctx, tt.args.req)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperScheduleEventServer.Cancel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("ChiliPiperScheduleEventServer.Cancel(). Diff: %v", cmp.Diff(got, tt.want))
 			}
 		})
 	}

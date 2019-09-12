@@ -38,8 +38,9 @@ type ChiliPiperScheduleEvent struct {
 	EventType  null.String `db:"event_type" json:"event_type"`
 	RouteID    null.String `db:"route_id" json:"route_id"`
 
-	StartAt null.Time `db:"start_at" json:"start_at"`
-	EndAt   null.Time `db:"end_at" json:"end_at"`
+	StartAt    null.Time `db:"start_at" json:"start_at"`
+	EndAt      null.Time `db:"end_at" json:"end_at"`
+	CanceledAt null.Time `db:"canceled_at" json:"canceled_at"`
 
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
