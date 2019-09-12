@@ -29,9 +29,9 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 			contact_id,
 			start_at,
 			end_at,
+			canceled_at,
 			created_at,
-			updated_at,
-			canceled_at
+			updated_at
 	  FROM insys_onboarding.chili_piper_schedule_events
 	  WHERE location_id = $1 `
 
@@ -54,6 +54,38 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 	return resultEvents, nil
 }
 
+func (s *ChiliPiperScheduleEventService) Cancel(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error) {
+	var resultEvent app.ChiliPiperScheduleEvent
+
+	query := `
+	  UPDATE insys_onboarding.chili_piper_schedule_events
+			SET
+				canceled_at = now(),
+				updated_at = now()
+		 WHERE event_id = $1
+		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		eventID,
+	)
+
+	if row.Err() != nil {
+		if row.Err() == sql.ErrNoRows {
+			return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeNotFound)
+		}
+		return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeInternal)
+	}
+
+	err := row.StructScan(&resultEvent)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing chili piper schedule event cancel").SetCode(werror.CodeInternal)
+	}
+
+	return &resultEvent, nil
+}
+
 func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error) {
 	var resultEvent app.ChiliPiperScheduleEvent
 
@@ -69,11 +101,11 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		  end_at,
 		  contact_id,
 		  location_id,
+		  canceled_at,
 		  created_at,
-		  updated_at,
-		  canceled_at
+		  updated_at
 	  )
-	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now(), $10)
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, now(), now())
 	  RETURNING id, created_at, updated_at`
 
 	row := s.DB.QueryRowContext(
@@ -135,38 +167,6 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, as
 	err := row.StructScan(&resultEvent)
 	if err != nil {
 		return nil, werror.Wrap(err, "error executing chili piper schedule event update")
-	}
-
-	return &resultEvent, nil
-}
-
-func (s *ChiliPiperScheduleEventService) Cancel(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error) {
-	var resultEvent app.ChiliPiperScheduleEvent
-
-	query := `
-	  UPDATE insys_onboarding.chili_piper_schedule_events
-			SET
-				updated_at = now(),
-				canceled_at = now()
-		 WHERE event_id = $1
-		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
-
-	row := s.DB.QueryRowxContext(
-		ctx,
-		query,
-		eventID,
-	)
-
-	if row.Err() != nil {
-		if row.Err() == sql.ErrNoRows {
-			return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeNotFound)
-		}
-		return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeInternal)
-	}
-
-	err := row.StructScan(&resultEvent)
-	if err != nil {
-		return nil, werror.Wrap(err, "error executing chili piper schedule event cancel").SetCode(werror.CodeInternal)
 	}
 
 	return &resultEvent, nil
