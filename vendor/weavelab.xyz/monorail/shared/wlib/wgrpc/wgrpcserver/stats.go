@@ -28,14 +28,14 @@ type metrics interface {
 
 var (
 	WMetricsClient metrics
-	grpcLabels     = []string{"endpoint", "direction", "code", "userAgent"}
+	grpcLabels     = []string{"endpoint", "direction", "code", "userAgent", "localAddr"}
 )
 
 func init() {
 	//WMetricsClient that the stats middleware will use to send stats
 	WMetricsClient = wmetrics.DefaultClient
 	WMetricsClient.SetLabels(grpcStatsPrefix, grpcLabels...)
-	WMetricsClient.SetLabels(grpcStatsConnPrefix, "connAction", "remoteAddr")
+	WMetricsClient.SetLabels(grpcStatsConnPrefix, "connAction", "remoteAddr", "localAddr")
 }
 
 //UnaryStats for stats for unary gRPC endpoints
@@ -109,13 +109,20 @@ func sendStats(ctx context.Context, start time.Time, statName string, direction 
 
 	userAgent := strings.Replace(wgrpc.UserAgent(ctx), ".", "_", -1)
 
-	WMetricsClient.Time(time.Since(start), grpcStatsPrefix, statName, direction, codeStr, userAgent)
+	localAddr := localAddr(ctx)
+
+	WMetricsClient.Time(time.Since(start), grpcStatsPrefix, statName, direction, codeStr, userAgent, localAddr)
 }
 
 type statsHandler struct {
 }
 
-var remoteAddrKey = "remoteAddr"
+type contextKey string
+
+var (
+	localAddrKey  contextKey = "localAdd"
+	remoteAddrKey contextKey = "remoteAddr"
+)
 
 // TagRPC can attach some information to the given context.
 // The context used for the rest lifetime of the RPC will be derived from
@@ -136,19 +143,22 @@ func (s *statsHandler) HandleRPC(ctx context.Context, stats stats.RPCStats) {}
 // connection will be derived from the context returned.
 //  - On client side, the context is not derived from the context returned.
 func (s *statsHandler) TagConn(ctx context.Context, tag *stats.ConnTagInfo) context.Context {
+	ctx = context.WithValue(ctx, localAddrKey, tag.LocalAddr)
 	ctx = context.WithValue(ctx, remoteAddrKey, tag.RemoteAddr)
 	return ctx
 }
 
-const unknownRemoteAddr = "unknown"
+const unknownAddr = "unknown"
 
 // HandleConn processes the Conn stats.
 func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats) {
-	remote := unknownRemoteAddr
+	remote := unknownAddr
 	remoteAddr, ok := ctx.Value(remoteAddrKey).(net.Addr)
 	if ok {
 		remote = remoteAddr.String()
 	}
+
+	local := localAddr(ctx)
 
 	// Label values may contain any Unicode characters.
 	// wmetrics treats '.' as a separator
@@ -156,8 +166,18 @@ func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats
 
 	switch connStats.(type) {
 	case *stats.ConnBegin:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remote)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remote, local)
 	case *stats.ConnEnd:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remote)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remote, local)
 	}
+}
+
+// localAddr extracts the local server address from the context
+func localAddr(ctx context.Context) string {
+	local := unknownAddr
+	localAddr, ok := ctx.Value(localAddrKey).(net.Addr)
+	if ok {
+		local = localAddr.String()
+	}
+	return local
 }
