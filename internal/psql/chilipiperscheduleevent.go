@@ -2,6 +2,7 @@ package psql
 
 import (
 	"context"
+	"database/sql"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -29,7 +30,8 @@ func (s *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locat
 			start_at,
 			end_at,
 			created_at,
-			updated_at
+			updated_at,
+			cancelled_at
 	  FROM insys_onboarding.chili_piper_schedule_events
 	  WHERE location_id = $1 `
 
@@ -68,9 +70,10 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		  contact_id,
 		  location_id,
 		  created_at,
-		  updated_at
+		  updated_at,
+		  cancelled_at
 	  )
-	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now())
+	  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, now(), now(), $10)
 	  RETURNING id, created_at, updated_at`
 
 	row := s.DB.QueryRowContext(
@@ -85,6 +88,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 		scheduleEvent.EndAt,
 		scheduleEvent.ContactID,
 		scheduleEvent.LocationID.String(),
+		scheduleEvent.CancelledAt,
 	)
 	err := row.Scan(
 		&resultEvent.ID,
@@ -103,6 +107,7 @@ func (s *ChiliPiperScheduleEventService) Create(ctx context.Context, scheduleEve
 	resultEvent.EndAt = scheduleEvent.EndAt
 	resultEvent.ContactID = scheduleEvent.ContactID
 	resultEvent.LocationID = scheduleEvent.LocationID
+	resultEvent.CancelledAt = scheduleEvent.CancelledAt
 
 	return &resultEvent, nil
 }
@@ -130,6 +135,38 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, as
 	err := row.StructScan(&resultEvent)
 	if err != nil {
 		return nil, werror.Wrap(err, "error executing chili piper schedule event update")
+	}
+
+	return &resultEvent, nil
+}
+
+func (s *ChiliPiperScheduleEventService) Cancel(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error) {
+	var resultEvent app.ChiliPiperScheduleEvent
+
+	query := `
+	  UPDATE insys_onboarding.chili_piper_schedule_events
+			SET
+				updated_at = now(),
+				cancelled_at = now()
+		 WHERE event_id = $1
+		 RETURNING insys_onboarding.chili_piper_schedule_events.*`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		eventID,
+	)
+
+	if row.Err() != nil {
+		if row.Err() == sql.ErrNoRows {
+			return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeNotFound)
+		}
+		return nil, werror.Wrap(row.Err(), "error returning results from database").SetCode(werror.CodeInternal)
+	}
+
+	err := row.StructScan(&resultEvent)
+	if err != nil {
+		return nil, werror.Wrap(err, "error executing chili piper schedule event cancel").SetCode(werror.CodeInternal)
 	}
 
 	return &resultEvent, nil

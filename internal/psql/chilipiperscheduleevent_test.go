@@ -369,3 +369,96 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 		})
 	}
 }
+
+func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
+	db := initDBConnection(t)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+	eventService := ChiliPiperScheduleEventService{DB: db}
+
+	// create two records.  The second will be cancelled
+	_, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+			EventID:    "testing event id 1",
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 1")
+	}
+
+	existingEventForCancellation2, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID:  locationID,
+			EventID:     "testing event id 2",
+			CancelledAt: time.Now(),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 2")
+	}
+	//TODO: toss this if it isn't used
+	//eventService.Cancel(context.Background(), existingEventForCancellation2.EventID)
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx     context.Context
+		eventID string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *app.ChiliPiperScheduleEvent
+		wantErr bool
+	}{
+		{
+			name:   "successfully cancel an appointment; cancel the most recently created event",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				existingEventForCancellation2.EventID,
+			},
+			want: &app.ChiliPiperScheduleEvent{
+				ID:          existingEventForCancellation2.ID,
+				LocationID:  existingEventForCancellation2.LocationID,
+				CreatedAt:   existingEventForCancellation2.CreatedAt,
+				EventID:     existingEventForCancellation2.EventID,
+				UpdatedAt:   existingEventForCancellation2.UpdatedAt,
+				CancelledAt: existingEventForCancellation2.CancelledAt.UTC(),
+			},
+			wantErr: false,
+		},
+	}
+
+	// custom functions to ignore fields in cmp.Equal comparison
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "EndAt", "StartAt", "AssigneeID", "ContactID", "RouteID", "EventType"),
+		cmp.Comparer(func(x, y null.Time) bool {
+			diff := x.Time.Sub(y.Time)
+			return diff < (1 * time.Millisecond)
+		}),
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &ChiliPiperScheduleEventService{
+				DB: tt.fields.DB,
+			}
+			got, err := s.Cancel(tt.args.ctx, tt.args.eventID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperScheduleEventService.Cancel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !cmp.Equal(got, tt.want, opts...) {
+				t.Errorf("ChiliPiperScheduleEventService.Cancel(). Diff: %v", cmp.Diff(got, tt.want, opts...))
+			}
+		})
+	}
+}

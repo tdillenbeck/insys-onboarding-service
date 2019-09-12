@@ -3,6 +3,7 @@ package grpc
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -99,6 +100,25 @@ func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insyspr
 	return result, nil
 }
 
+func (s *ChiliPiperScheduleEventServer) Cancel(ctx context.Context, req *insysproto.CancelChiliPiperScheduleEventRequest) (*insysproto.CancelChiliPiperScheduleEventResponse, error) {
+	fmt.Printf("+++++++++++\n")
+	defer fmt.Printf("+++++++++++\n")
+	cancelResponse, err := s.chiliPiperScheduleEventService.Cancel(ctx, req.EventId)
+	if err != nil {
+		if werror.HasCode(err, werror.CodeNotFound) {
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "error in finding an event with eventID").Add("eventID", req.EventId))
+		}
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error cancelling chili piper schedule event").Add("eventID", req.EventId))
+	}
+
+	result, err := convertChiliPiperScheduleEventToCancelProto(cancelResponse)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error converting chili piper schedule event into proto").Add("cancelResponse", cancelResponse))
+	}
+
+	return result, nil
+}
+
 func convertChiliPiperScheduleEventsToProto(events []app.ChiliPiperScheduleEvent) (*insysproto.ByLocationIDChiliPiperScheduleEventResponse, error) {
 	var result insysproto.ByLocationIDChiliPiperScheduleEventResponse
 
@@ -158,6 +178,25 @@ func convertProtoToChiliPiperScheduleEvent(in *insysproto.CreateChiliPiperSchedu
 	err = json.Unmarshal(inJSON, &result)
 	if err != nil {
 		return nil, werror.Wrap(err, "could not unmarshal json into iternal chili piper schedule event").Add("inJSON", string(inJSON))
+	}
+
+	return &result, nil
+}
+
+func convertChiliPiperScheduleEventToCancelProto(event *app.ChiliPiperScheduleEvent) (*insysproto.CancelChiliPiperScheduleEventResponse, error) {
+	var result insysproto.CancelChiliPiperScheduleEventResponse
+
+	eventJSON, err := json.Marshal(event)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not marshal chili piper schedule event into json").Add("event", event)
+	}
+
+	fmt.Println("HERE!")
+	fmt.Printf("----------%+v\n", string(eventJSON))
+
+	err = json.Unmarshal(eventJSON, &result)
+	if err != nil {
+		return nil, werror.Wrap(err, "could not unmarshal chili piper schedule json into proto struct").Add("eventJSON", string(eventJSON))
 	}
 
 	return &result, nil

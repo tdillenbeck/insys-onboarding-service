@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.4
--- Dumped by pg_dump version 11.3
+-- Dumped from database version 11.5
+-- Dumped by pg_dump version 11.5
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,13 +17,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: zach.toolsongetweave.com
+-- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: will.dunn@getweave.com
 --
 
 CREATE SCHEMA insys_onboarding;
 
 
-ALTER SCHEMA insys_onboarding OWNER TO "zach.toolsongetweave.com";
+ALTER SCHEMA insys_onboarding OWNER TO "will.dunn@getweave.com";
 
 SET default_tablespace = '';
 
@@ -44,7 +44,8 @@ CREATE TABLE insys_onboarding.chili_piper_schedule_events (
     start_at timestamp with time zone,
     end_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    cancelled_at timestamp with time zone
 );
 
 

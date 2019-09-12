@@ -17,6 +17,7 @@ type ChiliPiperScheduleEventService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]ChiliPiperScheduleEvent, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
 	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
+	Cancel(ctx context.Context, eventID string) (*ChiliPiperScheduleEvent, error)
 }
 
 type OnboarderService interface {

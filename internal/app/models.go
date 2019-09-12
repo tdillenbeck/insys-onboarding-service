@@ -41,8 +41,9 @@ type ChiliPiperScheduleEvent struct {
 	StartAt null.Time `db:"start_at" json:"start_at"`
 	EndAt   null.Time `db:"end_at" json:"end_at"`
 
-	CreatedAt time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	CancelledAt time.Time `db:"cancelled_at" json:"cancelled_at"`
 }
 
 // Onboarder represents a user's onboarding specific information
