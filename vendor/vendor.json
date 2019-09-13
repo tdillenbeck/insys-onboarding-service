@@ -933,43 +933,43 @@
 		{
 			"checksumSHA1": "ULiiHiUAbLpwGwW2tpUQk40KP4c=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "pklXx2xXav97NuqVfvDgpklUn0Y=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/platformenums",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "aj1DG/sZuIDmIXfl9/BO23czqXU=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "HiDk2CJHg3TdeBN4y8oCDgHZ4Hc=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/platformproto",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "7fVh4EMiwycUkb42pC1rrBCo498=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "qvzcdKXzHBY3ww4pBh9GWcQjhpY=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
 			"checksumSHA1": "oyoAIRmGKHR2zpojmaAqmdn7evM=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/platform",
-			"revision": "e11bfb60bc69986fa971e4082f1bbc1f5ab8917c",
+			"revision": "292860b56eb3c2d4193c72f55580d25b3611f0a2",
 			"revisionTime": "2019-09-12T15:04:57Z"
 		},
 		{
