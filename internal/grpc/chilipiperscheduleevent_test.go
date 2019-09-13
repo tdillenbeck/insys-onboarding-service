@@ -406,7 +406,7 @@ func TestChiliPiperScheduleEventServer_Cancel(t *testing.T) {
 					ContactId:  "testing contact id 1",
 					StartAt:    currentTime.Format(time.RFC3339),
 					EndAt:      currentTime.Format(time.RFC3339),
-					CanceledAt: "", //null.Time{}.Time.String() prints the Time zero-value, not an empty struct ("")
+					CanceledAt: "",
 					CreatedAt:  currentTime.Format(time.RFC3339Nano),
 					UpdatedAt:  currentTime.Format(time.RFC3339Nano),
 				},

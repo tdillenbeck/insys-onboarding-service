@@ -154,6 +154,94 @@ func TestChiliPiperScheduleService_ByLocationID(t *testing.T) {
 	}
 }
 
+func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
+	db := initDBConnection(t)
+	clearExistingData(db)
+
+	currentTime := time.Now()
+	locationID := uuid.NewV4()
+	eventService := ChiliPiperScheduleEventService{DB: db}
+
+	existingEventForCancelation, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+			EventID:    "testing event id 2",
+			CanceledAt: null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 2")
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+	type args struct {
+		ctx     context.Context
+		eventID string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *app.ChiliPiperScheduleEvent
+		wantErr bool
+	}{
+		{
+			name:   "successfully cancel an appointment",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				existingEventForCancelation.EventID,
+			},
+			want: &app.ChiliPiperScheduleEvent{
+				ID:         existingEventForCancelation.ID,
+				LocationID: existingEventForCancelation.LocationID,
+				CreatedAt:  existingEventForCancelation.CreatedAt,
+				EventID:    existingEventForCancelation.EventID,
+			},
+			wantErr: false,
+		},
+	}
+
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
+		cmp.Comparer(func(x, y null.Time) bool {
+			diff := x.Time.Sub(y.Time)
+			return diff < (5 * time.Millisecond)
+		}),
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &ChiliPiperScheduleEventService{
+				DB: tt.fields.DB,
+			}
+			got, err := s.Cancel(tt.args.ctx, tt.args.eventID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperScheduleEventService.Cancel() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !cmp.Equal(got, tt.want, opts...) {
+				t.Errorf("ChiliPiperScheduleEventService.Cancel(). Diff: %v", cmp.Diff(got, tt.want, opts...))
+			}
+
+			// a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
+			updatedDiff := time.Now().Sub(got.UpdatedAt)
+			if updatedDiff > (5 * time.Millisecond) {
+				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
+			}
+
+			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
+			if canceledDiff > (5 * time.Millisecond) {
+				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
+			}
+		})
+	}
+}
+
 func TestChiliPiperScheduleService_Create(t *testing.T) {
 	db := initDBConnection(t)
 	clearExistingData(db)
@@ -372,94 +460,6 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 			}
 			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("ChiliPiperScheduleEventService.Update(). Diff: %v", cmp.Diff(got, tt.want, opts...))
-			}
-		})
-	}
-}
-
-func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
-	db := initDBConnection(t)
-	clearExistingData(db)
-
-	currentTime := time.Now()
-	locationID := uuid.NewV4()
-	eventService := ChiliPiperScheduleEventService{DB: db}
-
-	existingEventForCancelation, err := eventService.Create(
-		context.Background(),
-		&app.ChiliPiperScheduleEvent{
-			LocationID: locationID,
-			EventID:    "testing event id 2",
-			CanceledAt: null.NewTime(currentTime),
-		},
-	)
-	if err != nil {
-		t.Fatal("could not create ChiliPiperScheduleEvent for reassignment in setup for cancel -> id = 2")
-	}
-
-	type fields struct {
-		DB *wsql.PG
-	}
-	type args struct {
-		ctx     context.Context
-		eventID string
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		args    args
-		want    *app.ChiliPiperScheduleEvent
-		wantErr bool
-	}{
-		{
-			name:   "successfully cancel an appointment",
-			fields: fields{DB: db},
-			args: args{
-				context.Background(),
-				existingEventForCancelation.EventID,
-			},
-			want: &app.ChiliPiperScheduleEvent{
-				ID:         existingEventForCancelation.ID,
-				LocationID: existingEventForCancelation.LocationID,
-				CreatedAt:  existingEventForCancelation.CreatedAt,
-				EventID:    existingEventForCancelation.EventID,
-			},
-			wantErr: false,
-		},
-	}
-
-	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
-		cmp.Comparer(func(x, y null.Time) bool {
-			diff := x.Time.Sub(y.Time)
-			return diff < (5 * time.Millisecond)
-		}),
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &ChiliPiperScheduleEventService{
-				DB: tt.fields.DB,
-			}
-			got, err := s.Cancel(tt.args.ctx, tt.args.eventID)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ChiliPiperScheduleEventService.Cancel() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("ChiliPiperScheduleEventService.Cancel(). Diff: %v", cmp.Diff(got, tt.want, opts...))
-			}
-
-			//a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
-			updatedDiff := time.Now().Sub(got.UpdatedAt)
-			if updatedDiff > (5 * time.Millisecond) {
-				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
-			}
-
-			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
-			if canceledDiff > (5 * time.Millisecond) {
-				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
 			}
 		})
 	}
