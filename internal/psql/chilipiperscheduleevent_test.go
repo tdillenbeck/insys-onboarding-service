@@ -209,7 +209,7 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
 		cmp.Comparer(func(x, y null.Time) bool {
 			diff := x.Time.Sub(y.Time)
-			return diff < (5 * time.Millisecond)
+			return diff < (10 * time.Second)
 		}),
 	}
 
