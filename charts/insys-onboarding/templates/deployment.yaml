@@ -78,16 +78,19 @@ spec:
         - name: grpc
           containerPort: 9000
 
-      - image: gcr.io/weave-lab/shared/wmetricsd:2018-11-06.2fa17d96elm
+      - image: gcr.io/weave-lab/shared/wmetricsd:2019-06-24.bababa
         name: wmetricsd
         env:
         - name: ENABLE_PROM
           value: 'true'
         resources:
           requests:
-            cpu: 15m
-            memory: 32Mi   
-            
+            cpu: "30m"
+            memory: "32Mi"
+          limits:
+            cpu: "50m"
+            memory: "32Mi"
+
       - name: wlogd
         image: gcr.io/weave-lab/shared/wlogd:2018-11-06.2fa17d96elm
         resources:
