@@ -230,12 +230,12 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 
 			// a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
 			updatedDiff := time.Now().Sub(got.UpdatedAt)
-			if updatedDiff > (5 * time.Millisecond) {
+			if updatedDiff > (500 * time.Millisecond) {
 				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
 			}
 
 			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
-			if canceledDiff > (5 * time.Millisecond) {
+			if canceledDiff > (500 * time.Millisecond) {
 				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
 			}
 		})
