@@ -20,17 +20,6 @@ import (
 
 var Default = &KeySet{}
 
-// Set required values
-func Register(verifyKey []byte, cookie string) error {
-	var err error
-	Default, err = NewLegacyKeySet(verifyKey, cookie)
-	if err != nil {
-		return werror.Wrap(err)
-	}
-
-	return nil
-}
-
 // Makes a new signed JWT token string
 func (k *KeySet) Make(acls ACL, userID uuid.UUID, username string, aclT ACLType, exp int64, buffer int64, keyID string, audience ...string) (string, error) {
 
