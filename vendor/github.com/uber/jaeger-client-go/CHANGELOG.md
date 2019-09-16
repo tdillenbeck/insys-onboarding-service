@@ -1,6 +1,18 @@
 Changes by Version
 ==================
 
+2.18.2 (unreleased)
+-------------------
+
+- Nothing yet.
+
+
+2.18.1 (2019-09-16)
+-------------------
+
+- Remove go.mod / go.sum that interfere with `go get` (#432)
+
+
 2.18.0 (2019-09-09)
 -------------------
 
