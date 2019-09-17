@@ -16,10 +16,10 @@ pipeline {
     stage('goBuild') {
       agent any
         environment {
-          POSTGRES_DB = "insys_onboarding_test"
-          POSTGRES_USER = "postgres"
-          POSTGRES_SEARCH_PATH = "insys_onboarding"
           BOOT_WAIT = "30"
+          POSTGRES_DB = "insys_onboarding_test"
+          POSTGRES_SEARCH_PATH = "insys_onboarding"
+          POSTGRES_USER = "postgres"
         }
       steps {
         script {
