@@ -19,6 +19,7 @@ pipeline {
           POSTGRES_DB = "insys_onboarding_test"
           POSTGRES_USER = "postgres"
           POSTGRES_SEARCH_PATH = "insys_onboarding"
+          BOOT_WAIT = "30"
         }
       steps {
         script {
