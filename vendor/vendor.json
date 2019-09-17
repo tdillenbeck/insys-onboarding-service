@@ -17,8 +17,8 @@
 		{
 			"checksumSHA1": "eF7ZK9bxff9i1tcFOBlDlY9gYpk=",
 			"path": "cloud.google.com/go/compute/metadata",
-			"revision": "d5224383d7a4219dd740266ae676f3be904dd27a",
-			"revisionTime": "2019-09-16T15:52:49Z"
+			"revision": "ab1a93c1c44dea1ddca1628964968c756a67f1a6",
+			"revisionTime": "2019-09-17T13:46:14Z"
 		},
 		{
 			"path": "crypto/ed25519",
@@ -163,10 +163,10 @@
 			"revisionTime": "2019-08-29T22:54:27Z"
 		},
 		{
-			"checksumSHA1": "WZoHSeTnVjnPIX2+U1Otst5MUKw=",
+			"checksumSHA1": "JC8ZtqgxHHJhtD1aDEnpPKqLQl0=",
 			"path": "github.com/googleapis/gax-go/v2",
-			"revision": "e188373134855d5f7f186c9e710cd7323eac1ebc",
-			"revisionTime": "2019-08-29T21:15:21Z"
+			"revision": "7cb21a99a18735dde62f5d3cc0244f3f35bd9515",
+			"revisionTime": "2019-09-17T16:32:13Z"
 		},
 		{
 			"checksumSHA1": "X37WQ5fJdqkH4gvJcs1bfAHeBKw=",
@@ -535,10 +535,10 @@
 			"revisionTime": "2019-05-07T23:52:07Z"
 		},
 		{
-			"checksumSHA1": "jPpoeAayvylXJQtPwXwV2YDSsT0=",
+			"checksumSHA1": "hAWSknbI2dz5AWCI/rmRtfpOIP4=",
 			"path": "golang.org/x/sys/unix",
-			"revision": "8a69140bde95ee56138cac9d942a13d472e4188d",
-			"revisionTime": "2019-09-15T17:50:40Z"
+			"revision": "b4ddaad3f8a36719f2b8bc6486c14cc468ca2bb5",
+			"revisionTime": "2019-09-16T19:53:49Z"
 		},
 		{
 			"checksumSHA1": "CbpjEkkOeh0fdM/V8xKDdI0AA88=",
@@ -573,56 +573,56 @@
 		{
 			"checksumSHA1": "YIDE68w/xMptf6Nu9hHiOwXOvho=",
 			"path": "google.golang.org/api/googleapi",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "1K0JxrUfDqAB3MyRiU1LKjfHyf4=",
 			"path": "google.golang.org/api/googleapi/internal/uritemplates",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "Mr2fXhMRzlQCgANFm91s536pG7E=",
 			"path": "google.golang.org/api/googleapi/transport",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "6Tg4dDJKzoSrAA5beVknvnjluOU=",
 			"path": "google.golang.org/api/internal",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "b/2Hpk2nKXY3Ht1MNdHh4p20pwQ=",
 			"path": "google.golang.org/api/internal/gensupport",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "2AyxThTPscWdy49fGsU2tg0Uyw8=",
 			"path": "google.golang.org/api/option",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
-			"checksumSHA1": "uCrUd9iq2CC4c0uExLKBDflDZ8E=",
+			"checksumSHA1": "PXQ8AsgkiFXe7adQTYTd21o2Jhg=",
 			"path": "google.golang.org/api/sqladmin/v1beta4",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "a+PkIGoiF+p+ghmjmA9gUkMFwYQ=",
 			"path": "google.golang.org/api/transport/http",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "sJcKCvjPtoysqyelsB2CQzC5oQI=",
 			"path": "google.golang.org/api/transport/http/internal/propagation",
-			"revision": "5d8ab9c8e5e8beffc7e6f9968c5d3e390a883464",
-			"revisionTime": "2019-09-14T00:08:38Z"
+			"revision": "7439972e83a764c2a87f6fa78c4a37e8ed2db615",
+			"revisionTime": "2019-09-17T14:53:22Z"
 		},
 		{
 			"checksumSHA1": "GYL8WmQbpPXH1BxIrHl7Lkoh24c=",
@@ -687,8 +687,8 @@
 		{
 			"checksumSHA1": "dU5fToNngC22+3DsebkdYv+T3jE=",
 			"path": "google.golang.org/genproto/googleapis/rpc/status",
-			"revision": "1774047e7e5133fa3573a4e51b37a586b6b0360c",
-			"revisionTime": "2019-09-11T17:36:49Z"
+			"revision": "f660b865573183437d2d868f703fe88bb8af0b55",
+			"revisionTime": "2019-09-16T21:42:12Z"
 		},
 		{
 			"checksumSHA1": "ceO6JQiY7y4gZi+RpGhxJuFZ/n4=",
@@ -921,290 +921,290 @@
 		{
 			"checksumSHA1": "/vAO/8b3RE9KxPNhjtCAcQrF6zI=",
 			"path": "weavelab.xyz/monorail/shared/go-utilities/dev",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "9qZI8X4N09xV9WeUqY0L7v65Hec=",
 			"path": "weavelab.xyz/monorail/shared/go-utilities/null",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "pNTPPOsB5/eLT+xE1CaiAM+ZDIY=",
 			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "ULiiHiUAbLpwGwW2tpUQk40KP4c=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "pklXx2xXav97NuqVfvDgpklUn0Y=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/platformenums",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "aj1DG/sZuIDmIXfl9/BO23czqXU=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "HiDk2CJHg3TdeBN4y8oCDgHZ4Hc=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/platformproto",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "7fVh4EMiwycUkb42pC1rrBCo498=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "qvzcdKXzHBY3ww4pBh9GWcQjhpY=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "oyoAIRmGKHR2zpojmaAqmdn7evM=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/platform",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "izi7xUiFksBX3Z1YwEXMVqn6QUk=",
 			"path": "weavelab.xyz/monorail/shared/wiggum",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "InSf4HOzNCp4zvVz1l4a/BFbcc0=",
 			"path": "weavelab.xyz/monorail/shared/wiggum/jwt-go",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "dxXSOntF6Lgid+ytyGi7mTAzsOk=",
 			"path": "weavelab.xyz/monorail/shared/wlib/color",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "G6v22pr7b61Gx1PzjwWlHNnktS0=",
 			"path": "weavelab.xyz/monorail/shared/wlib/config",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "wf+lv8+TIwQL3Ds8jRJKYXjlTkE=",
 			"path": "weavelab.xyz/monorail/shared/wlib/uuid",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "znZXHkcqM8yMG7XzlJyAm+Eyf60=",
 			"path": "weavelab.xyz/monorail/shared/wlib/version",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "zsCuBDxbHrOHgilowZtEpLniy4k=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wapp",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "1/CJd1XxakNdmCxpeF5yKuuBmME=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "9xHCNBh4ZNWYFcKcaFh9Upuq4+0=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wapp/nsqwapp",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "TtMeYkFEtdOxti/6Uc4npkBAP1k=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wcontext",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "u9HxPnz88snfYRlC5TIBYHGGebk=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wdns",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "Ki5CmdN8VaAWGPXO2JHx2v+NXzk=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wdns/dnsmessage",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "rlPEKUk8FegpSQ31B+xASQTV4RU=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wdns/xnet",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "KAmbOC6vmVysl18hTiXjsHx/YrY=",
 			"path": "weavelab.xyz/monorail/shared/wlib/werror",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "/6b4ny4216iO5X6ZHp3wR6EuHrc=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "eut3qksXXGjomZrG59pOjJgpZwo=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcclient",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
-			"checksumSHA1": "9wNhWDMHt+MKTJQoxK2bDX7z19o=",
+			"checksumSHA1": "UoVBjxeuU9FRxxr88fpD7SXJ9ww=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "sz+diu/1paCsV/MFC8l76RZOxNY=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcserver/wrapstream",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "XaPIp4NAMJd+3qI85fDDDNZymUU=",
 			"path": "weavelab.xyz/monorail/shared/wlib/whttp/whttpclient",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "4YKIuizmG6OqgZWoPdgJB1N8lNg=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wlog",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "sAdaYgN8o6NXoQLHRhbfJppahhQ=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wlog/tag",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "WdHObQEO6RtKhzK1P9vD6l35gjM=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "ViHgSbbLR01fxaheMtQDk5gRhI4=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/aggregator",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "W84dLSLhwECOkca+/tpl3YKPvUw=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/appstats",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "MyrYbcvpac9QeUWGcGSNFsJJHCE=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/client",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "Mo5tVUlmBjPNERnqENw+d27++Es=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/wmetricsconfig",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "i8MRGVnmxRvlQKrzAVuQdDsZNeg=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wmetrics/wmetricslog",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "n++EbSXTjhgQ8y/qXrMA3UT2fx8=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wnsq",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "QofnJDMcUePlHdv7dTz8aG4J8PM=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wnsq/wnsqproto",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "CCwHI4L/Fu74uBWw+dq2QxnMSck=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wsql",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "XsSidRea6KFTQ0FdMzqtMp3xPaE=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wtracer",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "aTpc9ZkXBhQCUaGL6W+cIhthpQ0=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wvault",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "wL19l8wcf1X2osF18wgmlj8nDNQ=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wvault/clockwork",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "ERnoXJyJTTNDq6TtiReEMuwon3s=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wvault/wvaultauth",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "ERkQpuZkDzJQIDENPX8DNKpJ9Xo=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wvault/wvaultdb",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "wDO3yBZ1/xDbprUiVx+gCo14C+g=",
 			"path": "weavelab.xyz/monorail/shared/wlib/wvault/wvaulttypes",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "td+CCRRddYlCI+SGLY1zolqqWew=",
 			"path": "weavelab.xyz/monorail/shared/wlogd/chunker",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
 			"checksumSHA1": "K/wDzFUR294l9ILwBrv368Zlbbg=",
 			"path": "weavelab.xyz/monorail/shared/wlogd/wlogproto",
-			"revision": "d11125166901f4bcdd5dc1ada4c47105af9cbe02",
-			"revisionTime": "2019-09-13T22:23:27Z"
+			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
+			"revisionTime": "2019-09-17T17:36:45Z"
 		}
 	],
 	"rootPath": "weavelab.xyz/insys-onboarding-service"

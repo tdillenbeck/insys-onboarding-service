@@ -109,7 +109,7 @@ func sendStats(ctx context.Context, start time.Time, statName string, direction 
 
 	userAgent := strings.Replace(wgrpc.UserAgent(ctx), ".", "_", -1)
 
-	localAddr := localAddr(ctx)
+	localAddr := extractAddrValue(ctx, localAddrKey)
 
 	WMetricsClient.Time(time.Since(start), grpcStatsPrefix, statName, direction, codeStr, userAgent, localAddr)
 }
@@ -152,17 +152,8 @@ const unknownAddr = "unknown"
 
 // HandleConn processes the Conn stats.
 func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats) {
-	remote := unknownAddr
-	remoteAddr, ok := ctx.Value(remoteAddrKey).(net.Addr)
-	if ok {
-		remote = remoteAddr.String()
-	}
-
-	local := localAddr(ctx)
-
-	// Label values may contain any Unicode characters.
-	// wmetrics treats '.' as a separator
-	remote = strings.Replace(remote, ".", "_", -1)
+	remote := extractAddrValue(ctx, remoteAddrKey)
+	local := extractAddrValue(ctx, localAddrKey)
 
 	switch connStats.(type) {
 	case *stats.ConnBegin:
@@ -172,12 +163,17 @@ func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats
 	}
 }
 
-// localAddr extracts the local server address from the context
-func localAddr(ctx context.Context) string {
-	local := unknownAddr
-	localAddr, ok := ctx.Value(localAddrKey).(net.Addr)
+// extractAddrValue extracts the address from the context and makes it metrics-friendly
+func extractAddrValue(ctx context.Context, addrKey contextKey) string {
+	addrValue := unknownAddr
+	addr, ok := ctx.Value(addrKey).(net.Addr)
 	if ok {
-		local = localAddr.String()
+		addrValue = addr.String()
+
+		// Label values may contain any Unicode characters.
+		// wmetrics treats '.' as a separator
+		addrValue = strings.Replace(addrValue, ".", "_", -1)
 	}
-	return local
+
+	return addrValue
 }
