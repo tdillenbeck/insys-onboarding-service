@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kr/pretty"
-
 	"github.com/gogo/protobuf/proto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -29,8 +27,6 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 	if err != nil {
 		return werror.Wrap(err, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
 	}
-
-	pretty.Println(le)
 
 	return nil
 }
