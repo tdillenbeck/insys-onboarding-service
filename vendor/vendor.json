@@ -949,6 +949,12 @@
 			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
+			"checksumSHA1": "osmLzrYqaOcXtyqWG1abgH7YZrY=",
+			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
+		},
+		{
 			"checksumSHA1": "aj1DG/sZuIDmIXfl9/BO23czqXU=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
 			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",

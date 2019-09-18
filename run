@@ -53,6 +53,7 @@ case $env in
 
         export NSQ_CHILI_PIPER_SCHEDULE_EVENT_CREATED_TOPIC=ChiliPiperScheduleEventCreated
         export NSQ_PORTING_DATA_RECORD_CREATED_TOPIC=PortingDataCreated
+        export NSQ_LOGIN_EVENT_CREATED_TOPIC=LoginEvent
 
         export FEATURE_FLAGS_ADDRESS=dev-kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=dev-kube-load:30707
@@ -77,6 +78,8 @@ case $env in
 
         export NSQ_CHILI_PIPER_SCHEDULE_EVENT_CREATED_TOPIC=ChiliPiperScheduleEventCreated
         export NSQ_PORTING_DATA_RECORD_CREATED_TOPIC=PortingDataCreated
+        export NSQ_LOGIN_EVENT_CREATED_TOPIC=LoginEvent
+
 
         export FEATURE_FLAGS_ADDRESS=kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=kube-load:30707

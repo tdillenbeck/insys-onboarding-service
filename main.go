@@ -86,6 +86,7 @@ func main() {
 
 	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
+	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
@@ -95,6 +96,7 @@ func main() {
 		grpcStarter,
 		nsqwapp.Bootstrap(config.NSQChiliPiperScheduleEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, chiliPiperScheduleEventCreatedSubscriber),
 		nsqwapp.Bootstrap(config.NSQPortingDataRecordCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, portingDataRecordCreatedSubscriber),
+		nsqwapp.Bootstrap(config.NSQLoginEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, loginEventCreatedSubscriber),
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return
