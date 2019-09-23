@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package authproto;
+import "github.com/golang/protobuf/ptypes/empty/empty.proto";
+import "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcproto/wgrpcprotouuid/uuid.proto";
+
+service Auth {
+    rpc LocationUsers(UsersRequest) returns (UsersResponse) {}
+    rpc LocationUser(UserRequest) returns (User) {}
+    rpc DeleteLocationUser(LocationUserRequest) returns(google.protobuf.Empty){}
+    
+    rpc UpdateProfile(Profile) returns (google.protobuf.Empty) {}
+    rpc CreateProfile(Profile) returns (Profile) {}
+    
+    rpc UpsertUser(User) returns (User) {}
+    rpc FindUsers(UserSearch) returns (UsersResponse) {}
+    rpc FindUser(wgrpcprotouuid.UUID) returns (User) {}
+    rpc FindByUsername(FindByUsernameRequest) returns (User) {}
+
+    rpc Login(LoginRequest) returns (LoginResponse) {} 
+    rpc PublicKey(EmptyRequest) returns (PublicKeyResponse) {}
+    rpc RefreshToken(RefreshTokenRequest) returns (LoginResponse) {}
+    rpc InternalOauthLogin(OauthLoginRequset) returns (OauthLoginResponse) {} //used for login with google on support tools
+}
+
+message UserRequest {
+    string UserID = 2;
+}
+
+message FindByUsernameRequest {
+    string Username = 1;
+}
+
+message LocationUserRequest {
+    string LocationID = 1;
+    string UserID = 2;
+}
+
+message User {
+    string UserID = 1;
+    string Username = 2;
+    string Type = 3;
+    string FirstName = 4;
+    string LastName = 5;
+    repeated Location Locations = 6;
+    string Password = 7;
+    StatusType Status = 8;
+}
+
+message Profile {
+    string UserID = 1;
+    string Username = 2;
+    string Type = 3;
+    string FirstName = 4;
+    string LastName = 5;
+    string Password = 6;
+    StatusType Status = 7;
+}
+
+
+message Location {
+    string LocationID = 1;
+    repeated int32 Roles = 2;
+    bool Accepted = 3; 
+}
+
+message Role {
+    int32 Value = 1;
+}
+
+message UserSearch {
+    repeated string LocationIDs = 1;
+    repeated string SearchTerms = 2;
+    int32 Limit = 3;
+    int32 Skip = 4;
+}
+
+message UsersRequest {
+    string LocationID = 1;
+}
+
+message UsersResponse {
+    repeated User Users  = 1;
+}
+
+message LoginRequest {
+    string Username = 1;
+    string Password = 2;
+    int32 Expiration = 3; //used as minutes
+    int32 RefreshWindow = 4; //used as minutes
+    ClientMetadata ClientMetadata = 5;
+}
+
+message ClientMetadata {
+    string ClientType = 1; //What client does the request origniate from that wants a token, i.e. desktop client, wam, jasper etc..
+    repeated string RequestingService = 2; //array of service names that handle the request
+    map<string,string> RequestHeaders = 3;
+}
+
+message LoginResponse {
+    string Token = 1;
+}
+
+message PublicKeyResponse {
+    bytes PublicKey = 1;
+}
+
+message RefreshTokenRequest {
+    string Token = 1;
+    string Expiration = 2;
+}
+
+enum StatusType {
+    Legacy = 0; //old users i.e. all users prior to this update
+    Invited = 1; //user has received an email to join a location
+    Active = 2; //user has accepted invitation
+    Disabled = 3; 
+}
+message EmptyRequest {}
+
+message OauthLoginRequset {
+    string Username = 1;
+    string GoogleAccessToken = 2;
+    string FirstName = 3;
+    string LastName = 4;
+    ClientMetadata ClientMetadata = 5;
+}
+
+message OauthLoginResponse {
+    string WeaveToken = 1;
+}

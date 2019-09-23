@@ -10,9 +10,10 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/producers"
 	"weavelab.xyz/insys-onboarding-service/internal/psql"
+	"weavelab.xyz/insys-onboarding-service/internal/zapier"
 
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
-
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/wapp"
 	"weavelab.xyz/monorail/shared/wlib/wapp/grpcwapp"
@@ -53,6 +54,11 @@ func main() {
 	}
 
 	// setup grpc clients
+	authClient, err := authclient.New(ctx, config.AuthServiceAddr)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up auth client"))
+	}
+
 	featureFlagsClient, err := featureflagsclient.New(ctx, config.FeatureFlagsAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up feature flags client"))
@@ -66,6 +72,9 @@ func main() {
 	// setup nsq publishers
 	producers.Init(config.NSQDAddr)
 	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
+
+	// setup zapier client
+	zapierClient := zapier.New(config.ZapierURL)
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
@@ -86,6 +95,7 @@ func main() {
 
 	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
+	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, onboardersLocationService, *authClient, *featureFlagsClient, zapierClient)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
@@ -95,6 +105,7 @@ func main() {
 		grpcStarter,
 		nsqwapp.Bootstrap(config.NSQChiliPiperScheduleEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, chiliPiperScheduleEventCreatedSubscriber),
 		nsqwapp.Bootstrap(config.NSQPortingDataRecordCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, portingDataRecordCreatedSubscriber),
+		nsqwapp.Bootstrap(config.NSQLoginEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, loginEventCreatedSubscriber),
 	)
 
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return

@@ -931,6 +931,24 @@
 			"revisionTime": "2019-09-17T17:36:45Z"
 		},
 		{
+			"checksumSHA1": "SJ1xVMOjodzYXbOTU4gwq5sU8sM=",
+			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
+		},
+		{
+			"checksumSHA1": "KlsV+i6UnFh2ADwq1nbf/ORi3yA=",
+			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient/authproto",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
+		},
+		{
+			"checksumSHA1": "uVaFjQkTwnLml0V0K4rsIRnfEXQ=",
+			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient/authv2proto",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
+		},
+		{
 			"checksumSHA1": "pNTPPOsB5/eLT+xE1CaiAM+ZDIY=",
 			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient",
 			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
@@ -947,6 +965,12 @@
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/enums/platformenums",
 			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
 			"revisionTime": "2019-09-17T17:36:45Z"
+		},
+		{
+			"checksumSHA1": "osmLzrYqaOcXtyqWG1abgH7YZrY=",
+			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
 		},
 		{
 			"checksumSHA1": "aj1DG/sZuIDmIXfl9/BO23czqXU=",
@@ -1073,6 +1097,18 @@
 			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcclient",
 			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
 			"revisionTime": "2019-09-17T17:36:45Z"
+		},
+		{
+			"checksumSHA1": "c6iu/gEQco7ZYnG8Qy8Oopkyxuw=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcproto",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
+		},
+		{
+			"checksumSHA1": "4HKExqdQHPHNX0wFWfeNPbKnCt0=",
+			"path": "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcproto/wgrpcprotouuid",
+			"revision": "c8062c149f7d55738ad89341acfa2e66629439fe",
+			"revisionTime": "2019-09-13T21:13:29Z"
 		},
 		{
 			"checksumSHA1": "UoVBjxeuU9FRxxr88fpD7SXJ9ww=",
