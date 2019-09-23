@@ -17,13 +17,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: will.dunn@getweave.com
+-- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: mike.campbell@getweave.com
 --
 
 CREATE SCHEMA insys_onboarding;
 
 
-ALTER SCHEMA insys_onboarding OWNER TO "will.dunn@getweave.com";
+ALTER SCHEMA insys_onboarding OWNER TO "mike.campbell@getweave.com";
 
 SET default_tablespace = '';
 
@@ -119,7 +119,8 @@ CREATE TABLE insys_onboarding.onboarders_location (
     onboarder_id uuid NOT NULL,
     location_id uuid NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
-    updated_at timestamp without time zone DEFAULT now() NOT NULL
+    updated_at timestamp without time zone DEFAULT now() NOT NULL,
+    user_first_logged_in_at timestamp with time zone
 );
 
 

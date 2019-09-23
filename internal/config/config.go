@@ -33,8 +33,12 @@ const (
 	nsqLoginEventCreatedTopic              = "nsq-login-event-created-topic"
 
 	// grpc client settings
+	authServiceAddress     = "auth-service-address"
 	featureFlagsAddress    = "feature-flags-address"
 	portingDataGRPCAddress = "porting-data-grpc-address"
+
+	// zapier
+	zapierURL = "zapier-url"
 )
 
 var (
@@ -62,8 +66,12 @@ var (
 
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
-	FeatureFlagsAddr      string
-	PortingDataGRPCAddr   string
+
+	AuthServiceAddr     string
+	FeatureFlagsAddr    string
+	PortingDataGRPCAddr string
+
+	ZapierURL string
 )
 
 func init() {
@@ -92,8 +100,11 @@ func init() {
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
 
+	config.Add(authServiceAddress, "auth-api.auth.svc.cluster.local.:grpc", "The grpc address of the auth service")
 	config.Add(featureFlagsAddress, "client-feature-flags.client.svc.cluster.local.:grpc", "The grpc address of the feature flags service")
 	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
+
+	config.Add(zapierURL, "", "The address zapier webhook")
 }
 
 func Init() error {
@@ -169,6 +180,11 @@ func Init() error {
 		return werror.Wrap(err, "error getting concurrent handlers")
 	}
 
+	AuthServiceAddr, err = config.GetAddress(authServiceAddress, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting auth service grpc address")
+	}
+
 	FeatureFlagsAddr, err = config.GetAddress(featureFlagsAddress, false)
 	if err != nil {
 		return werror.Wrap(err, "error getting feature flags grpc address")
@@ -177,6 +193,11 @@ func Init() error {
 	PortingDataGRPCAddr, err = config.GetAddress(portingDataGRPCAddress, false)
 	if err != nil {
 		return werror.Wrap(err, "error getting proting data grpc address")
+	}
+
+	ZapierURL = config.Get(zapierURL)
+	if ZapierURL == "" {
+		return werror.Wrap(err, "error getting zapier URL")
 	}
 
 	return nil
