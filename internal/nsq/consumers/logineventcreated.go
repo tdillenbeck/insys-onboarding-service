@@ -68,18 +68,20 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 			}
 		}
 
-		if hasOnboardingBetaEnabled {
-			// make call to zapier, and if zapier succeeds, update the database.
-			// if not, fail silently as the user is sure to log in again.
-			err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
-			if err != nil {
-				fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
-				continue
-			}
-			err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
-			if err != nil {
-				fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
-			}
+		if !hasOnboardingBetaEnabled {
+			return nil
+		}
+
+		// make call to zapier, and if zapier succeeds, update the database.
+		// if not, fail silently as the user is sure to log in again.
+		err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
+		if err != nil {
+			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			continue
+		}
+		err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
+		if err != nil {
+			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
 		}
 	}
 
