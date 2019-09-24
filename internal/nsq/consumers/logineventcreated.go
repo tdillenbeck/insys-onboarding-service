@@ -2,6 +2,7 @@ package consumers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
@@ -56,7 +57,7 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 	for _, location := range userAccess.Locations {
 		features, err := p.featureFlagsClient.List(ctx, location.LocationID)
 		if err != nil {
-			wlog.InfoC(ctx, "Failed to get Features for Location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s.  failing without returning an error.", location.LocationID.String()))
 			wlog.InfoC(ctx, err.Error())
 		}
 
@@ -77,13 +78,13 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		// if not, fail silently as the user is sure to log in again.
 		err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
 		if err != nil {
-			wlog.InfoC(ctx, "Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  failing without returning an error.", location.LocationID.String()))
 			wlog.InfoC(ctx, err.Error())
 			continue
 		}
 		err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
 		if err != nil {
-			wlog.InfoC(ctx, "Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s.  failing without returning an error.", location.LocationID.String()))
 			wlog.InfoC(ctx, err.Error())
 		}
 	}
