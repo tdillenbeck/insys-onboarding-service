@@ -57,6 +57,7 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		features, err := p.featureFlagsClient.List(ctx, location.LocationID)
 		if err != nil {
 			fmt.Printf("Failed to get Features for Location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			fmt.Println(err)
 		}
 
 		// hasOnboardingBetaEnabled is active only for those locations being onboarded, and so it's the indicator that we use.
@@ -77,11 +78,13 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
 		if err != nil {
 			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			fmt.Println(err)
 			continue
 		}
 		err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
 		if err != nil {
 			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
+			fmt.Println(err)
 		}
 	}
 
