@@ -12,6 +12,7 @@ import (
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 type LogInEventCreatedSubscriber struct {
@@ -57,7 +58,7 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		features, err := p.featureFlagsClient.List(ctx, location.LocationID)
 		if err != nil {
 			fmt.Printf("Failed to get Features for Location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
-			fmt.Println(err)
+			wlog.InfoC(ctx, err.Error())
 		}
 
 		// hasOnboardingBetaEnabled is active only for those locations being onboarded, and so it's the indicator that we use.
@@ -78,13 +79,13 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
 		if err != nil {
 			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
-			fmt.Println(err)
+			wlog.InfoC(ctx, err.Error())
 			continue
 		}
 		err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
 		if err != nil {
 			fmt.Printf("Failed to get fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s.  Failing without returning an error.\n", location.LocationID.String())
-			fmt.Println(err)
+			wlog.InfoC(ctx, err.Error())
 		}
 	}
 
