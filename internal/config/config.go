@@ -104,7 +104,7 @@ func init() {
 	config.Add(featureFlagsAddress, "client-feature-flags.client.svc.cluster.local.:grpc", "The grpc address of the feature flags service")
 	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
 
-	config.Add(zapierURL, "", "The address zapier webhook")
+	config.Add(zapierURL, "https://hooks.zapier.com/hooks/catch/883949/o246fjf", "The address zapier webhook")
 }
 
 func Init() error {
