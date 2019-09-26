@@ -3,11 +3,9 @@ package psql
 import (
 	"context"
 	"database/sql"
-	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
-	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
@@ -23,14 +21,14 @@ func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *ap
 
 	query := `
 INSERT INTO insys_onboarding.onboarders_location
-	(id, onboarder_id, location_id, created_at, updated_at, user_first_logged_in_at)
-VALUES ($1, $2, $3, now(), now(), $4)
+	(id, onboarder_id, location_id, created_at, updated_at)
+VALUES ($1, $2, $3, now(), now())
 ON CONFLICT(location_id) DO UPDATE SET
-	(onboarder_id, updated_at, user_first_logged_in_at) = ($2, now(), $4)
+	(onboarder_id, updated_at) = ($2, now())
 RETURNING id, onboarder_id, location_id, created_at, updated_at, user_first_logged_in_at;
 `
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String(), onbl.UserFirstLoggedInAt.Time)
+	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
 	err := row.Scan(
 		&onboardersLocation.ID,
 		&onboardersLocation.OnboarderID,
@@ -85,11 +83,25 @@ func (s *OnboardersLocationService) RecordFirstLogin(ctx context.Context, locati
 		return nil
 	}
 
-	onboardersLocation.UserFirstLoggedInAt = null.NewTime(time.Now())
+	query := `
+	UPDATE insys_onboarding.onboarders_location
+	SET 
+		user_first_logged_in_at = now(),
+		updated_at = now()
+	WHERE location_id = $1;`
 
-	_, err = s.CreateOrUpdate(ctx, onboardersLocation)
+	result, err := s.DB.ExecContext(ctx, query, locationID.String())
 	if err != nil {
-		return werror.Wrap(err, "error updating onboarders location by location id")
+		return werror.Wrap(err, "error setting first user_first_logged_in_at")
+	}
+
+	rowsEffected, err := result.RowsAffected()
+	if err != nil {
+		return werror.Wrap(err, "error reading number of rows affected")
+	}
+
+	if rowsEffected == 0 {
+		return werror.New("could not find location by locationID").SetCode(wgrpc.CodeNotFound).Add("locationID", locationID.String())
 	}
 
 	return nil
