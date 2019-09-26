@@ -77,6 +77,10 @@ spec:
         ports:
         - name: grpc
           containerPort: 9000
+        volumeMounts:
+        - mountPath: /etc/ssl/certs
+          name: sslroots
+
 
       - image: gcr.io/weave-lab/shared/wmetricsd:2019-06-24.bababa
         name: wmetricsd

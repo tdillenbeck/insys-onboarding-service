@@ -95,7 +95,7 @@ func init() {
 
 	config.Add(nsqChiliPiperScheduleEventCreatedTopic, "ChiliPiperScheduleEventCreated", "The topic NSQ to consume for chili piper created events")
 	config.Add(nsqPortingDataRecordCreatedTopic, "PortingDataCreated", "The topic NSQ to consume for porting data record created events")
-	config.Add(nsqLoginEventCreatedTopic, "LoginEventCreatedTopic", "Platform Auth's Login Event is published whenever a client logs in")
+	config.Add(nsqLoginEventCreatedTopic, "LoginEvent", "Platform Auth's Login Event is published whenever a client logs in")
 
 	config.Add(nsqConcurrentHandlersConfig, "100", "Number of concurrent handlers")
 	config.Add(nsqMaxInFlightConfig, "1000", "NSQ config number of times to attempt a message")
@@ -104,7 +104,7 @@ func init() {
 	config.Add(featureFlagsAddress, "client-feature-flags.client.svc.cluster.local.:grpc", "The grpc address of the feature flags service")
 	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
 
-	config.Add(zapierURL, "", "The address zapier webhook")
+	config.Add(zapierURL, "https://hooks.zapier.com/hooks/catch/883949/o246fjf", "The address zapier webhook")
 }
 
 func Init() error {
