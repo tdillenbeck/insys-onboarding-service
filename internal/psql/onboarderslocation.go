@@ -113,14 +113,13 @@ func (s *OnboardersLocationService) HasLocationsWithoutLoginRecorded(ctx context
 	query := `
 		select * from insys_onboarding.onboarders_location where location_id = any($1);
 	`
-
-	var locationUUIDStrs []string
+	var locations []string
 
 	for _, record := range locationIDs {
-		locationUUIDStrs = append(locationUUIDStrs, record.String())
+		locations = append(locations, record.String())
 	}
 
-	UUIDList := strings.Join(locationUUIDStrs, ", ")
+	UUIDList := strings.Join(locations, ", ")
 	filter := fmt.Sprintf("{%s}", UUIDList)
 
 	result, err := s.DB.QueryContext(ctx, query, filter)
@@ -128,9 +127,9 @@ func (s *OnboardersLocationService) HasLocationsWithoutLoginRecorded(ctx context
 		return false, werror.Wrap(err, "error setting first user_first_logged_in_at")
 	}
 
-	for result.Next() {
-		var onboarderLocation *app.OnboardersLocation
+	var onboarderLocation *app.OnboardersLocation
 
+	for result.Next() {
 		result.Scan(onboarderLocation)
 
 		if !onboarderLocation.UserFirstLoggedInAt.Valid {
