@@ -11,6 +11,7 @@ import (
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
@@ -54,10 +55,27 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		return nil
 	}
 
+	var locations []uuid.UUID
+
 	for _, location := range userAccess.Locations {
-		features, err := p.featureFlagsClient.List(ctx, location.LocationID)
+		locations = append(locations, location.LocationID)
+	}
+
+	hasLocationsWithoutLoginRecorded, err := p.onboardersLocationService.HasLocationsWithoutLoginRecorded(ctx, locations)
+
+	if err != nil {
+		return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
+	}
+
+	// exit if there are no locations that have not already been logged in to
+	if !hasLocationsWithoutLoginRecorded {
+		return nil
+	}
+
+	for _, locationID := range locations {
+		features, err := p.featureFlagsClient.List(ctx, locationID)
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s. Error Message: %v", location.LocationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s. Error Message: %v", locationID.String(), err))
 		}
 
 		// hasOnboardingBetaEnabled is active only for those locations being onboarded, and so it's the indicator that we use.
@@ -75,14 +93,14 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 
 		// make call to zapier, and if zapier succeeds, update the database.
 		// if not, fail silently as the user is sure to log in again.
-		err = p.zapierClient.Send(ctx, userAccess.Username, location.LocationID.String())
+		err = p.zapierClient.Send(ctx, userAccess.Username, locationID.String())
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", location.LocationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
 			continue
 		}
-		err = p.onboardersLocationService.RecordFirstLogin(ctx, location.LocationID)
+		err = p.onboardersLocationService.RecordFirstLogin(ctx, locationID)
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", location.LocationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
 		}
 	}
 

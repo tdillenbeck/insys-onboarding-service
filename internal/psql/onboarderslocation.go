@@ -3,6 +3,8 @@ package psql
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strings"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
@@ -105,4 +107,36 @@ func (s *OnboardersLocationService) RecordFirstLogin(ctx context.Context, locati
 	}
 
 	return nil
+}
+
+func (s *OnboardersLocationService) HasLocationsWithoutLoginRecorded(ctx context.Context, locationIDs []uuid.UUID) (bool, error) {
+	query := `
+		select * from insys_onboarding.onboarders_location where location_id = any($1);
+	`
+
+	var locationUUIDStrs []string
+
+	for _, record := range locationIDs {
+		locationUUIDStrs = append(locationUUIDStrs, record.String())
+	}
+
+	UUIDList := strings.Join(locationUUIDStrs, ", ")
+	filter := fmt.Sprintf("{%s}", UUIDList)
+
+	result, err := s.DB.QueryContext(ctx, query, filter)
+	if err != nil {
+		return false, werror.Wrap(err, "error setting first user_first_logged_in_at")
+	}
+
+	for result.Next() {
+		var onboarderLocation *app.OnboardersLocation
+
+		result.Scan(onboarderLocation)
+
+		if !onboarderLocation.UserFirstLoggedInAt.Valid {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }

@@ -32,6 +32,7 @@ type OnboardersLocationService interface {
 	CreateOrUpdate(ctx context.Context, onboardersLocation *OnboardersLocation) (*OnboardersLocation, error)
 	ReadByLocationID(ctx context.Context, locationID uuid.UUID) (*OnboardersLocation, error)
 	RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error
+	HasLocationsWithoutLoginRecorded(ctx context.Context, locationIDs []uuid.UUID) (bool, error)
 }
 
 // TaskInstanceService defines the actions for the database related to TaskInstances
