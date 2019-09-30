@@ -110,11 +110,9 @@ func (s *OnboardersLocationService) RecordFirstLogin(ctx context.Context, locati
 }
 
 func (s *OnboardersLocationService) HasLocationsWithoutLoginRecorded(ctx context.Context, locationIDs []uuid.UUID) (bool, error) {
-	query := `
-		select * from insys_onboarding.onboarders_location where location_id = any($1);
-	`
-	var locations []string
+	query := `select * from insys_onboarding.onboarders_location where location_id = any($1);`
 
+	var locations []string
 	for _, record := range locationIDs {
 		locations = append(locations, record.String())
 	}
