@@ -64,7 +64,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		location, err := s.onboardersLocationService.ReadByLocationID(ctx, userAccess.Locations[i].LocationID)
 		if err != nil {
 			if werror.HasCode(err, wgrpc.CodeNotFound) {
-				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s. not yet in onboarded", userAccess.Locations[i].LocationID.String()))
+				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", userAccess.Locations[i].LocationID.String()))
 			}
 			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
 		}
