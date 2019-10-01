@@ -124,7 +124,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	}
 	type args struct {
 		ctx   context.Context
-		event *clientproto.LoginEvent
+		event clientproto.LoginEvent
 	}
 	tests := []struct {
 		name    string
@@ -142,7 +142,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				event: &clientproto.LoginEvent{
+				event: clientproto.LoginEvent{
 					UserID: userID,
 				},
 			},
