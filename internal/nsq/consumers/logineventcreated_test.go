@@ -27,7 +27,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	onboarderB := uuid.NewV4()
 	onboarderC := uuid.NewV4()
 
-	mockOnboardersLocationService := &mock.OnboarderLocationService{}
+	mockOnboardersLocationService := mock.OnboarderLocationService{}
 
 	mockOnboardersLocationService.ReadByLocationIDFn = func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
 
@@ -66,7 +66,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		return nil, nil
 	}
 
-	mockAuthClient := &mock.AuthClient{}
+	mockAuthClient := mock.Auth{}
 
 	mockAuthClient.UserLocationsFn = func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
 		return &authclient.UserAccess{
@@ -86,9 +86,32 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		}, nil
 	}
 
+	mockFeatureFlagClient := mock.FeatureFlagsClient{}
+	mockFeatureFlagClient.ListFn = func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
+		return []featureflagsclient.Flag{
+			featureflagsclient.Flag{
+				Name:  "onboardingBetaEnabled",
+				Value: true,
+			},
+			featureflagsclient.Flag{
+				Name:  "otherflag",
+				Value: false,
+			},
+			featureflagsclient.Flag{
+				Name:  "anotherflag",
+				Value: true,
+			},
+		}, nil
+	}
+
+	mockZapierClient := mock.ZapierClient{}
+	mockZapierClient.SendFn = func(ctx context.Context, username, locationID string) error {
+		return nil
+	}
+
 	type fields struct {
 		onboardersLocationService app.OnboardersLocationService
-		authClient                authclient.Auth
+		authClient                *authclient.Auth
 		featureFlagsClient        featureflagsclient.Client
 		zapierClient              *zapier.ZapierClient
 	}
@@ -102,13 +125,20 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			fields: fields{
+				authClient:                mockAuthClient,
+				featureFlagsClient:        mockFeatureFlagClient,
+				onboardersLocationService: mockOnboardersLocationService,
+				zapierClient:              mockZapierClient,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := LogInEventCreatedSubscriber{
 				onboardersLocationService: tt.fields.onboardersLocationService,
-				authClient:                tt.fields.authClient,
+				authClient:                *tt.fields.authClient,
 				featureFlagsClient:        tt.fields.featureFlagsClient,
 				zapierClient:              tt.fields.zapierClient,
 			}
