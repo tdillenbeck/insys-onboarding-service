@@ -5,7 +5,6 @@ import (
 
 	cgrpc "google.golang.org/grpc"
 
-	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/config"
 	"weavelab.xyz/insys-onboarding-service/internal/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/nsq/consumers"
@@ -54,15 +53,13 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error establishing database connection"))
 	}
 
-	var authClient app.AuthClient
 	// setup grpc clients
-	authClient, err = authclient.New(ctx, config.AuthServiceAddr)
+	authClient, err := authclient.New(ctx, config.AuthServiceAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up auth client"))
 	}
 
-	var featureFlagsClient app.FeatureFlagsClient
-	featureFlagsClient, err = featureflagsclient.New(ctx, config.FeatureFlagsAddr)
+	featureFlagsClient, err := featureflagsclient.New(ctx, config.FeatureFlagsAddr)
 	if err != nil {
 		wapp.Exit(werror.Wrap(err, "error setting up feature flags client"))
 	}
@@ -77,8 +74,7 @@ func main() {
 	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
 
 	// setup zapier client
-	var zapierClient app.ZapierClient
-	zapierClient = zapier.New(config.ZapierURL)
+	zapierClient := zapier.New(config.ZapierURL)
 
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
@@ -103,18 +99,6 @@ func main() {
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
 
-	// * TEST *
-	// // producers.SimulateLogin(ctx)
-	// userID, _ := uuid.Parse("1996fb12-4bf1-49a2-9073-0ec87809af11")
-	// protouserid := sharedproto.UUIDToProto(userID)
-
-	// fmt.Println(loginEventCreatedSubscriber.ProcessLoginEventMessage(ctx, &clientproto.LoginEvent{UserID: protouserid, ClientType: "weave"}))
-	// a, _ := uuid.Parse("fc32e3b5-8009-4119-9dac-4df6e0df7dca")
-	// b, _ := uuid.Parse("8c5e0e0f-6b67-4bb2-bc7f-38f3e3769e56")
-	// c, _ := uuid.Parse("f3b48c3c-d168-487a-b4af-8f829b5bad96")
-	// locationList := []uuid.UUID{a, b, c}
-
-	// * END TEST *
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
 		ctx,

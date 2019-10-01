@@ -44,12 +44,12 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event *clientproto.LoginEvent) error {
 	userUUID, err := event.UserID.UUID()
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID")
+		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
 	}
 
 	userAccess, err := p.authClient.UserLocations(ctx, userUUID)
 	if err != nil {
-		return werror.Wrap(err, "could not get userAccess for user with id: "+userUUID.String())
+		return werror.Wrap(err, "could not get userAccess by ID").Add("userID", userUUID.String())
 	}
 
 	// don't capture login for non-practice user
@@ -67,16 +67,12 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	for i := 0; i < len(locations); i++ {
 		location, err := p.onboardersLocationService.ReadByLocationID(ctx, locations[i])
 		if err != nil {
-			return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
+			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", locations[i].String())
 		}
 
 		if !location.UserFirstLoggedInAt.Valid {
 			locationsWithoutFirstLogin = append(locationsWithoutFirstLogin, location.LocationID)
 		}
-	}
-
-	if err != nil {
-		return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
 	}
 
 	// exit if there are no locations that have not already been logged in to
