@@ -22,20 +22,16 @@ const (
 	syncPatientDataTaskID = "16a6dc91-ec6b-4b09-b591-a5b0dfa92932" // Sync your patient data to weave
 )
 
-type FeatureFlagsClient interface {
-	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
-}
-
 type ChiliPiperScheduleEventCreatedSubscriber struct {
 	onboarderService app.OnboarderService
 
-	featureFlagsClient FeatureFlagsClient
+	featureFlagsClient app.FeatureFlagsClient
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff app.FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService: onboarderService,
 
