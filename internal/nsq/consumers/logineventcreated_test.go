@@ -3,15 +3,20 @@ package consumers
 import (
 	"context"
 	"testing"
+	"time"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
-	"weavelab.xyz/insys-onboarding-service/internal/zapier"
+	"weavelab.xyz/insys-onboarding-service/internal/mock"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
-/*
+func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 
 	locationWithPreviousLoginA := uuid.NewV4()
 	locationWithPreviousLoginB := uuid.NewV4()
@@ -21,6 +26,8 @@ import (
 	onboarderA := uuid.NewV4()
 	onboarderB := uuid.NewV4()
 	onboarderC := uuid.NewV4()
+
+	userID := sharedproto.UUIDToProto(uuid.NewV4())
 
 	mockOnboardersLocationService := mock.OnboarderLocationService{}
 
@@ -32,7 +39,7 @@ import (
 				return &app.OnboardersLocation{
 					LocationID:          locationWithNoLoginsA,
 					OnboarderID:         onboarderA,
-					UserFirstLoggedInAt: null.NewTime(time.Now()),
+					UserFirstLoggedInAt: null.Time{},
 				}, nil
 			}
 		case locationWithPreviousLoginB:
@@ -61,12 +68,17 @@ import (
 		return nil, nil
 	}
 
+	mockOnboardersLocationService.RecordFirstLoginFn = func(ctx context.Context, locationID uuid.UUID) error {
+		return nil
+	}
+
 	mockAuthClient := mock.Auth{}
 
 	mockAuthClient.UserLocationsFn = func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
 		return &authclient.UserAccess{
 			FirstName: "Jack",
 			LastName:  "Frost",
+			Type:      authclient.UserTypePractice,
 			Locations: []authclient.Location{
 				authclient.Location{
 					LocationID: locationWithPreviousLoginA,
@@ -103,15 +115,12 @@ import (
 	mockZapierClient.SendFn = func(ctx context.Context, username, locationID string) error {
 		return nil
 	}
-*/
-
-func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 
 	type fields struct {
 		onboardersLocationService app.OnboardersLocationService
-		authClient                authclient.Auth
-		featureFlagsClient        featureflagsclient.Client
-		zapierClient              *zapier.ZapierClient
+		authClient                app.AuthClient
+		featureFlagsClient        app.FeatureFlagsClient
+		zapierClient              app.ZapierClient
 	}
 	type args struct {
 		ctx   context.Context
@@ -123,7 +132,22 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Ensure login recorded for location",
+			fields: fields{
+				authClient:                &mockAuthClient,
+				featureFlagsClient:        &mockFeatureFlagClient,
+				onboardersLocationService: &mockOnboardersLocationService,
+				zapierClient:              &mockZapierClient,
+			},
+			args: args{
+				ctx: context.Background(),
+				event: &clientproto.LoginEvent{
+					UserID: userID,
+				},
+			},
+			wantErr: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

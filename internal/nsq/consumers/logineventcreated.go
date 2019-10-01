@@ -58,21 +58,20 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	var locations []uuid.UUID
+	var locationsWithoutFirstLogin []uuid.UUID
 
 	for _, location := range userAccess.Locations {
 		locations = append(locations, location.LocationID)
 	}
 
-	hasLocationsWithoutLoginRecorded := false
-
-	for i := 0; i < len(locations) && !hasLocationsWithoutLoginRecorded; i++ {
+	for i := 0; i < len(locations); i++ {
 		location, err := p.onboardersLocationService.ReadByLocationID(ctx, locations[i])
 		if err != nil {
 			return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
 		}
 
 		if !location.UserFirstLoggedInAt.Valid {
-			hasLocationsWithoutLoginRecorded = true
+			locationsWithoutFirstLogin = append(locationsWithoutFirstLogin, location.LocationID)
 		}
 	}
 
@@ -81,41 +80,34 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	// exit if there are no locations that have not already been logged in to
-	if !hasLocationsWithoutLoginRecorded {
+	if len(locationsWithoutFirstLogin) == 0 {
 		return nil
 	}
 
-	for _, locationID := range locations {
+	for _, locationID := range locationsWithoutFirstLogin {
 		features, err := p.featureFlagsClient.List(ctx, locationID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s. Error Message: %v", locationID.String(), err))
+			continue
 		}
 
 		// hasOnboardingBetaEnabled is active only for those locations being onboarded, and so it's the indicator that we use.
-		hasOnboardingBetaEnabled := false
 		for _, feature := range features {
 			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
-				hasOnboardingBetaEnabled = true
-				break
+				// make call to zapier, and if zapier succeeds, update the database.
+				// if not, fail silently as the user is sure to log in again.
+				err = p.zapierClient.Send(ctx, userAccess.Username, locationID.String())
+				if err != nil {
+					wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
+					continue
+				}
+				err = p.onboardersLocationService.RecordFirstLogin(ctx, locationID)
+				if err != nil {
+					wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
+					continue
+				}
 			}
 		}
-
-		if !hasOnboardingBetaEnabled {
-			return nil
-		}
-
-		// make call to zapier, and if zapier succeeds, update the database.
-		// if not, fail silently as the user is sure to log in again.
-		err = p.zapierClient.Send(ctx, userAccess.Username, locationID.String())
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
-			continue
-		}
-		err = p.onboardersLocationService.RecordFirstLogin(ctx, locationID)
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
-		}
 	}
-
 	return nil
 }

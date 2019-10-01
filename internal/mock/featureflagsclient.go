@@ -9,9 +9,14 @@ import (
 )
 
 type FeatureFlagsClient struct {
-	ListFn func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
+	ListFn   func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
+	UpdateFn func(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }
 
 func (s *FeatureFlagsClient) List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
 	return s.ListFn(ctx, locationID)
+}
+
+func (s *FeatureFlagsClient) Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error {
+	return s.UpdateFn(ctx, locationID, name, enable)
 }
