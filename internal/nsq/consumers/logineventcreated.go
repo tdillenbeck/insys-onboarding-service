@@ -57,17 +57,12 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
-	var locations []uuid.UUID
 	var locationsWithoutFirstLogin []uuid.UUID
 
-	for _, location := range userAccess.Locations {
-		locations = append(locations, location.LocationID)
-	}
-
-	for i := 0; i < len(locations); i++ {
-		location, err := s.onboardersLocationService.ReadByLocationID(ctx, locations[i])
+	for i := 0; i < len(userAccess.Locations); i++ {
+		location, err := s.onboardersLocationService.ReadByLocationID(ctx, userAccess.Locations[i].LocationID)
 		if err != nil {
-			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", locations[i].String())
+			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
 		}
 
 		if !location.UserFirstLoggedInAt.Valid {
