@@ -11,6 +11,7 @@ import (
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
@@ -62,6 +63,9 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	for i := 0; i < len(userAccess.Locations); i++ {
 		location, err := s.onboardersLocationService.ReadByLocationID(ctx, userAccess.Locations[i].LocationID)
 		if err != nil {
+			if werror.HasCode(err, wgrpc.CodeNotFound) {
+				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", userAccess.Locations[i].LocationID.String()))
+			}
 			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
 		}
 
