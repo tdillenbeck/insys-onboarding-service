@@ -7,9 +7,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
-	"weavelab.xyz/insys-onboarding-service/internal/zapier"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -18,12 +16,12 @@ import (
 
 type LogInEventCreatedSubscriber struct {
 	onboardersLocationService app.OnboardersLocationService
-	authClient                authclient.Auth
-	featureFlagsClient        featureflagsclient.Client
-	zapierClient              *zapier.ZapierClient
+	authClient                app.AuthClient
+	featureFlagsClient        app.FeatureFlagsClient
+	zapierClient              app.ZapierClient
 }
 
-func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationService app.OnboardersLocationService, authclient authclient.Auth, featureFlagsClient featureflagsclient.Client, zapierClient *zapier.ZapierClient) *LogInEventCreatedSubscriber {
+func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationService app.OnboardersLocationService, authclient app.AuthClient, featureFlagsClient app.FeatureFlagsClient, zapierClient app.ZapierClient) *LogInEventCreatedSubscriber {
 	return &LogInEventCreatedSubscriber{
 		onboardersLocationService: onboardersLocationService,
 		authClient:                authclient,

@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
@@ -41,4 +43,17 @@ type TaskInstanceService interface {
 	SyncTaskInstanceLinksFromOnboarderLinks(ctx context.Context, locationID uuid.UUID) error
 	Update(ctx context.Context, id uuid.UUID, status insysenums.OnboardingTaskStatus, statusUpdatedBy string) (*TaskInstance, error)
 	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
+}
+
+type AuthClient interface {
+	UserLocations(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error)
+}
+
+type FeatureFlagsClient interface {
+	List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
+	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
+}
+
+type ZapierClient interface {
+	Send(ctx context.Context, username, locationID string) error
 }
