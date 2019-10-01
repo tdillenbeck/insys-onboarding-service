@@ -31,9 +31,9 @@ func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationServi
 }
 
 func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.Message) error {
-	var le *clientproto.LoginEvent
+	var le clientproto.LoginEvent
 
-	err := proto.Unmarshal(m.Body, le)
+	err := proto.Unmarshal(m.Body, &le)
 	if err != nil {
 		return werror.Wrap(err, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
 	}
@@ -41,7 +41,7 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 	return s.processLoginEventMessage(ctx, le)
 }
 
-func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event *clientproto.LoginEvent) error {
+func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event clientproto.LoginEvent) error {
 	userUUID, err := event.UserID.UUID()
 	if err != nil {
 		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
