@@ -65,8 +65,9 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		if err != nil {
 			if werror.HasCode(err, wgrpc.CodeNotFound) {
 				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", userAccess.Locations[i].LocationID.String()))
+			} else {
+				return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
 			}
-			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
 		}
 
 		if !location.UserFirstLoggedInAt.Valid {
