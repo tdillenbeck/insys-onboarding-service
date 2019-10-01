@@ -6,7 +6,6 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
-	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
@@ -15,13 +14,13 @@ import (
 )
 
 type LogInEventCreatedSubscriber struct {
-	onboardersLocationService app.OnboardersLocationService
-	authClient                app.AuthClient
-	featureFlagsClient        app.FeatureFlagsClient
-	zapierClient              app.ZapierClient
+	onboardersLocationService aps.OnboardersLocationService
+	authClient                aps.AuthClient
+	featureFlagsClient        aps.FeatureFlagsClient
+	zapierClient              aps.ZapierClient
 }
 
-func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationService app.OnboardersLocationService, authclient app.AuthClient, featureFlagsClient app.FeatureFlagsClient, zapierClient app.ZapierClient) *LogInEventCreatedSubscriber {
+func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationService aps.OnboardersLocationService, authclient aps.AuthClient, featureFlagsClient aps.FeatureFlagsClient, zapierClient aps.ZapierClient) *LogInEventCreatedSubscriber {
 	return &LogInEventCreatedSubscriber{
 		onboardersLocationService: onboardersLocationService,
 		authClient:                authclient,
@@ -30,7 +29,7 @@ func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationServi
 	}
 }
 
-func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.Message) error {
+func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.Message) error {
 	var le *clientproto.LoginEvent
 
 	err := proto.Unmarshal(m.Body, le)
@@ -38,16 +37,16 @@ func (p LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 		return werror.Wrap(err, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
 	}
 
-	return p.processLoginEventMessage(ctx, le)
+	return s.processLoginEventMessage(ctx, le)
 }
 
-func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event *clientproto.LoginEvent) error {
+func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event *clientproto.LoginEvent) error {
 	userUUID, err := event.UserID.UUID()
 	if err != nil {
 		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
 	}
 
-	userAccess, err := p.authClient.UserLocations(ctx, userUUID)
+	userAccess, err := s.authClient.UserLocations(ctx, userUUID)
 	if err != nil {
 		return werror.Wrap(err, "could not get userAccess by ID").Add("userID", userUUID.String())
 	}
@@ -65,7 +64,7 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	for i := 0; i < len(locations); i++ {
-		location, err := p.onboardersLocationService.ReadByLocationID(ctx, locations[i])
+		location, err := s.onboardersLocationService.ReadByLocationID(ctx, locations[i])
 		if err != nil {
 			return werror.Wrap(err, "could not read location for location by id ").Add("locationID", locations[i].String())
 		}
@@ -81,23 +80,22 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	for _, locationID := range locationsWithoutFirstLogin {
-		features, err := p.featureFlagsClient.List(ctx, locationID)
+		features, err := s.featureFlagsClient.List(ctx, locationID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s. Error Message: %v", locationID.String(), err))
 			continue
 		}
 
-		// hasOnboardingBetaEnabled is active only for those locations being onboarded, and so it's the indicator that we use.
 		for _, feature := range features {
 			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
 				// make call to zapier, and if zapier succeeds, update the database.
 				// if not, fail silently as the user is sure to log in again.
-				err = p.zapierClient.Send(ctx, userAccess.Username, locationID.String())
+				err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String())
 				if err != nil {
 					wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
 					continue
 				}
-				err = p.onboardersLocationService.RecordFirstLogin(ctx, locationID)
+				err = s.onboardersLocationService.RecordFirstLogin(ctx, locationID)
 				if err != nil {
 					wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
 					continue
