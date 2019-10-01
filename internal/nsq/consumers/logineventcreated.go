@@ -65,7 +65,18 @@ func (p LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		locations = append(locations, location.LocationID)
 	}
 
-	hasLocationsWithoutLoginRecorded, err := p.onboardersLocationService.HasLocationsWithoutLoginRecorded(ctx, locations)
+	hasLocationsWithoutLoginRecorded := false
+
+	for i := 0; i < len(locations) && !hasLocationsWithoutLoginRecorded; i++ {
+		location, err := p.onboardersLocationService.ReadByLocationID(ctx, locations[i])
+		if err != nil {
+			return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
+		}
+
+		if !location.UserFirstLoggedInAt.Valid {
+			hasLocationsWithoutLoginRecorded = true
+		}
+	}
 
 	if err != nil {
 		return werror.Wrap(err, "could not get hasLocationsWithoutLoginRecorded for user with id: "+userUUID.String())
