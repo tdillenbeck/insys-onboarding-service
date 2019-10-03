@@ -36,7 +36,8 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 
 	err := proto.Unmarshal(m.Body, &le)
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
+		wlog.ErrorC(ctx, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
+		return nil
 	}
 
 	return s.processLoginEventMessage(ctx, le)

@@ -12,6 +12,7 @@ import (
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 const (
@@ -47,7 +48,8 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 
 	err := proto.Unmarshal(m.Body, &chiliPiperScheduleEventResponse)
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct")
+		wlog.ErrorC(ctx, "could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct")
+		return nil
 	}
 
 	// only turn on the onboarding tracker if the chili piper event is a next_steps call
