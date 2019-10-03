@@ -10,6 +10,7 @@ import (
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
 const (
@@ -30,12 +31,14 @@ func (p PortingDataRecordCreatedSubscriber) HandleMessage(ctx context.Context, m
 	var pd insysproto.PortingData
 	err := proto.Unmarshal(m.Body, &pd)
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshal PortingDataCreated message body into proto for insysproto.PortingData struct")
+		wlog.ErrorC(ctx, "could not parse porting data proto mesage for porting data record created event")
+		return nil
 	}
 
 	locationUUID, err := uuid.Parse(pd.LocationId)
 	if err != nil {
-		return werror.Wrap(err, "could not parse location id  into a uuid").Add("locationID", pd.LocationId)
+		wlog.ErrorC(ctx, "could not parse location id from porting data")
+		return nil
 	}
 
 	taskInstances, err := p.taskInstanceService.ByLocationID(ctx, locationUUID)
