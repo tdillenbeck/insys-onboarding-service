@@ -21,21 +21,32 @@ func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *ap
 
 	query := `
 INSERT INTO insys_onboarding.onboarders_location
-	(id, onboarder_id, location_id, created_at, updated_at)
-VALUES ($1, $2, $3, now(), now())
+	(id, onboarder_id, location_id, region, salesforce_opportunity_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, now(), now())
 ON CONFLICT(location_id) DO UPDATE SET
-	(onboarder_id, updated_at) = ($2, now())
-RETURNING id, onboarder_id, location_id, created_at, updated_at, user_first_logged_in_at;
+	(onboarder_id, region, salesforce_opportunity_id, updated_at) = ($2, $3, $4, now())
+RETURNING id, onboarder_id, location_id, region, salesforce_opportunity_id, user_first_logged_in_at, created_at, updated_at;
 `
 
-	row := s.DB.QueryRowContext(ctx, query, uuid.NewV4().String(), onbl.OnboarderID.String(), onbl.LocationID.String())
+	row := s.DB.QueryRowContext(
+		ctx,
+		query,
+		uuid.NewV4().String(),
+		onbl.OnboarderID.String(),
+		onbl.LocationID.String(),
+		onbl.Region,
+		onbl.SalesforceOpportunityID,
+	)
+
 	err := row.Scan(
 		&onboardersLocation.ID,
 		&onboardersLocation.OnboarderID,
 		&onboardersLocation.LocationID,
+		&onboardersLocation.Region,
+		&onboardersLocation.SalesforceOpportunityID,
+		&onboardersLocation.UserFirstLoggedInAt,
 		&onboardersLocation.CreatedAt,
 		&onboardersLocation.UpdatedAt,
-		&onboardersLocation.UserFirstLoggedInAt,
 	)
 	if err != nil {
 		return nil, werror.Wrap(err, "inserting or updating onboarders location")
@@ -49,7 +60,7 @@ func (s *OnboardersLocationService) ReadByLocationID(ctx context.Context, locati
 
 	query := `
 SELECT
-	id, onboarder_id, location_id, created_at, updated_at, user_first_logged_in_at
+	id, onboarder_id, location_id, region, salesforce_opportunity_id, user_first_logged_in_at, created_at, updated_at
 FROM insys_onboarding.onboarders_location
 WHERE location_id = $1
 `
@@ -59,9 +70,11 @@ WHERE location_id = $1
 		&onboardersLocation.ID,
 		&onboardersLocation.OnboarderID,
 		&onboardersLocation.LocationID,
+		&onboardersLocation.Region,
+		&onboardersLocation.SalesforceOpportunityID,
+		&onboardersLocation.UserFirstLoggedInAt,
 		&onboardersLocation.CreatedAt,
 		&onboardersLocation.UpdatedAt,
-		&onboardersLocation.UserFirstLoggedInAt,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
