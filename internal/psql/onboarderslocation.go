@@ -22,7 +22,7 @@ func (s *OnboardersLocationService) CreateOrUpdate(ctx context.Context, onbl *ap
 	query := `
 INSERT INTO insys_onboarding.onboarders_location
 	(id, onboarder_id, location_id, region, salesforce_opportunity_id, created_at, updated_at)
-VALUES ($1, $2, $3, $4, now(), now())
+VALUES ($1, $2, $3, $4, $5, now(), now())
 ON CONFLICT(location_id) DO UPDATE SET
 	(onboarder_id, region, salesforce_opportunity_id, updated_at) = ($2, $3, $4, now())
 RETURNING id, onboarder_id, location_id, region, salesforce_opportunity_id, user_first_logged_in_at, created_at, updated_at;
