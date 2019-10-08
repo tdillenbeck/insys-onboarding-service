@@ -973,10 +973,10 @@
 			"revisionTime": "2019-09-13T21:13:29Z"
 		},
 		{
-			"checksumSHA1": "aj1DG/sZuIDmIXfl9/BO23czqXU=",
+			"checksumSHA1": "bU4i13h/+zPJAZLn84qU8kmeqaA=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "dce14318ab08eaaa91329beefc52ba0ebe751ff0",
-			"revisionTime": "2019-09-17T17:36:45Z"
+			"revision": "f76f2db4d31be96704dce3dba1c7ce72459c9a48",
+			"revisionTime": "2019-10-07T20:29:50Z"
 		},
 		{
 			"checksumSHA1": "HiDk2CJHg3TdeBN4y8oCDgHZ4Hc=",

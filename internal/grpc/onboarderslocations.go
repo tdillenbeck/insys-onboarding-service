@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -42,6 +43,7 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 
 	onbl, err := s.onboardersLocationService.CreateOrUpdate(ctx, onboardersLocation)
 	if err != nil {
+		fmt.Println(err)
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database"))
 	}
 
@@ -128,11 +130,13 @@ func convertProtoToOnboardersLocation(proto *insysproto.OnboardersLocation) (*ap
 	}
 
 	return &app.OnboardersLocation{
-		ID:          id,
-		OnboarderID: onboarderID,
-		LocationID:  locationID,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		ID:                      id,
+		OnboarderID:             onboarderID,
+		LocationID:              locationID,
+		Region:                  proto.Region,
+		SalesforceOpportunityID: proto.SalesforceOpportunityID,
+		CreatedAt:               createdAt,
+		UpdatedAt:               updatedAt,
 	}, nil
 }
 
@@ -151,10 +155,12 @@ func convertOnboardersLocationToProto(onbl *app.OnboardersLocation) (*insysproto
 	}
 
 	return &insysproto.OnboardersLocation{
-		ID:          sharedproto.UUIDToProto(onbl.ID),
-		OnboarderID: sharedproto.UUIDToProto(onbl.OnboarderID),
-		LocationID:  sharedproto.UUIDToProto(onbl.LocationID),
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		ID:                      sharedproto.UUIDToProto(onbl.ID),
+		OnboarderID:             sharedproto.UUIDToProto(onbl.OnboarderID),
+		LocationID:              sharedproto.UUIDToProto(onbl.LocationID),
+		Region:                  onbl.Region,
+		SalesforceOpportunityID: onbl.SalesforceOpportunityID,
+		CreatedAt:               createdAt,
+		UpdatedAt:               updatedAt,
 	}, nil
 }
