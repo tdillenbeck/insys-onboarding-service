@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/golang/protobuf/ptypes"
@@ -43,7 +42,6 @@ func (s *OnboardersLocationServer) CreateOrUpdate(ctx context.Context, req *insy
 
 	onbl, err := s.onboardersLocationService.CreateOrUpdate(ctx, onboardersLocation)
 	if err != nil {
-		fmt.Println(err)
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error inserting or updating data in the database"))
 	}
 
