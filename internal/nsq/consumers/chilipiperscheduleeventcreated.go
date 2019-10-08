@@ -115,9 +115,12 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 		return werror.Wrap(err, "could not assign onboarder to location").Add("onboarderID", onboarderID).Add("locationID", locationID)
 	}
 
-	err = c.featureFlagsClient.Update(ctx, locationID, onboardingFeatureFlagName, true)
-	if err != nil {
-		return werror.Wrap(err, "failed to turn on onboarding feature flag")
+	// NOTE: 10/8/2019 - feature flag service appears to not be persisting this value to be true. making the request multiple times is a hack to get the value to persist
+	for i := 0; i < 5; i++ {
+		err = c.featureFlagsClient.Update(ctx, locationID, onboardingFeatureFlagName, true)
+		if err != nil {
+			return werror.Wrap(err, "failed to turn on onboarding feature flag")
+		}
 	}
 
 	return nil
