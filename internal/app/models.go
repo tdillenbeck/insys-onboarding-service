@@ -70,11 +70,11 @@ type OnboardersLocation struct {
 	ID                      uuid.UUID
 	OnboarderID             uuid.UUID
 	LocationID              uuid.UUID
-	CreatedAt               time.Time
-	UpdatedAt               time.Time
-	UserFirstLoggedInAt     null.Time
 	Region                  string
 	SalesforceOpportunityID string
+	UserFirstLoggedInAt     null.Time
+	CreatedAt               time.Time
+	UpdatedAt               time.Time
 }
 
 // TaskInstance represent a location's status in a task (Waiting on Customer, Waiting on Weave, Completed, etc)
