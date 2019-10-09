@@ -70,8 +70,8 @@ type OnboardersLocation struct {
 	ID                      uuid.UUID
 	OnboarderID             uuid.UUID
 	LocationID              uuid.UUID
-	Region                  string
-	SalesforceOpportunityID string
+	Region                  null.String
+	SalesforceOpportunityID null.String
 	UserFirstLoggedInAt     null.Time
 	CreatedAt               time.Time
 	UpdatedAt               time.Time

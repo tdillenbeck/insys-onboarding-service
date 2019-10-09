@@ -199,8 +199,8 @@ func TestTaskInstanceService_CreateFromTasks(t *testing.T) {
 		&app.OnboardersLocation{
 			OnboarderID:             onb.ID,
 			LocationID:              assignedOnboarderLocationID,
-			Region:                  "Region",
-			SalesforceOpportunityID: "123",
+			Region:                  null.NewString("Region"),
+			SalesforceOpportunityID: null.NewString("123"),
 		},
 	)
 	if err != nil {
