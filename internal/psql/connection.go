@@ -66,3 +66,36 @@ func ConnectionFromVault(ctx context.Context, primaryHost, replicaHost, dbName s
 
 	return conn, nil
 }
+
+// ConnectionfromCloudDriiver will initialize the primary and replica database connections using the connection settings passed in and use the cloud dql driver.
+func ConnectionFromCloudDriver(ctx context.Context, primaryHost, replicaHost, dbName, username, password string, options *ConnectionOptions) (*wsql.PG, error) {
+	settings := wsql.Settings{
+		PrimaryConnectString: wsql.ConnectString{
+			Driver: wsql.CloudSQLDriver,
+
+			Database: dbName,
+			Host:     primaryHost,
+			Password: password,
+			Username: username,
+		},
+		ReplicaConnectString: wsql.ConnectString{
+			Driver: wsql.CloudSQLDriver,
+
+			Database: dbName,
+			Host:     replicaHost,
+			Password: password,
+			Username: username,
+		},
+		MaxOpenConnections:    options.MaxOpenConnections,
+		MaxIdleConnections:    options.MaxIdleConnections,
+		MaxConnectionLifetime: options.MaxConnectionLifetime,
+		LogQueries:            options.LogQueries,
+	}
+
+	conn, err := wsql.New(&settings)
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
+}

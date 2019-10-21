@@ -46,9 +46,20 @@ spec:
             value: {{ .Values.postgres.dbPrimaryAddr }}
           - name: DB_REPLICA_ADDR
             value: {{ .Values.postgres.dbReplicaAddr }}
-
+          - name: DB_DRIVER
+            value: {{ .Values.postgres.dbDriver }}
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Chart.Name }}-db-user-password"
+                key: dbPassword
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Chart.Name }}-db-user-password"
+                key: dbUsername
           - name: DB_NAME
-            value: services
+            value: {{ .Values.postgres.dbName }}
           - name: MAX_IDLE_CONNECTIONS
             value: "{{ .Values.postgres.maxIdleConnections }}"
           - name: MAX_OPEN_CONNECTIONS

@@ -20,6 +20,13 @@ deploydev:
 	helm upgrade --kube-context dev-ut  insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-dev.yaml --namespace=insys
 
 deployprod:
+	make deployprodut
+	make deployprodca1
+
+deployprodca1:
+	helm upgrade --kube-context gke_weave-canada_northamerica-northeast1_ca1 insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-ca.yaml --namespace=insys --install
+
+deployprodut:
 	helm upgrade --kube-context prod-ut insys-onboarding ./charts/insys-onboarding --reset-values --namespace=insys
 
 migratelocalup:
@@ -38,7 +45,15 @@ migratedev:
 	goose -dir ./dbconfig/migrations postgres "postgres://username:password@dev-pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 migrateprod:
+	make migrateprodut
+	make migrateprodca1
+
+migrateprodut:
 	goose -dir ./dbconfig/migrations postgres "postgres://username:password@pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
+
+# NOTE cloud_sql_proxy must be running
+migrateprodca1:
+	goose -dir ./dbconfig/migrations postgres "postgres://username:password@localhost:5433/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 seedlocal:
 	psql "postgres://localhost:5432/insys_onboarding_local?sslmode=disable" -f dbconfig/seed.sql
@@ -49,5 +64,13 @@ seedtest:
 seeddev:
 	psql "postgres://username:password@dev-pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
 
-seedprod:
+seedprod: 
+	make seedprodut
+	make seedprodca1
+
+seedprodut:
 	psql "postgres://username:password@pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
+
+
+seedprodca1:
+	psql "postgres://username:password@localhost:5433/services?sslmode=disable" -f dbconfig/seed.sql

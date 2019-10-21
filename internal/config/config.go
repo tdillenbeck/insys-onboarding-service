@@ -16,6 +16,10 @@ const (
 	dbReplicaAddr = "db-replica-addr"
 	dbName        = "db-name"
 
+	dbDriver   = "db-driver"
+	dbPassword = "db-password"
+	dbUsername = "db-username"
+
 	maxIdleConnections    = "max-idle-connections"
 	maxOpenConnections    = "max-open-connections"
 	maxConnectionLifetime = "max-connection-lifetime"
@@ -50,6 +54,10 @@ var (
 	DBReplicaAddr string
 	DBName        string
 
+	DBDriver   string
+	DBPassword string
+	DBUsername string
+
 	MaxIdleConnections    int
 	MaxOpenConnections    int
 	MaxConnectionLifetime time.Duration
@@ -83,6 +91,10 @@ func init() {
 	config.Add(dbReplicaAddr, "", "replica database server host:port")
 	config.Add(dbName, "", "database name")
 
+	config.Add(dbDriver, "", "database driver")
+	config.Add(dbPassword, "", "database user password")
+	config.Add(dbUsername, "", "database username")
+
 	config.Add(maxIdleConnections, "0", "maximum number of connections in the idle connection pool")
 	config.Add(maxOpenConnections, "10", "maximum number of open connections to the database")
 	config.Add(maxConnectionLifetime, "15m", "maximum amount of time a connection may be reused")
@@ -115,23 +127,13 @@ func Init() error {
 	PrimaryConnString = config.Get(primaryConnString)
 	ReplicaConnString = config.Get(replicaConnString)
 
-	primaryAddr := config.Get(dbPrimaryAddr)
-	if primaryAddr != "" {
-		DBPrimaryAddr, err = config.GetAddress(dbPrimaryAddr, false)
-		if err != nil {
-			return werror.Wrap(err, "unable to get primary database address")
-		}
-	}
-
-	replicaAddr := config.Get(dbReplicaAddr)
-	if replicaAddr != "" {
-		DBReplicaAddr, err = config.GetAddress(dbReplicaAddr, false)
-		if err != nil {
-			return werror.Wrap(err, "unable to get replica database address")
-		}
-	}
+	DBPrimaryAddr = config.Get(dbPrimaryAddr)
+	DBReplicaAddr = config.Get(dbReplicaAddr)
 
 	DBName = config.Get(dbName)
+	DBPassword = config.Get(dbPassword)
+	DBUsername = config.Get(dbUsername)
+	DBDriver = config.Get(dbDriver)
 
 	MaxIdleConnections, err = config.GetInt(maxIdleConnections, false)
 	if err != nil {
