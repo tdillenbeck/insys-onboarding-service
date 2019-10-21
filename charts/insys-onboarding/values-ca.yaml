@@ -16,15 +16,15 @@ logLevel: info
 useConnectString: false
 
 logDNA:
-    name: insys-onboarding-service
+    name: insys-onboarding-service-ca
 
 postgres:
   maxConnectionLifetime: 30m
   maxIdleConnections: 2
   maxOpenConnections: 15
   logQueries: false
-  dbPrimaryAddr: pgsql-service-1a:5432
-  dbReplicaAddr: pgsql-service-1b:5432
+  dbPrimaryAddr: weave-canada:northamerica-northeast1:ca1-prod-insys1-1a
+  dbReplicaAddr: weave-canada:northamerica-northeast1:ca1-prod-insys1-1b
   dbName: services
   dbDriver: cloudsqlpostgres
 
