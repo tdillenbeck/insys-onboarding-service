@@ -22,3 +22,5 @@ postgres:
   dbPrimaryAddr: dev-pgsql-service-1a:5432
   dbReplicaAddr: dev-pgsql-service-1a:5432
   dbName: services
+
+useHelmDefinedServiceAccount: true
