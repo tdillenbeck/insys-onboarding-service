@@ -1,0 +1,31 @@
+image:
+  tag: 1.0.1910091710-sha.de83101
+  registry: gcr.io/weave-lab/insys/insys-onboarding-service
+
+replicas: 3
+
+requests:
+  cpu: 100m
+  memory: 128Mi
+
+probes:
+  port: 4444
+
+logLevel: info
+
+useConnectString: false
+
+logDNA:
+    name: insys-onboarding-service-ca
+
+postgres:
+  maxConnectionLifetime: 30m
+  maxIdleConnections: 2
+  maxOpenConnections: 15
+  logQueries: false
+  dbPrimaryAddr: weave-canada:northamerica-northeast1:ca1-prod-insys1-1a
+  dbReplicaAddr: weave-canada:northamerica-northeast1:ca1-prod-insys1-1b
+  dbName: services
+  dbDriver: cloudsqlpostgres
+
+useHelmDefinedServiceAccount: false

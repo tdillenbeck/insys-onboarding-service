@@ -25,3 +25,5 @@ postgres:
   logQueries: false
   dbPrimaryAddr: pgsql-service-1a:5432
   dbReplicaAddr: pgsql-service-1b:5432
+
+useHelmDefinedServiceAccount: true

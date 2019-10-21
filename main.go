@@ -43,8 +43,9 @@ func main() {
 	}
 
 	var db *wsql.PG
-
-	if config.PrimaryConnString != "" && config.ReplicaConnString != "" {
+	if config.DBDriver == wsql.CloudSQLDriver {
+		db, err = psql.ConnectionFromCloudDriver(ctx, config.DBPrimaryAddr, config.DBReplicaAddr, config.DBName, config.DBUsername, config.DBPassword, dbOptions)
+	} else if config.PrimaryConnString != "" && config.ReplicaConnString != "" {
 		db, err = psql.ConnectionFromConnString(ctx, config.PrimaryConnString, config.ReplicaConnString, dbOptions)
 	} else {
 		db, err = psql.ConnectionFromVault(ctx, config.DBPrimaryAddr, config.DBReplicaAddr, config.DBName, dbOptions)
