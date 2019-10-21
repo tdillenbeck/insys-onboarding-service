@@ -8,6 +8,7 @@ import (
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
@@ -128,11 +129,13 @@ func convertProtoToOnboardersLocation(proto *insysproto.OnboardersLocation) (*ap
 	}
 
 	return &app.OnboardersLocation{
-		ID:          id,
-		OnboarderID: onboarderID,
-		LocationID:  locationID,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		ID:                      id,
+		OnboarderID:             onboarderID,
+		LocationID:              locationID,
+		Region:                  null.NewString(proto.Region),
+		SalesforceOpportunityID: null.NewString(proto.SalesforceOpportunityID),
+		CreatedAt:               createdAt,
+		UpdatedAt:               updatedAt,
 	}, nil
 }
 
@@ -151,10 +154,12 @@ func convertOnboardersLocationToProto(onbl *app.OnboardersLocation) (*insysproto
 	}
 
 	return &insysproto.OnboardersLocation{
-		ID:          sharedproto.UUIDToProto(onbl.ID),
-		OnboarderID: sharedproto.UUIDToProto(onbl.OnboarderID),
-		LocationID:  sharedproto.UUIDToProto(onbl.LocationID),
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		ID:                      sharedproto.UUIDToProto(onbl.ID),
+		OnboarderID:             sharedproto.UUIDToProto(onbl.OnboarderID),
+		LocationID:              sharedproto.UUIDToProto(onbl.LocationID),
+		Region:                  onbl.Region.String(),
+		SalesforceOpportunityID: onbl.SalesforceOpportunityID.String(),
+		CreatedAt:               createdAt,
+		UpdatedAt:               updatedAt,
 	}, nil
 }

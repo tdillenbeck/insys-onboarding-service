@@ -120,7 +120,9 @@ CREATE TABLE insys_onboarding.onboarders_location (
     location_id uuid NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    user_first_logged_in_at timestamp with time zone
+    user_first_logged_in_at timestamp with time zone,
+    region text,
+    salesforce_opportunity_id text
 );
 
 
