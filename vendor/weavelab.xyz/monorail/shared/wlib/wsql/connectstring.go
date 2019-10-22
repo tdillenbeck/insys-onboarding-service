@@ -2,6 +2,8 @@ package wsql
 
 import (
 	"net/url"
+	"strconv"
+	"strings"
 
 	"weavelab.xyz/monorail/shared/wlib/version"
 )
@@ -25,6 +27,7 @@ type ConnectString struct {
 }
 
 func (c *ConnectString) String() string {
+	var cs string
 
 	if c.Host == "" || c.Database == "" || c.Username == "" {
 		return c.connectString
@@ -57,21 +60,41 @@ func (c *ConnectString) String() string {
 		c.Params.Set("role", c.Role)
 	}
 
+	host, port := splitHostAndPort(c.Host)
+	c.Params.Set("host", host)
+	if port != "" {
+		c.Params.Set("port", port)
+	}
+
 	q := c.Params.Encode()
 
 	up := url.UserPassword(c.Username, c.Password)
 
 	u := url.URL{
 		Scheme:   "postgres",
+		Host:     "",
 		User:     up,
-		Host:     c.Host,
-		Path:     c.Database,
+		Path:     "/" + c.Database,
 		RawQuery: q,
 	}
 
-	cs := u.String()
+	cs = u.String()
 
 	return cs
+}
+
+func splitHostAndPort(hostAndPort string) (string, string) {
+	portColonIdx := strings.LastIndex(hostAndPort, ":")
+
+	port := hostAndPort[portColonIdx+1:]
+	_, err := strconv.Atoi(port)
+	if err != nil {
+		port = ""
+		portColonIdx = len(hostAndPort)
+	}
+	host := hostAndPort[:portColonIdx]
+
+	return host, port
 }
 
 // SetConnectString allows you to directly set the connection string that is used,
@@ -90,6 +113,14 @@ func (c *ConnectString) Hostname() string {
 }
 
 func hostnameFromConnectionString(cs string) string {
-	u, _ := url.Parse(cs)
-	return u.Hostname()
+	u, err := url.Parse(cs)
+	if err != nil {
+		return ""
+	}
+
+	if u.Hostname() != "" {
+		return u.Hostname()
+	}
+
+	return u.Query().Get("host")
 }

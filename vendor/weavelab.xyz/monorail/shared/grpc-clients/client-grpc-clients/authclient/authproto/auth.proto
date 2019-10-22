@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 package authproto;
+
+import "google/protobuf/timestamp.proto";
 import "github.com/golang/protobuf/ptypes/empty/empty.proto";
 import "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcproto/wgrpcprotouuid/uuid.proto";
 
@@ -45,6 +47,8 @@ message User {
     repeated Location Locations = 6;
     string Password = 7;
     StatusType Status = 8;
+    string MobileNumber = 9;
+    google.protobuf.Timestamp MobileNumberVerifiedAt = 10;
 }
 
 message Profile {
@@ -55,6 +59,8 @@ message Profile {
     string LastName = 5;
     string Password = 6;
     StatusType Status = 7;
+    string MobileNumber = 9;
+    google.protobuf.Timestamp MobileNumberVerifiedAt = 10;
 }
 
 

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"flag"
 	"fmt"
 	"time"
 )
@@ -20,6 +21,11 @@ func All() map[string]string {
 // Add creates a new config setting for the app on the default config
 func Add(name string, defaultValue string, message string, flags ...string) {
 	DefaultConfig.Add(name, defaultValue, message, flags...)
+}
+
+// AddAll adds all the flag in an existing FlagSet as settings to the default config
+func AddAll(other *flag.FlagSet) {
+	DefaultConfig.AddAll(other)
 }
 
 // Set modifies the value of an already-created config setting on the default config

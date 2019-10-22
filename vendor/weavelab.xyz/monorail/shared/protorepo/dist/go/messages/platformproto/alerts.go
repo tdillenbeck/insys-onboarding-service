@@ -19,6 +19,7 @@ type DesktopPhoneAlert struct {
 	Workstation    string `json:"workstation"`
 	Employee       string `json:"employee"`
 	Version        string `json:"version"`
+	PersonID       string `json:"PersonID"`
 }
 
 // TODO: this will be removed and replaced with proto message when Jacob can figure out how to add custom json tags or when the desktop client updates

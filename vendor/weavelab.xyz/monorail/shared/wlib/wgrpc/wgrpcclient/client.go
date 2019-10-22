@@ -49,6 +49,11 @@ func New(ctx context.Context, target string, unaryMiddleware []grpc.UnaryClientI
 		return nil, werror.Wrap(err, "unable to set target scheme")
 	}
 
+	transportCredentials, err := loadTransportCredentials(ctx, target)
+	if err != nil {
+		return nil, werror.Wrap(err, "unable to load credentials")
+	}
+
 	unaryM, err := defaultUnaryMiddleware()
 	if err != nil {
 		return nil, werror.Wrap(err)
@@ -68,9 +73,9 @@ func New(ctx context.Context, target string, unaryMiddleware []grpc.UnaryClientI
 	info := version.Info()
 	ua := fmt.Sprintf("%s/%s-%s", info.Name, info.Version, null.Truncate(info.GitHash, 8))
 	defaultOpt := []grpc.DialOption{
+		transportCredentials,
 		grpc.WithBackoffMaxDelay(time.Second * 2),
 		grpc.WithUserAgent(ua),
-		grpc.WithInsecure(),
 		grpc.WithBalancerName(roundrobin.Name),
 	}
 

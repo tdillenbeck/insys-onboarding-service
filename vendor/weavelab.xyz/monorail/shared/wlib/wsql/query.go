@@ -3,6 +3,7 @@ package wsql
 import (
 	"context"
 	"database/sql"
+	"regexp"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -19,6 +20,12 @@ func (p *PG) BeginTxx(ctx context.Context, opts *sql.TxOptions) (*sqlx.Tx, error
 	stop := p.middleware(ctx, "begintxx")
 	defer stop()
 	return p.rw(ctx).BeginTxx(ctx, opts)
+}
+
+func (p *PG) PrepareContext(ctx context.Context, query string) (*sql.Stmt, error) {
+	stop := p.middleware(ctx, query)
+	defer stop()
+	return p.rw(ctx).PrepareContext(ctx, query)
 }
 
 func (p *PG) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
@@ -146,18 +153,18 @@ func (p *PG) SelectContext(ctx context.Context, dest interface{}, query string, 
 }
 
 func isPrimary(q string) bool {
-
 	tq := strings.TrimSpace(q)
 	tq = strings.ToLower(tq)
-	if strings.HasPrefix(tq, "insert into") {
+
+	if strings.Contains(tq, "insert into") {
+		return true
+	}
+	if strings.Contains(tq, "delete from") {
 		return true
 	}
 
-	if strings.HasPrefix(tq, "update") {
-		return true
-	}
-
-	if strings.HasPrefix(tq, "delete from") {
+	matchedUpdate, _ := regexp.MatchString("\\bupdate\\b", tq) // if the query has the exact word "update"
+	if matchedUpdate {
 		return true
 	}
 
