@@ -3,11 +3,13 @@ package authclient
 import (
 	"context"
 	"strings"
+	"time"
 
+	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient/authproto"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient/authv2proto"
@@ -27,22 +29,26 @@ type Auth struct {
 }
 
 type UserProfile struct {
-	UserID    uuid.UUID `json:"UserID,omitempty"`
-	Username  string
-	FirstName string
-	LastName  string
-	Type      UserType
-	Status    string
+	UserID                 uuid.UUID `json:"UserID,omitempty"`
+	Username               string
+	FirstName              string
+	LastName               string
+	Type                   UserType
+	Status                 string
+	MobileNumber           string
+	MobileNumberVerifiedAt null.Time `json:"MobileNumberVerifiedAt,omitempty"`
 }
 
 type CreateUpdateUserProfile struct {
-	UserID    null.UUID `json:"UserID,omitempty"`
-	Username  string
-	FirstName string
-	LastName  string
-	Password  string `json:"Password,omitempty"`
-	Type      UserType
-	Status    string
+	UserID                 null.UUID `json:"UserID,omitempty"`
+	Username               string
+	FirstName              string
+	LastName               string
+	Password               string `json:"Password,omitempty"`
+	Type                   UserType
+	Status                 string
+	MobileNumber           string
+	MobileNumberVerifiedAt null.Time `json:"MobileNumberVerifiedAt,omitempty"`
 }
 
 type UsersSearch struct {
@@ -58,23 +64,27 @@ type Role struct {
 }
 
 type UserAccess struct {
-	UserID    null.UUID
-	Username  string
-	FirstName string
-	LastName  string
-	Type      UserType
-	Locations []Location
-	Status    string
+	UserID                 null.UUID
+	Username               string
+	FirstName              string
+	LastName               string
+	Type                   UserType
+	Locations              []Location
+	Status                 string
+	MobileNumber           string
+	MobileNumberVerifiedAt null.Time `json:"MobileNumberVerifiedAt,omitempty"`
 }
 
 type CreateUpdateUserAccess struct {
-	UserID    null.UUID
-	Username  string
-	FirstName string
-	LastName  string
-	Type      UserType
-	Password  string
-	Locations []Location
+	UserID                 null.UUID
+	Username               string
+	FirstName              string
+	LastName               string
+	Type                   UserType
+	Password               string
+	Locations              []Location
+	MobileNumber           string
+	MobileNumberVerifiedAt null.Time `json:"MobileNumberVerifiedAt,omitempty"`
 }
 type Location struct {
 	LocationID uuid.UUID
@@ -118,13 +128,22 @@ func fromGRPCUser(r *authproto.User) (UserProfile, error) {
 	if err != nil {
 		return UserProfile{}, werror.Wrap(err, "error parsing userID as uuid")
 	}
+	var mobileNumberVerfiedAt time.Time
+	if r.MobileNumberVerifiedAt != nil {
+		mobileNumberVerfiedAt, err = ptypes.Timestamp(r.MobileNumberVerifiedAt)
+		if err != nil {
+			return UserProfile{}, werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+		}
+	}
 
 	u := UserProfile{
-		UserID:    uid,
-		Username:  r.Username,
-		FirstName: r.FirstName,
-		LastName:  r.LastName,
-		Type:      UserType(r.Type),
+		UserID:                 uid,
+		Username:               r.Username,
+		FirstName:              r.FirstName,
+		LastName:               r.LastName,
+		Type:                   UserType(r.Type),
+		MobileNumber:           r.MobileNumber,
+		MobileNumberVerifiedAt: null.NewTimeDefaultAsNull(mobileNumberVerfiedAt),
 	}
 
 	return u, nil
@@ -163,17 +182,29 @@ func (a *Auth) User(ctx context.Context, userID uuid.UUID) (User, error) {
 
 // UpdateLegacyProfile - uses legacy proto to update user profile
 func (a *Auth) UpdateLegacyProfile(ctx context.Context, user UserProfile, password string) error {
-	in := &authproto.Profile{
-		Password:  password,
-		Username:  user.Username,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Type:      string(user.Type),
-		UserID:    user.UserID.String(),
-		Status:    authproto.StatusType(authproto.StatusType_value[user.Status]),
+	var verifiedAt *timestamp.Timestamp
+	var err error
+
+	if user.MobileNumberVerifiedAt.Valid {
+		verifiedAt, err = ptypes.TimestampProto(user.MobileNumberVerifiedAt.Time)
+		if err != nil {
+			return werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+		}
 	}
 
-	_, err := a.s.UpdateProfile(ctx, in)
+	in := &authproto.Profile{
+		Password:               password,
+		Username:               user.Username,
+		FirstName:              user.FirstName,
+		LastName:               user.LastName,
+		Type:                   string(user.Type),
+		UserID:                 user.UserID.String(),
+		Status:                 authproto.StatusType(authproto.StatusType_value[user.Status]),
+		MobileNumber:           user.MobileNumber,
+		MobileNumberVerifiedAt: verifiedAt,
+	}
+
+	_, err = a.s.UpdateProfile(ctx, in)
 	if err != nil {
 		return werror.Wrap(err)
 	}
@@ -361,14 +392,24 @@ func (a *Auth) LocationUsers(ctx context.Context, locationID uuid.UUID) ([]UserA
 			return nil, werror.Wrap(err, "error parsing location")
 		}
 
+		var verifiedAt time.Time
+		if v.MobileNumberVerifiedAt != nil {
+			verifiedAt, err = ptypes.Timestamp(v.MobileNumberVerifiedAt)
+			if err != nil {
+				return nil, werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+			}
+		}
+
 		users = append(users, UserAccess{
-			FirstName: v.FirstName,
-			LastName:  v.LastName,
-			Type:      UserType(v.Type),
-			UserID:    null.NewUUIDUUID(uid),
-			Username:  v.Username,
-			Locations: locations,
-			Status:    v.Status.String(),
+			FirstName:              v.FirstName,
+			LastName:               v.LastName,
+			Type:                   UserType(v.Type),
+			UserID:                 null.NewUUIDUUID(uid),
+			Username:               v.Username,
+			Locations:              locations,
+			Status:                 v.Status.String(),
+			MobileNumber:           v.MobileNumber,
+			MobileNumberVerifiedAt: null.NewTimeDefaultAsNull(verifiedAt),
 		})
 	}
 
@@ -388,12 +429,22 @@ func (a *Auth) UserLocations(ctx context.Context, id uuid.UUID) (*UserAccess, er
 		return nil, werror.Wrap(err, "error fetching map of possible roles")
 	}
 
+	var verifiedAt time.Time
+	if r.Profile.MobileNumberVerifiedAt != nil {
+		verifiedAt, err = ptypes.Timestamp(r.Profile.MobileNumberVerifiedAt)
+		if err != nil {
+			return nil, werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+		}
+	}
+
 	userAccess := &UserAccess{
-		UserID:    null.NewUUIDUUID(id),
-		Username:  r.Profile.Username,
-		FirstName: r.Profile.FirstName,
-		LastName:  r.Profile.LastName,
-		Type:      fromGRPCUserType(r.Profile.Type),
+		UserID:                 null.NewUUIDUUID(id),
+		Username:               r.Profile.Username,
+		FirstName:              r.Profile.FirstName,
+		LastName:               r.Profile.LastName,
+		Type:                   fromGRPCUserType(r.Profile.Type),
+		MobileNumber:           r.Profile.MobileNumber,
+		MobileNumberVerifiedAt: null.NewTimeDefaultAsNull(verifiedAt),
 	}
 
 	locations := make([]Location, 0, len(r.Access))
@@ -481,13 +532,25 @@ func (a *Auth) AddOrReplaceUserAccess(ctx context.Context, userID uuid.UUID, loc
 // CreateUserProfile uses the v2 client to create a new user profile
 func (a *Auth) CreateUserProfile(ctx context.Context, user CreateUpdateUserProfile) (uuid.UUID, error) {
 
+	var verifiedAt *timestamp.Timestamp
+	var err error
+
+	if user.MobileNumberVerifiedAt.Valid {
+		verifiedAt, err = ptypes.TimestampProto(user.MobileNumberVerifiedAt.Time)
+		if err != nil {
+			return uuid.UUID{}, werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+		}
+	}
+
 	u, err := a.v2.CreateUserProfile(ctx, &authv2proto.UserProfileRequest{
-		Password:  user.Password,
-		Username:  user.Username,
-		FirstName: user.FirstName,
-		LastName:  user.LastName,
-		Type:      toGRPCUserType(user.Type),
-		Status:    authv2proto.StatusType(authv2proto.StatusType_value[user.Status]),
+		Password:               user.Password,
+		Username:               user.Username,
+		FirstName:              user.FirstName,
+		LastName:               user.LastName,
+		Type:                   toGRPCUserType(user.Type),
+		Status:                 authv2proto.StatusType(authv2proto.StatusType_value[user.Status]),
+		MobileNumber:           user.MobileNumber,
+		MobileNumberVerifiedAt: verifiedAt,
 	})
 	if err != nil {
 		return uuid.UUID{}, werror.Wrap(err, "error Creating User Profile")
@@ -503,20 +566,32 @@ func (a *Auth) CreateUserProfile(ctx context.Context, user CreateUpdateUserProfi
 
 // UpdateUserProfile uses the v2 client to update a user profile. The Password field is optional and will not be updated if it is not present
 func (a *Auth) UpdateUserProfile(ctx context.Context, locationID, userID uuid.UUID, user CreateUpdateUserProfile) error {
+	var verifiedAt *timestamp.Timestamp
+	var err error
+
+	if user.MobileNumberVerifiedAt.Valid {
+		verifiedAt, err = ptypes.TimestampProto(user.MobileNumberVerifiedAt.Time)
+		if err != nil {
+			return werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+		}
+	}
+
 	req := &authv2proto.UpdateUserProfileRequest{
 		UserID:     wgrpcproto.UUIDProto(userID),
 		LocationID: wgrpcproto.UUIDProto(locationID),
 		UserProfile: &authv2proto.UserProfileRequest{
-			Password:  user.Password,
-			Username:  user.Username,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Type:      toGRPCUserType(user.Type),
-			Status:    authv2proto.StatusType(authv2proto.StatusType_value[user.Status]),
+			Password:               user.Password,
+			Username:               user.Username,
+			FirstName:              user.FirstName,
+			LastName:               user.LastName,
+			Type:                   toGRPCUserType(user.Type),
+			Status:                 authv2proto.StatusType(authv2proto.StatusType_value[user.Status]),
+			MobileNumber:           user.MobileNumber,
+			MobileNumberVerifiedAt: verifiedAt,
 		},
 	}
 
-	_, err := a.v2.UpdateUserProfile(ctx, req)
+	_, err = a.v2.UpdateUserProfile(ctx, req)
 	if err != nil {
 		status, ok := status.FromError(err)
 		if ok && status.Code() == codes.PermissionDenied {
@@ -642,12 +717,21 @@ func populateLocationUser(locationID uuid.UUID, possibleRoles map[int32]Role, us
 				return LocationUser{}, werror.Wrap(err, "error parsing userID")
 			}
 
+			var verifiedAt time.Time
+			if user.Profile.MobileNumberVerifiedAt != nil {
+				verifiedAt, err = ptypes.Timestamp(user.Profile.MobileNumberVerifiedAt)
+				if err != nil {
+					return LocationUser{}, werror.Wrap(err, "error parsing MobileNumberVerifiedAt")
+				}
+			}
 			l.UserProfile.FirstName = user.Profile.FirstName
 			l.UserProfile.LastName = user.Profile.LastName
 			l.UserProfile.Username = user.Profile.Username
 			l.UserProfile.UserID = uid
 			l.UserProfile.Type = fromGRPCUserType(user.Profile.Type)
 			l.UserProfile.Status = authv2proto.StatusType_name[int32(user.Profile.Status)]
+			l.UserProfile.MobileNumber = user.Profile.MobileNumber
+			l.UserProfile.MobileNumberVerifiedAt = null.NewTimeDefaultAsNull(verifiedAt)
 
 			roles := make([]Role, 0, len(v.Roles))
 			//range over all roles the user has

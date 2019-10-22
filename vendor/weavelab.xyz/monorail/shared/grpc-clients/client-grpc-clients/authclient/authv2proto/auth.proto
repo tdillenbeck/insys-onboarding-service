@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package authv2proto;
 
+import "google/protobuf/timestamp.proto";
 import "github.com/golang/protobuf/ptypes/empty/empty.proto";
 import "weavelab.xyz/monorail/shared/wlib/wgrpc/wgrpcproto/wgrpcprotouuid/uuid.proto";
 
@@ -69,6 +70,8 @@ message UserProfileRequest {
     string LastName = 4;
     string Password = 5;
     StatusType Status = 6;
+    string MobileNumber = 7;
+    google.protobuf.Timestamp MobileNumberVerifiedAt = 8;
 }
 
 message UpdateUserProfileRequest {
@@ -84,6 +87,8 @@ message UserProfileResponse {
     string FirstName = 4;
     string LastName = 5;
     StatusType Status = 6;
+    string MobileNumber = 7;
+    google.protobuf.Timestamp MobileNumberVerifiedAt = 8;
 }
 
 message UserAccess {

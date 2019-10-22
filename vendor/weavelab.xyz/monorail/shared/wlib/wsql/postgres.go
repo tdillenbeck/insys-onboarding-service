@@ -15,14 +15,13 @@ import (
 	"time"
 	"unsafe"
 
+	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
+	"github.com/jmoiron/sqlx"
+	"github.com/opentracing/opentracing-go"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 	"weavelab.xyz/monorail/shared/wlib/wtracer"
-
-	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
-	"github.com/jmoiron/sqlx"
-	"github.com/opentracing/opentracing-go"
 )
 
 const (

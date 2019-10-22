@@ -109,6 +109,15 @@ func (c *Config) Add(name string, defaultValue string, message string, flags ...
 	return
 }
 
+// AddAll adds all the flag in an existing FlagSet as settings
+func (c *Config) AddAll(other *flag.FlagSet) {
+	visitor := func(f *flag.Flag) {
+		c.Add(f.Name, f.DefValue, f.Usage, f.Value.String())
+	}
+
+	other.VisitAll(visitor)
+}
+
 // Set modifies the value of an already-created config setting on instantiated config struct
 func (c *Config) Set(name string, value string) {
 	c.mu.Lock()

@@ -86,9 +86,16 @@ type Address struct {
 	// Type is the type of this address.
 	Type AddressType
 	// ServerName is the name of this address.
+	// If non-empty, the ServerName is used as the transport certification authority for
+	// the address, instead of the hostname from the Dial target string. In most cases,
+	// this should not be set.
 	//
-	// e.g. if Type is GRPCLB, ServerName should be the name of the remote load
+	// If Type is GRPCLB, ServerName should be the name of the remote load
 	// balancer, not the name of the backend.
+	//
+	// WARNING: ServerName must only be populated with trusted values. It
+	// is insecure to populate it with data from untrusted inputs since untrusted
+	// values could be used to bypass the authority checks performed by TLS.
 	ServerName string
 	// Metadata is the information associated with Addr, which may be used
 	// to make load balancing decision.
@@ -104,12 +111,13 @@ type BuildOption struct {
 
 // State contains the current Resolver state relevant to the ClientConn.
 type State struct {
-	Addresses []Address // Resolved addresses for the target
-	// ServiceConfig is the parsed service config; obtained from
-	// serviceconfig.Parse.
-	ServiceConfig serviceconfig.Config
+	// Addresses is the latest set of resolved addresses for the target.
+	Addresses []Address
 
-	// TODO: add Err error
+	// ServiceConfig contains the result from parsing the latest service
+	// config.  If it is nil, it indicates no service config is present or the
+	// resolver does not provide service configs.
+	ServiceConfig *serviceconfig.ParseResult
 }
 
 // ClientConn contains the callbacks for resolver to notify any updates
@@ -122,6 +130,10 @@ type State struct {
 type ClientConn interface {
 	// UpdateState updates the state of the ClientConn appropriately.
 	UpdateState(State)
+	// ReportError notifies the ClientConn that the Resolver encountered an
+	// error.  The ClientConn will notify the load balancer and begin calling
+	// ResolveNow on the Resolver with exponential backoff.
+	ReportError(error)
 	// NewAddress is called by resolver to notify ClientConn a new list
 	// of resolved addresses.
 	// The address list should be the complete list of resolved addresses.
@@ -133,6 +145,9 @@ type ClientConn interface {
 	//
 	// Deprecated: Use UpdateState instead.
 	NewServiceConfig(serviceConfig string)
+	// ParseServiceConfig parses the provided service config and returns an
+	// object that provides the parsed config.
+	ParseServiceConfig(serviceConfigJSON string) *serviceconfig.ParseResult
 }
 
 // Target represents a target for gRPC, as specified in:

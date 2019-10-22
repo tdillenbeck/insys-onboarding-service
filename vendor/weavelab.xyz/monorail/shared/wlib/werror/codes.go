@@ -57,6 +57,12 @@ var codeMap = map[Code]int{
 	CodeConflict:           http.StatusConflict,
 }
 
+// provide direct mapping from http code to weave code
+// when the `codeMap` doesn't provide a mapping
+var httpCodeMap = map[int]Code{
+	http.StatusForbidden: CodePermissionDenied,
+}
+
 // HttpCode returns the related http status code based on our predefined codes
 func HttpCode(code Code) int {
 	httpCode, ok := codeMap[code]
@@ -96,6 +102,13 @@ func ErrorClass(code Code) Class {
 }
 
 func HttpToWeaveCode(i int) Code {
+	c, ok := httpCodeMap[i]
+	if ok {
+		return c
+	}
+
+	// if there wasn't a direct code available,
+	// use the weave code to http code to lookup
 	for k, v := range codeMap {
 		if v == i {
 			return k

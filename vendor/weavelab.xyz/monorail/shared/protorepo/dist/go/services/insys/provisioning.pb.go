@@ -28,18 +28,24 @@ func init() {
 }
 
 var fileDescriptor_4929fe8f6b859ecc = []byte{
-	// 176 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x90, 0x31, 0xab, 0xc2, 0x40,
-	0x10, 0x06, 0x5f, 0xf5, 0x8a, 0x90, 0x42, 0x52, 0xa6, 0xb4, 0x34, 0x70, 0x0b, 0x5a, 0x8b, 0x60,
-	0x67, 0x27, 0x96, 0x76, 0x17, 0xb3, 0xc4, 0x85, 0xe4, 0xf6, 0xdc, 0x3d, 0xa3, 0x11, 0xfc, 0xef,
-	0xc2, 0x15, 0x7a, 0xa4, 0x10, 0xdb, 0x61, 0xa6, 0xf8, 0xbe, 0xac, 0xf2, 0xc2, 0x81, 0x05, 0x3d,
-	0x83, 0xa2, 0x0c, 0x74, 0x42, 0x05, 0x72, 0x3a, 0x2a, 0x78, 0xe1, 0x81, 0x94, 0xd8, 0x91, 0x6b,
-	0x4d, 0xb4, 0x8a, 0x3c, 0x65, 0x65, 0x92, 0xf6, 0xa8, 0x6a, 0xdb, 0x2f, 0xe9, 0xf2, 0x99, 0xe5,
-	0xfb, 0x84, 0x16, 0x7d, 0x36, 0xdb, 0x39, 0x0a, 0x64, 0xbb, 0x37, 0x2e, 0x16, 0x26, 0x0d, 0x63,
-	0x67, 0xa6, 0xd2, 0x01, 0x2f, 0x57, 0xd4, 0x50, 0x56, 0x3f, 0xb9, 0xea, 0xd9, 0x29, 0xce, 0xff,
-	0xb6, 0x9b, 0xe3, 0xfa, 0x86, 0x76, 0xc0, 0xce, 0xd6, 0xe6, 0x3e, 0x3e, 0xa0, 0x67, 0xc7, 0x62,
-	0xa9, 0x03, 0x3d, 0x5b, 0xc1, 0x06, 0x3e, 0x53, 0x1a, 0xd2, 0x00, 0xed, 0xf4, 0x8d, 0xfa, 0x3f,
-	0x1a, 0xab, 0x57, 0x00, 0x00, 0x00, 0xff, 0xff, 0x2e, 0x04, 0x83, 0x55, 0x30, 0x01, 0x00, 0x00,
+	// 266 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x92, 0xbf, 0x4b, 0xc3, 0x40,
+	0x14, 0xc7, 0x2d, 0x88, 0xc3, 0x51, 0x41, 0x6e, 0x8c, 0x9b, 0x8b, 0x62, 0x21, 0x07, 0xfe, 0xda,
+	0x44, 0xa8, 0x2e, 0x9d, 0x5a, 0x84, 0x2e, 0x6e, 0x57, 0xf3, 0x88, 0x0f, 0x92, 0x7b, 0xe7, 0x7b,
+	0xd7, 0x68, 0x1c, 0x5d, 0x05, 0xff, 0x66, 0x21, 0x90, 0xf4, 0x28, 0xb1, 0x9a, 0xf5, 0x7b, 0x9f,
+	0xef, 0x0f, 0x8e, 0xa7, 0x26, 0x9e, 0x29, 0x10, 0x83, 0x27, 0x23, 0xc0, 0x15, 0x3e, 0x83, 0x18,
+	0x74, 0x52, 0x8b, 0xf1, 0x4c, 0x15, 0x0a, 0x92, 0x43, 0x97, 0xa7, 0x0d, 0xa5, 0xc7, 0xb1, 0x96,
+	0x44, 0xd6, 0x12, 0x44, 0x6c, 0xbe, 0xc3, 0x7a, 0xf1, 0xb9, 0xaf, 0xc6, 0x8b, 0x48, 0xd6, 0x5f,
+	0x23, 0x95, 0xdc, 0x33, 0xd8, 0x00, 0x73, 0x5e, 0xfa, 0xcc, 0x06, 0x58, 0x30, 0x74, 0x84, 0xbe,
+	0x4a, 0xe3, 0x90, 0x26, 0x23, 0xfd, 0x1d, 0x7f, 0x84, 0xd7, 0x35, 0x48, 0x48, 0xae, 0x07, 0xba,
+	0xc4, 0x93, 0x13, 0x38, 0xd9, 0xd3, 0xdf, 0x23, 0x75, 0x1c, 0x3f, 0x4d, 0xeb, 0xb9, 0xf7, 0xc4,
+	0x61, 0xed, 0x30, 0xd4, 0xb3, 0x07, 0xdd, 0x17, 0xbc, 0x83, 0x6f, 0xf7, 0xdc, 0x0c, 0xb5, 0x75,
+	0x83, 0x4a, 0x75, 0x34, 0x73, 0x18, 0xd0, 0x16, 0x9b, 0x3f, 0x39, 0xef, 0x49, 0xdb, 0x86, 0xda,
+	0xe6, 0xc9, 0xbf, 0xd8, 0xae, 0x2e, 0x53, 0x87, 0x9d, 0xbc, 0x14, 0x60, 0x7d, 0xda, 0xbb, 0x3c,
+	0x22, 0xda, 0xa2, 0xb3, 0xbf, 0xc1, 0xb6, 0x65, 0x7a, 0xf7, 0x74, 0xfb, 0x06, 0xb6, 0x82, 0xc2,
+	0xae, 0xd2, 0xf7, 0xfa, 0xc3, 0x94, 0xe4, 0x88, 0x2d, 0x16, 0x46, 0x5e, 0x2c, 0x43, 0x66, 0x36,
+	0x07, 0x95, 0xa1, 0x04, 0x93, 0x6f, 0xdf, 0xe4, 0xea, 0xa0, 0x21, 0x2e, 0x7f, 0x02, 0x00, 0x00,
+	0xff, 0xff, 0xbb, 0x32, 0x35, 0x1d, 0xb6, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -54,7 +60,10 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ProvisioningClient interface {
+	CreateOrUpdatePreProvision(ctx context.Context, in *insysproto.CreateOrUpdatePreProvisionRequest, opts ...grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error)
+	PreProvisionByOpportunityID(ctx context.Context, in *insysproto.PreProvisionByOpportunityIDRequest, opts ...grpc.CallOption) (*insysproto.PreProvisionByOpportunityIDResponse, error)
 	InitialProvision(ctx context.Context, in *insysproto.InitialProvisionRequest, opts ...grpc.CallOption) (*insysproto.InitialProvisionResponse, error)
+	ProvisionUser(ctx context.Context, in *insysproto.ProvisionUserRequest, opts ...grpc.CallOption) (*insysproto.ProvisionUserResponse, error)
 }
 
 type provisioningClient struct {
@@ -63,6 +72,24 @@ type provisioningClient struct {
 
 func NewProvisioningClient(cc *grpc.ClientConn) ProvisioningClient {
 	return &provisioningClient{cc}
+}
+
+func (c *provisioningClient) CreateOrUpdatePreProvision(ctx context.Context, in *insysproto.CreateOrUpdatePreProvisionRequest, opts ...grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
+	out := new(insysproto.CreateOrUpdatePreProvisionResponse)
+	err := c.cc.Invoke(ctx, "/provisioning.Provisioning/CreateOrUpdatePreProvision", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *provisioningClient) PreProvisionByOpportunityID(ctx context.Context, in *insysproto.PreProvisionByOpportunityIDRequest, opts ...grpc.CallOption) (*insysproto.PreProvisionByOpportunityIDResponse, error) {
+	out := new(insysproto.PreProvisionByOpportunityIDResponse)
+	err := c.cc.Invoke(ctx, "/provisioning.Provisioning/PreProvisionByOpportunityID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *provisioningClient) InitialProvision(ctx context.Context, in *insysproto.InitialProvisionRequest, opts ...grpc.CallOption) (*insysproto.InitialProvisionResponse, error) {
@@ -74,13 +101,61 @@ func (c *provisioningClient) InitialProvision(ctx context.Context, in *insysprot
 	return out, nil
 }
 
+func (c *provisioningClient) ProvisionUser(ctx context.Context, in *insysproto.ProvisionUserRequest, opts ...grpc.CallOption) (*insysproto.ProvisionUserResponse, error) {
+	out := new(insysproto.ProvisionUserResponse)
+	err := c.cc.Invoke(ctx, "/provisioning.Provisioning/ProvisionUser", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProvisioningServer is the server API for Provisioning service.
 type ProvisioningServer interface {
+	CreateOrUpdatePreProvision(context.Context, *insysproto.CreateOrUpdatePreProvisionRequest) (*insysproto.CreateOrUpdatePreProvisionResponse, error)
+	PreProvisionByOpportunityID(context.Context, *insysproto.PreProvisionByOpportunityIDRequest) (*insysproto.PreProvisionByOpportunityIDResponse, error)
 	InitialProvision(context.Context, *insysproto.InitialProvisionRequest) (*insysproto.InitialProvisionResponse, error)
+	ProvisionUser(context.Context, *insysproto.ProvisionUserRequest) (*insysproto.ProvisionUserResponse, error)
 }
 
 func RegisterProvisioningServer(s *grpc.Server, srv ProvisioningServer) {
 	s.RegisterService(&_Provisioning_serviceDesc, srv)
+}
+
+func _Provisioning_CreateOrUpdatePreProvision_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(insysproto.CreateOrUpdatePreProvisionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProvisioningServer).CreateOrUpdatePreProvision(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/provisioning.Provisioning/CreateOrUpdatePreProvision",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvisioningServer).CreateOrUpdatePreProvision(ctx, req.(*insysproto.CreateOrUpdatePreProvisionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Provisioning_PreProvisionByOpportunityID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(insysproto.PreProvisionByOpportunityIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProvisioningServer).PreProvisionByOpportunityID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/provisioning.Provisioning/PreProvisionByOpportunityID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvisioningServer).PreProvisionByOpportunityID(ctx, req.(*insysproto.PreProvisionByOpportunityIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Provisioning_InitialProvision_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -101,13 +176,43 @@ func _Provisioning_InitialProvision_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Provisioning_ProvisionUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(insysproto.ProvisionUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProvisioningServer).ProvisionUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/provisioning.Provisioning/ProvisionUser",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProvisioningServer).ProvisionUser(ctx, req.(*insysproto.ProvisionUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Provisioning_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "provisioning.Provisioning",
 	HandlerType: (*ProvisioningServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CreateOrUpdatePreProvision",
+			Handler:    _Provisioning_CreateOrUpdatePreProvision_Handler,
+		},
+		{
+			MethodName: "PreProvisionByOpportunityID",
+			Handler:    _Provisioning_PreProvisionByOpportunityID_Handler,
+		},
+		{
 			MethodName: "InitialProvision",
 			Handler:    _Provisioning_InitialProvision_Handler,
+		},
+		{
+			MethodName: "ProvisionUser",
+			Handler:    _Provisioning_ProvisionUser_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
