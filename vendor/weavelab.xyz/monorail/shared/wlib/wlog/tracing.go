@@ -2,6 +2,7 @@ package wlog
 
 import (
 	"context"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 

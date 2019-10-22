@@ -1,8 +1,8 @@
 image:
-  tag: 1.0.1910091710-sha.de83101
+  tag: 1.0.1910221805-sha.7e11736-zt-canada
   registry: gcr.io/weave-lab/insys/insys-onboarding-service
 
-replicas: 3
+replicas: 1
 
 requests:
   cpu: 100m

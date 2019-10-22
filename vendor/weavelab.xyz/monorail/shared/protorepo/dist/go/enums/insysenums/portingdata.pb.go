@@ -69,9 +69,9 @@ var NumberType_name = map[int32]string{
 
 var NumberType_value = map[string]int32{
 	"UNKNOWN_NUMBER_TYPE": 0,
-	"FAX":   1,
-	"SMS":   2,
-	"PHONE": 3,
+	"FAX":                 1,
+	"SMS":                 2,
+	"PHONE":               3,
 }
 
 func (x NumberType) String() string {
