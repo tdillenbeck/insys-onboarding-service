@@ -48,6 +48,7 @@ spec:
             value: {{ .Values.postgres.dbReplicaAddr }}
           - name: DB_DRIVER
             value: {{ .Values.postgres.dbDriver }}
+          {{ if (eq (.Values.postgres.dbDriver | default "postgres") "cloudsqlpostgres") }}
           - name: DB_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -58,6 +59,7 @@ spec:
               secretKeyRef:
                 name: "{{ .Chart.Name }}-db-user-password"
                 key: dbUsername
+          {{ end }}
           - name: DB_NAME
             value: {{ .Values.postgres.dbName }}
           - name: MAX_IDLE_CONNECTIONS
