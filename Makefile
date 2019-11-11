@@ -1,3 +1,5 @@
+USERNAME ?= $(shell bash -c 'read -p "Username: " usr; echo $$usr')
+PASSWORD ?= $(shell bash -c 'read -s -p "Password: " pwd; echo $$pwd')
 
 default: gotest
 
@@ -42,18 +44,18 @@ migratetestdown:
 	goose -dir ./dbconfig/migrations postgres "postgres://postgres@localhost:5432/insys_onboarding_test?search_path=insys_onboarding&sslmode=disable" down
 	
 migratedev:
-	goose -dir ./dbconfig/migrations postgres "postgres://username:password@dev-pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
+	@goose -dir ./dbconfig/migrations postgres "postgres://$(USERNAME):$(PASSWORD)@dev-pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 migrateprod:
 	make migrateprodut
 	make migrateprodca1
 
 migrateprodut:
-	goose -dir ./dbconfig/migrations postgres "postgres://username:password@pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
+	@goose -dir ./dbconfig/migrations postgres "postgres://$(USERNAME):$(PASSWORD)@pgsql-service-1a/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 # NOTE cloud_sql_proxy must be running
 migrateprodca1:
-	goose -dir ./dbconfig/migrations postgres "postgres://username:password@localhost:5433/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
+	@goose -dir ./dbconfig/migrations postgres "postgres://$(USERNAME):$(PASSWORD)@localhost:5433/services?search_path=insys_onboarding&sslmode=disable&role=insys_onboarding" up
 
 seedlocal:
 	psql "postgres://localhost:5432/insys_onboarding_local?sslmode=disable" -f dbconfig/seed.sql
@@ -62,15 +64,14 @@ seedtest:
 	psql "postgres://localhost:5432/insys_onboarding_test?sslmode=disable" -f dbconfig/seed.sql
 
 seeddev:
-	psql "postgres://username:password@dev-pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
+	@psql "postgres://$(USERNAME):$(PASSWORD)@dev-pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
 
 seedprod: 
 	make seedprodut
 	make seedprodca1
 
 seedprodut:
-	psql "postgres://username:password@pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
-
+	@psql "postgres://$(USERNAME):$(PASSWORD)@pgsql-service-1a/services?sslmode=disable" -f dbconfig/seed.sql
 
 seedprodca1:
-	psql "postgres://username:password@localhost:5433/services?sslmode=disable" -f dbconfig/seed.sql
+	@psql "postgres://$(USERNAME):$(PASSWORD)@localhost:5433/services?sslmode=disable" -f dbconfig/seed.sql
