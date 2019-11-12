@@ -13,15 +13,16 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
 
+// ensure interface is implemented correctly
 var _ insys.HandOffSnapshotServer = &HandOffSnapshotServer{}
 
 type HandOffSnapshotServer struct {
 	handOffSnapshotService app.HandOffSnapshotService
 }
 
-func NewHandOffSnapshotServer(hoss app.HandOffSnapshotService) *HandOffSnapshotServer {
+func NewHandOffSnapshotServer(handOffSnapshotService app.HandOffSnapshotService) *HandOffSnapshotServer {
 	return &HandOffSnapshotServer{
-		handOffSnapshotService: hoss,
+		handOffSnapshotService: handOffSnapshotService,
 	}
 }
 
@@ -48,20 +49,20 @@ func convertProtoToHandOffSnapshot(proto insysproto.HandOffSnapshotCreateOrUpdat
 
 	onboardersLocationID, err = uuid.Parse(proto.HandoffSnapshot.OnboardersLocationId)
 	if err != nil {
-		return app.HandOffSnapshot{}, err
+		return app.HandOffSnapshot{}, werror.Wrap(err, "invalid onboardersLocationID").Add("onboardersLocationID", proto.HandoffSnapshot.OnboardersLocationId)
 	}
 
 	if proto.HandoffSnapshot.CsatRecipientUserId != "" {
 		csatRecipientUserID, err = null.NewUUID(proto.HandoffSnapshot.CsatRecipientUserId)
 		if err != nil {
-			return app.HandOffSnapshot{}, err
+			return app.HandOffSnapshot{}, werror.Wrap(err, "invalid CsatRecipientUserId").Add("CsatRecipientUserId", proto.HandoffSnapshot.CsatRecipientUserId)
 		}
 	}
 
 	if proto.HandoffSnapshot.CsatSentAt != "" {
 		parsedCsatSentAt, err := time.Parse(time.RFC3339, proto.HandoffSnapshot.CsatSentAt)
 		if err != nil {
-			return app.HandOffSnapshot{}, err
+			return app.HandOffSnapshot{}, werror.Wrap(err, "invalid csat sent at").Add("CsatSentAt", proto.HandoffSnapshot.CsatSentAt)
 		}
 		csatSentAt = null.NewTime(parsedCsatSentAt.UTC())
 	}

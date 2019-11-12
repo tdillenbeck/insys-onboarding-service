@@ -41,7 +41,7 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "insert handoff snapshot",
+			name: "insert hand-off snapshot",
 			fields: fields{
 				DB: db,
 			},
@@ -62,7 +62,7 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 			},
 		},
 		{
-			name: "update handoff snapshot",
+			name: "update hand-off snapshot",
 			fields: fields{
 				DB: db,
 			},
