@@ -81,7 +81,7 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.HandOffSnapshot{}, "ID", "CreatedAt", "UpdatedAt"),
+		cmpopts.IgnoreFields(app.HandOffSnapshot{}, "ID", "CreatedAt", "UpdatedAt", "CustomerSatisfactionSurveySentAt"),
 	}
 
 	for _, tt := range tests {
