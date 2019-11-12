@@ -48,7 +48,7 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot *
 	)
 
 	if err != nil {
-		return nil, werror.Wrap(err, "inserting or updating hand-off snapshot")
+		return nil, werror.Wrap(err, "failed to insert or update hand-off snapshot")
 	}
 
 	return &result, nil

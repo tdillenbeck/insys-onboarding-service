@@ -9,6 +9,8 @@ import (
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
 
 var _ insys.HandOffSnapshotServer = &HandOffSnapshotServer{}
@@ -24,20 +26,21 @@ func NewHandOffSnapshotServer(hoss app.HandOffSnapshotService) *HandOffSnapshotS
 }
 
 func (s *HandOffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insysproto.HandOffSnapshotCreateOrUpdateRequest) (*insysproto.HandOffSnapshotCreateOrUpdateResponse, error) {
-	snapshot, err := convertProtoToHandOffSnapshot(req)
+	snapshot, err := convertProtoToHandOffSnapshot(*req)
 	if err != nil {
-		return nil, err
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not convert proto to hand-off snapshot").Add("req", req))
 	}
 	result, err := s.handOffSnapshotService.CreateOrUpdate(ctx, &snapshot)
 	if err != nil {
-		return nil, err
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not create or update hand-off snapshot"))
 	}
+
 	proto := convertHandOffSnapshotToProto(*result)
 
 	return &proto, nil
 }
 
-func convertProtoToHandOffSnapshot(proto *insysproto.HandOffSnapshotCreateOrUpdateRequest) (app.HandOffSnapshot, error) {
+func convertProtoToHandOffSnapshot(proto insysproto.HandOffSnapshotCreateOrUpdateRequest) (app.HandOffSnapshot, error) {
 	var onboardersLocationID uuid.UUID
 	var csatRecipientUserID null.UUID
 	var csatSentAt null.Time
