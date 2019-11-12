@@ -83,11 +83,13 @@ func main() {
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
+	handOffSnapshotService := &psql.HandOffSnapshotService{DB: db}
 
 	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventCreatedPublisher, chiliPiperScheduleEventsService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
+	handOffSnapshotServer := grpc.NewHandOffSnapshotServer(handOffSnapshotService)
 
 	// setup nsq consumers
 	nsqConfig := nsqwapp.NewConfig()
@@ -98,7 +100,7 @@ func main() {
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, onboardersLocationService, authClient, featureFlagsClient, zapierClient)
 
-	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer))
+	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer, handOffSnapshotServer))
 
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
@@ -113,7 +115,12 @@ func main() {
 	wlog.InfoC(ctx, "done")
 }
 
-func grpcBootstrap(chiliPiperScheduleEventServer *grpc.ChiliPiperScheduleEventServer, onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer, onboardersLocationServer *grpc.OnboardersLocationServer) grpcwapp.BootstrapFunc {
+func grpcBootstrap(
+	chiliPiperScheduleEventServer *grpc.ChiliPiperScheduleEventServer,
+	onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer,
+	onboardersLocationServer *grpc.OnboardersLocationServer,
+	handOffSnapshotServer *grpc.HandOffSnapshotServer,
+) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs, err := wgrpcserver.NewDefault()
 		if err != nil {
@@ -124,6 +131,7 @@ func grpcBootstrap(chiliPiperScheduleEventServer *grpc.ChiliPiperScheduleEventSe
 		insys.RegisterOnboardingServer(gs, onboardingServer)
 		insys.RegisterOnboarderServer(gs, onboarderServer)
 		insys.RegisterOnboardersLocationServer(gs, onboardersLocationServer)
+		insys.RegisterHandOffSnapshotServer(gs, handOffSnapshotServer)
 
 		return gs, nil
 	}

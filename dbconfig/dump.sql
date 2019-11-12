@@ -88,6 +88,22 @@ ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboardin
 
 
 --
+-- Name: handoff_snapshots; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+--
+
+CREATE TABLE insys_onboarding.handoff_snapshots (
+    id uuid NOT NULL,
+    onboarders_location_id uuid NOT NULL,
+    csat_recipient_user_id uuid,
+    csat_sent_at timestamp without time zone,
+    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    updated_at timestamp without time zone DEFAULT now() NOT NULL
+);
+
+
+ALTER TABLE insys_onboarding.handoff_snapshots OWNER TO postgres;
+
+--
 -- Name: onboarders; Type: TABLE; Schema: insys_onboarding; Owner: postgres
 --
 
@@ -217,6 +233,22 @@ ALTER TABLE ONLY insys_onboarding.goose_db_version
 
 
 --
+-- Name: handoff_snapshots handoff_snapshots_onboarders_location_id_key; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY insys_onboarding.handoff_snapshots
+    ADD CONSTRAINT handoff_snapshots_onboarders_location_id_key UNIQUE (onboarders_location_id);
+
+
+--
+-- Name: handoff_snapshots handoff_snapshots_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY insys_onboarding.handoff_snapshots
+    ADD CONSTRAINT handoff_snapshots_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: onboarders_location onboarders_location_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
 --
 
@@ -289,6 +321,14 @@ CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders U
 --
 
 CREATE INDEX index_onboarding_task_instances_on_location_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
+
+
+--
+-- Name: handoff_snapshots handoff_snapshots_onboarders_location_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+--
+
+ALTER TABLE ONLY insys_onboarding.handoff_snapshots
+    ADD CONSTRAINT handoff_snapshots_onboarders_location_fkey FOREIGN KEY (onboarders_location_id) REFERENCES insys_onboarding.onboarders_location(id);
 
 
 --

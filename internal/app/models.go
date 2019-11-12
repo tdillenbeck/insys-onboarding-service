@@ -102,3 +102,13 @@ type TaskInstance struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+// HandOffSnapshot stores all the information of the state of an Onboarders Location when handed off to the next steps of setting up.
+type HandOffSnapshot struct {
+	ID                                        uuid.UUID
+	OnboardersLocationID                      uuid.UUID `db:"onboarders_location_id" json:"onboarders_location_id"`
+	CustomerSatisfactionSurveyRecipientUserID null.UUID `db:"csat_recipient_user_id" json:"customer_satisfaction_survey_recipient_user_id"`
+	CustomerSatisfactionSurveySentAt          null.Time `db:"csat_sent_at" json:"customer_satisfaction_survey_delivered_at"`
+	CreatedAt                                 time.Time `db:"created_at"`
+	UpdatedAt                                 time.Time `db:"updated_at"`
+}
