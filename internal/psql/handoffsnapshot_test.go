@@ -18,10 +18,9 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 	clearExistingData(db)
 
 	onboardersLocationID := uuid.NewV4()
-	snapshotID := uuid.NewV4()
 
 	surveySentAt := null.NewTime(time.Now())
-	updatedSurveySentAt := null.NewTime(time.Now())
+	updatedSurveySentAt := null.NewTime(time.Now().Add(5 * time.Hour))
 
 	userID := null.NewUUIDUUID(uuid.NewV4())
 	updatedUserID := null.NewUUIDUUID(uuid.NewV4())
@@ -48,15 +47,13 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 				snapshot: &app.HandOffSnapshot{
-					ID:                   snapshotID,
-					OnboardersLocationID: onboardersLocationID,
+					OnboardersLocationID:                      onboardersLocationID,
 					CustomerSatisfactionSurveyRecipientUserID: userID,
 					CustomerSatisfactionSurveySentAt:          surveySentAt,
 				},
 			},
 			want: &app.HandOffSnapshot{
-				ID:                   snapshotID,
-				OnboardersLocationID: onboardersLocationID,
+				OnboardersLocationID:                      onboardersLocationID,
 				CustomerSatisfactionSurveyRecipientUserID: userID,
 				CustomerSatisfactionSurveySentAt:          surveySentAt,
 			},

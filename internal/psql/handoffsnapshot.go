@@ -26,7 +26,7 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot *
 		VALUES ($1, $2, $3, $4, now(), now())
 		ON CONFLICT(onboarders_location_id) DO UPDATE SET
 			(csat_recipient_user_id, csat_sent_at, updated_at) = ($3, $4, now())
-		RETURNING id, onboarders_location_id, csat_recipient_user_id, csat_sent_at, created_at, updated_at;
+		RETURNING id, created_at, updated_at;
 		`
 
 	row := hos.DB.QueryRowContext(
@@ -40,12 +40,13 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot *
 
 	err := row.Scan(
 		&result.ID,
-		&result.OnboardersLocationID,
-		&result.CustomerSatisfactionSurveyRecipientUserID,
-		&result.CustomerSatisfactionSurveySentAt,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)
+
+	result.CustomerSatisfactionSurveyRecipientUserID = snapshot.CustomerSatisfactionSurveyRecipientUserID
+	result.CustomerSatisfactionSurveySentAt = snapshot.CustomerSatisfactionSurveySentAt
+	result.OnboardersLocationID = snapshot.OnboardersLocationID
 
 	if err != nil {
 		return nil, werror.Wrap(err, "failed to insert or update hand-off snapshot")
