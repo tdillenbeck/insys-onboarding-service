@@ -6,10 +6,10 @@ import (
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 )
 
-type HandOffSnapshotService struct {
-	CreateOrUpdateFn func(ctx context.Context, snapshot app.HandOffSnapshot) (app.HandOffSnapshot, error)
+type HandoffSnapshotService struct {
+	CreateOrUpdateFn func(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error)
 }
 
-func (h *HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandOffSnapshot) (app.HandOffSnapshot, error) {
+func (h *HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error) {
 	return h.CreateOrUpdateFn(ctx, snapshot)
 }

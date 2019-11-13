@@ -45,8 +45,8 @@ type TaskInstanceService interface {
 	UpdateExplanation(ctx context.Context, id uuid.UUID, explanation string) (*TaskInstance, error)
 }
 
-type HandOffSnapshotService interface {
-	CreateOrUpdate(ctx context.Context, snapshot HandOffSnapshot) (HandOffSnapshot, error)
+type HandoffSnapshotService interface {
+	CreateOrUpdate(ctx context.Context, snapshot HandoffSnapshot) (HandoffSnapshot, error)
 }
 
 type AuthClient interface {
