@@ -17,7 +17,28 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 	db := initDBConnection(t)
 	clearExistingData(db)
 
-	onboardersLocationID := uuid.NewV4()
+	// SETUP.  Snapshot needs an OnboarderLocation
+	onboarderService := OnboarderService{DB: db}
+	onboarder, err := onboarderService.CreateOrUpdate(context.Background(), &app.Onboarder{UserID: uuid.NewV4()})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_ = onboarder
+
+	onboarderLocationService := OnboardersLocationService{DB: db}
+	onboarderLocation, err := onboarderLocationService.CreateOrUpdate(
+		context.Background(),
+		&app.OnboardersLocation{
+			OnboarderID: onboarder.ID,
+			LocationID:  uuid.NewV4(),
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	onboardersLocationID := onboarderLocation.ID
 
 	surveySentAt := null.NewTime(time.Now())
 	updatedSurveySentAt := null.NewTime(time.Now().Add(5 * time.Hour))
