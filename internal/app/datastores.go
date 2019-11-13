@@ -46,7 +46,7 @@ type TaskInstanceService interface {
 }
 
 type HandOffSnapshotService interface {
-	CreateOrUpdate(ctx context.Context, snapshot *HandOffSnapshot) (*HandOffSnapshot, error)
+	CreateOrUpdate(ctx context.Context, snapshot HandOffSnapshot) (HandOffSnapshot, error)
 }
 
 type AuthClient interface {

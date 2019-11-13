@@ -16,7 +16,7 @@ type HandOffSnapshotService struct {
 	DB *wsql.PG
 }
 
-func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot *app.HandOffSnapshot) (*app.HandOffSnapshot, error) {
+func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandOffSnapshot) (app.HandOffSnapshot, error) {
 
 	var result app.HandOffSnapshot
 
@@ -48,8 +48,8 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot *
 	)
 
 	if err != nil {
-		return nil, werror.Wrap(err, "failed to insert or update hand-off snapshot")
+		return app.HandOffSnapshot{}, werror.Wrap(err, "failed to insert or update hand-off snapshot")
 	}
 
-	return &result, nil
+	return result, nil
 }

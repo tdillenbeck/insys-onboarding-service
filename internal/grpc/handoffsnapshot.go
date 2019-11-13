@@ -31,12 +31,12 @@ func (s *HandOffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not convert proto to hand-off snapshot").Add("req", req))
 	}
-	result, err := s.handOffSnapshotService.CreateOrUpdate(ctx, &snapshot)
+	result, err := s.handOffSnapshotService.CreateOrUpdate(ctx, snapshot)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not create or update hand-off snapshot"))
 	}
 
-	proto := convertHandOffSnapshotToProto(*result)
+	proto := convertHandOffSnapshotToProto(result)
 
 	return &proto, nil
 }
@@ -64,7 +64,7 @@ func convertProtoToHandOffSnapshot(proto insysproto.HandOffSnapshotCreateOrUpdat
 		if err != nil {
 			return app.HandOffSnapshot{}, werror.Wrap(err, "invalid csat sent at").Add("CsatSentAt", proto.HandoffSnapshot.CsatSentAt)
 		}
-		csatSentAt = null.NewTime(parsedCsatSentAt.UTC())
+		csatSentAt = null.NewTime(parsedCsatSentAt)
 	}
 
 	return app.HandOffSnapshot{
