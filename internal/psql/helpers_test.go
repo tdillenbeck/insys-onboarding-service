@@ -55,6 +55,6 @@ func clearExistingData(db *wsql.PG) {
 	clearChiliPiperScheduleEventsQuery := "DELETE FROM insys_onboarding.chili_piper_schedule_events;"
 	_, _ = db.ExecContext(context.Background(), clearChiliPiperScheduleEventsQuery)
 
-	clearHandOffSnapshotsQuery := "DELETE FROM insys_onboarding.handoff_snapshots;"
-	_, _ = db.ExecContext(context.Background(), clearHandOffSnapshotsQuery)
+	clearHandoffSnapshotsQuery := "DELETE FROM insys_onboarding.handoff_snapshots;"
+	_, _ = db.ExecContext(context.Background(), clearHandoffSnapshotsQuery)
 }

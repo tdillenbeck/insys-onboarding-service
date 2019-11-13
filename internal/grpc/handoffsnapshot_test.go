@@ -13,31 +13,31 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
-func TestHandOffSnapshotServer_CreateOrUpdate(t *testing.T) {
+func TestHandoffSnapshotServer_CreateOrUpdate(t *testing.T) {
 
 	userID := uuid.NewV4()
 	sentAt := time.Now()
 	onboardersLocationID := uuid.NewV4()
 
 	type fields struct {
-		handOffSnapshotService app.HandOffSnapshotService
+		handOffSnapshotService app.HandoffSnapshotService
 	}
 	type args struct {
 		ctx context.Context
-		req *insysproto.HandOffSnapshotCreateOrUpdateRequest
+		req *insysproto.HandoffSnapshotCreateOrUpdateRequest
 	}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *insysproto.HandOffSnapshotCreateOrUpdateResponse
+		want    *insysproto.HandoffSnapshotCreateOrUpdateResponse
 		wantErr bool
 	}{
 		{
 			name: "creates snapshot successfully",
 			fields: fields{
-				handOffSnapshotService: &mock.HandOffSnapshotService{
-					CreateOrUpdateFn: func(ctx context.Context, snapshot app.HandOffSnapshot) (app.HandOffSnapshot, error) {
+				handOffSnapshotService: &mock.HandoffSnapshotService{
+					CreateOrUpdateFn: func(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error) {
 						snapshot.CreatedAt = time.Now()
 						snapshot.UpdatedAt = time.Now()
 						snapshot.ID = uuid.NewV4()
@@ -47,16 +47,16 @@ func TestHandOffSnapshotServer_CreateOrUpdate(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				req: &insysproto.HandOffSnapshotCreateOrUpdateRequest{
-					HandoffSnapshot: &insysproto.HandOffSnapshotRecord{
+				req: &insysproto.HandoffSnapshotCreateOrUpdateRequest{
+					HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 						CsatRecipientUserId:  userID.String(),
 						CsatSentAt:           sentAt.Format(time.RFC3339),
 						OnboardersLocationId: onboardersLocationID.String(),
 					},
 				},
 			},
-			want: &insysproto.HandOffSnapshotCreateOrUpdateResponse{
-				HandoffSnapshot: &insysproto.HandOffSnapshotRecord{
+			want: &insysproto.HandoffSnapshotCreateOrUpdateResponse{
+				HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 					OnboardersLocationId: onboardersLocationID.String(),
 					CsatRecipientUserId:  userID.String(),
 					CsatSentAt:           sentAt.Format(time.RFC3339),
@@ -68,21 +68,21 @@ func TestHandOffSnapshotServer_CreateOrUpdate(t *testing.T) {
 
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(insysproto.HandOffSnapshotRecord{}, "Id", "CreatedAt", "UpdatedAt", "CsatSentAt"),
+		cmpopts.IgnoreFields(insysproto.HandoffSnapshotRecord{}, "Id", "CreatedAt", "UpdatedAt", "CsatSentAt"),
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &HandOffSnapshotServer{
+			s := &HandoffSnapshotServer{
 				handOffSnapshotService: tt.fields.handOffSnapshotService,
 			}
 			got, err := s.CreateOrUpdate(tt.args.ctx, tt.args.req)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("HandOffSnapshotServer.CreateOrUpdate() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HandoffSnapshotServer.CreateOrUpdate() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("HandOffSnapshotServer.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
+				t.Errorf("HandoffSnapshotServer.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}

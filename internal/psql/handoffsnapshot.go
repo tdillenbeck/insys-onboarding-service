@@ -10,15 +10,15 @@ import (
 )
 
 // to ensure we implement the interface correctly.
-var _ app.HandOffSnapshotService = &HandOffSnapshotService{}
+var _ app.HandoffSnapshotService = &HandoffSnapshotService{}
 
-type HandOffSnapshotService struct {
+type HandoffSnapshotService struct {
 	DB *wsql.PG
 }
 
-func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandOffSnapshot) (app.HandOffSnapshot, error) {
+func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error) {
 
-	var result app.HandOffSnapshot
+	var result app.HandoffSnapshot
 
 	query := `
 		INSERT INTO insys_onboarding.handoff_snapshots
@@ -48,7 +48,7 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 	)
 
 	if err != nil {
-		return app.HandOffSnapshot{}, werror.Wrap(err, "failed to insert or update hand-off snapshot")
+		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to insert or update handoff snapshot")
 	}
 
 	return result, nil

@@ -13,7 +13,7 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
-func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
+func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 	db := initDBConnection(t)
 	clearExistingData(db)
 
@@ -51,48 +51,48 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 	}
 	type args struct {
 		ctx      context.Context
-		snapshot app.HandOffSnapshot
+		snapshot app.HandoffSnapshot
 	}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    app.HandOffSnapshot
+		want    app.HandoffSnapshot
 		wantErr bool
 	}{
 		{
-			name: "insert hand-off snapshot",
+			name: "insert handoff snapshot",
 			fields: fields{
 				DB: db,
 			},
 			args: args{
 				ctx: context.Background(),
-				snapshot: app.HandOffSnapshot{
+				snapshot: app.HandoffSnapshot{
 					OnboardersLocationID: onboardersLocationID,
 					CSATRecipientUserID:  userID,
 					CSATSentAt:           surveySentAt,
 				},
 			},
-			want: app.HandOffSnapshot{
+			want: app.HandoffSnapshot{
 				OnboardersLocationID: onboardersLocationID,
 				CSATRecipientUserID:  userID,
 				CSATSentAt:           surveySentAt,
 			},
 		},
 		{
-			name: "update hand-off snapshot",
+			name: "update handoff snapshot",
 			fields: fields{
 				DB: db,
 			},
 			args: args{
 				ctx: context.Background(),
-				snapshot: app.HandOffSnapshot{
+				snapshot: app.HandoffSnapshot{
 					OnboardersLocationID: onboardersLocationID,
 					CSATRecipientUserID:  updatedUserID,
 					CSATSentAt:           updatedSurveySentAt,
 				},
 			},
-			want: app.HandOffSnapshot{
+			want: app.HandoffSnapshot{
 				OnboardersLocationID: onboardersLocationID,
 				CSATRecipientUserID:  updatedUserID,
 				CSATSentAt:           updatedSurveySentAt,
@@ -102,21 +102,21 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.HandOffSnapshot{}, "ID", "CreatedAt", "UpdatedAt", "CSATSentAt"),
+		cmpopts.IgnoreFields(app.HandoffSnapshot{}, "ID", "CreatedAt", "UpdatedAt", "CSATSentAt"),
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			hos := HandOffSnapshotService{
+			hos := HandoffSnapshotService{
 				DB: tt.fields.DB,
 			}
 			got, err := hos.CreateOrUpdate(tt.args.ctx, tt.args.snapshot)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("HandOffSnapshotService.CreateOrUpdate() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("HandoffSnapshotService.CreateOrUpdate() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("HandOffSnapshotService.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
+				t.Errorf("HandoffSnapshotService.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}
