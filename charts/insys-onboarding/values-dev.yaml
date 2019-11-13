@@ -14,6 +14,8 @@ useConnectString: false
 logDNA:
     name: dev-insys-onboarding-service
 
+useConnectString: false
+
 postgres:
   maxConnectionLifetime: 10m
   maxIdleConnections: 1
