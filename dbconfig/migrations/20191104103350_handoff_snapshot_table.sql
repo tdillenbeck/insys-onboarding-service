@@ -6,8 +6,8 @@ CREATE TABLE insys_onboarding.handoff_snapshots (
   csat_recipient_user_id uuid,
   csat_sent_at timestamp without time zone,
 
-  created_at timestamp without time zone NOT NULL DEFAULT now(),
-  updated_at timestamp without time zone NOT NULL DEFAULT now()
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 
 ALTER TABLE ONLY insys_onboarding.handoff_snapshots
