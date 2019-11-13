@@ -34,15 +34,15 @@ func (hos HandOffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 		query,
 		uuid.NewV4(),
 		snapshot.OnboardersLocationID,
-		snapshot.CustomerSatisfactionSurveyRecipientUserID,
-		snapshot.CustomerSatisfactionSurveySentAt,
+		snapshot.CSATRecipientUserID,
+		snapshot.CSATSentAt,
 	)
 
 	err := row.Scan(
 		&result.ID,
 		&result.OnboardersLocationID,
-		&result.CustomerSatisfactionSurveyRecipientUserID,
-		&result.CustomerSatisfactionSurveySentAt,
+		&result.CSATRecipientUserID,
+		&result.CSATSentAt,
 		&result.CreatedAt,
 		&result.UpdatedAt,
 	)

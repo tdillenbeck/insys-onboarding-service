@@ -30,13 +30,13 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 	}
 	type args struct {
 		ctx      context.Context
-		snapshot *app.HandOffSnapshot
+		snapshot app.HandOffSnapshot
 	}
 	tests := []struct {
 		name    string
 		fields  fields
 		args    args
-		want    *app.HandOffSnapshot
+		want    app.HandOffSnapshot
 		wantErr bool
 	}{
 		{
@@ -46,16 +46,16 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				snapshot: &app.HandOffSnapshot{
-					OnboardersLocationID:                      onboardersLocationID,
-					CustomerSatisfactionSurveyRecipientUserID: userID,
-					CustomerSatisfactionSurveySentAt:          surveySentAt,
+				snapshot: app.HandOffSnapshot{
+					OnboardersLocationID: onboardersLocationID,
+					CSATRecipientUserID:  userID,
+					CSATSentAt:           surveySentAt,
 				},
 			},
-			want: &app.HandOffSnapshot{
-				OnboardersLocationID:                      onboardersLocationID,
-				CustomerSatisfactionSurveyRecipientUserID: userID,
-				CustomerSatisfactionSurveySentAt:          surveySentAt,
+			want: app.HandOffSnapshot{
+				OnboardersLocationID: onboardersLocationID,
+				CSATRecipientUserID:  userID,
+				CSATSentAt:           surveySentAt,
 			},
 		},
 		{
@@ -65,23 +65,23 @@ func TestHandOffSnapshotService_CreateOrUpdate(t *testing.T) {
 			},
 			args: args{
 				ctx: context.Background(),
-				snapshot: &app.HandOffSnapshot{
-					OnboardersLocationID:                      onboardersLocationID,
-					CustomerSatisfactionSurveyRecipientUserID: updatedUserID,
-					CustomerSatisfactionSurveySentAt:          updatedSurveySentAt,
+				snapshot: app.HandOffSnapshot{
+					OnboardersLocationID: onboardersLocationID,
+					CSATRecipientUserID:  updatedUserID,
+					CSATSentAt:           updatedSurveySentAt,
 				},
 			},
-			want: &app.HandOffSnapshot{
-				OnboardersLocationID:                      onboardersLocationID,
-				CustomerSatisfactionSurveyRecipientUserID: updatedUserID,
-				CustomerSatisfactionSurveySentAt:          updatedSurveySentAt,
+			want: app.HandOffSnapshot{
+				OnboardersLocationID: onboardersLocationID,
+				CSATRecipientUserID:  updatedUserID,
+				CSATSentAt:           updatedSurveySentAt,
 			},
 		},
 	}
 
 	// custom functions to ignore fields in cmp.Equal comparison
 	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.HandOffSnapshot{}, "ID", "CreatedAt", "UpdatedAt", "CustomerSatisfactionSurveySentAt"),
+		cmpopts.IgnoreFields(app.HandOffSnapshot{}, "ID", "CreatedAt", "UpdatedAt", "CSATSentAt"),
 	}
 
 	for _, tt := range tests {

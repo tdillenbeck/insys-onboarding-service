@@ -69,22 +69,22 @@ func convertProtoToHandOffSnapshot(proto insysproto.HandOffSnapshotCreateOrUpdat
 
 	return app.HandOffSnapshot{
 		OnboardersLocationID:                      onboardersLocationID,
-		CustomerSatisfactionSurveyRecipientUserID: csatRecipientUserID,
-		CustomerSatisfactionSurveySentAt:          csatSentAt,
+		CSATRecipientUserID: csatRecipientUserID,
+		CSATSentAt:          csatSentAt,
 	}, nil
 }
 
 func convertHandOffSnapshotToProto(snapshot app.HandOffSnapshot) insysproto.HandOffSnapshotCreateOrUpdateResponse {
 	csatSentAt := ""
-	if snapshot.CustomerSatisfactionSurveySentAt.Valid {
-		csatSentAt = snapshot.CustomerSatisfactionSurveySentAt.Time.Format(time.RFC3339)
+	if snapshot.CSATSentAt.Valid {
+		csatSentAt = snapshot.CSATSentAt.Time.Format(time.RFC3339)
 	}
 
 	return insysproto.HandOffSnapshotCreateOrUpdateResponse{
 		HandoffSnapshot: &insysproto.HandOffSnapshotRecord{
 			Id:                   snapshot.ID.String(),
 			OnboardersLocationId: snapshot.OnboardersLocationID.String(),
-			CsatRecipientUserId:  snapshot.CustomerSatisfactionSurveyRecipientUserID.String(),
+			CsatRecipientUserId:  snapshot.CSATRecipientUserID.String(),
 			CsatSentAt:           csatSentAt,
 			CreatedAt:            snapshot.CreatedAt.Format(time.RFC3339),
 			UpdatedAt:            snapshot.UpdatedAt.Format(time.RFC3339),
