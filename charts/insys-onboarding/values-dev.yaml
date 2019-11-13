@@ -1,5 +1,5 @@
 image:
-  tag: 1.0.1910221845-sha.8fac289
+  tag: 1.0.1910301623-sha.85aac7c
 
 replicas: 1
 
@@ -13,6 +13,8 @@ useConnectString: false
 
 logDNA:
     name: dev-insys-onboarding-service
+
+useConnectString: false
 
 postgres:
   maxConnectionLifetime: 10m
