@@ -2,13 +2,11 @@ package grpc
 
 import (
 	"context"
-	"time"
+	"encoding/json"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
-	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
-	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
@@ -36,58 +34,41 @@ func (s *HandOffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not create or update hand-off snapshot"))
 	}
 
-	proto := convertHandOffSnapshotToProto(result)
-
+	proto, err := convertHandOffSnapshotToProto(result)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert hand-off snapshot to proto"))
+	}
 	return &proto, nil
 }
 
 func convertProtoToHandOffSnapshot(proto insysproto.HandOffSnapshotCreateOrUpdateRequest) (app.HandOffSnapshot, error) {
-	var onboardersLocationID uuid.UUID
-	var csatRecipientUserID null.UUID
-	var csatSentAt null.Time
-	var err error
+	var result app.HandOffSnapshot
 
-	onboardersLocationID, err = uuid.Parse(proto.HandoffSnapshot.OnboardersLocationId)
+	snapshotJSON, err := json.Marshal(proto.HandoffSnapshot)
 	if err != nil {
-		return app.HandOffSnapshot{}, werror.Wrap(err, "invalid onboardersLocationID").Add("onboardersLocationID", proto.HandoffSnapshot.OnboardersLocationId)
+		return app.HandOffSnapshot{}, werror.Wrap(err, "could not marshal hand-off snapshot into json").Add("proto", proto)
 	}
 
-	if proto.HandoffSnapshot.CsatRecipientUserId != "" {
-		csatRecipientUserID, err = null.NewUUID(proto.HandoffSnapshot.CsatRecipientUserId)
-		if err != nil {
-			return app.HandOffSnapshot{}, werror.Wrap(err, "invalid CsatRecipientUserId").Add("CsatRecipientUserId", proto.HandoffSnapshot.CsatRecipientUserId)
-		}
+	err = json.Unmarshal(snapshotJSON, &result)
+	if err != nil {
+		return app.HandOffSnapshot{}, werror.Wrap(err, "could not unmarshal hand-off snapshot json into struct").Add("snapshotJSON", string(snapshotJSON))
 	}
 
-	if proto.HandoffSnapshot.CsatSentAt != "" {
-		parsedCsatSentAt, err := time.Parse(time.RFC3339, proto.HandoffSnapshot.CsatSentAt)
-		if err != nil {
-			return app.HandOffSnapshot{}, werror.Wrap(err, "invalid csat sent at").Add("CsatSentAt", proto.HandoffSnapshot.CsatSentAt)
-		}
-		csatSentAt = null.NewTime(parsedCsatSentAt)
-	}
-
-	return app.HandOffSnapshot{
-		OnboardersLocationID:                      onboardersLocationID,
-		CSATRecipientUserID: csatRecipientUserID,
-		CSATSentAt:          csatSentAt,
-	}, nil
+	return result, nil
 }
 
-func convertHandOffSnapshotToProto(snapshot app.HandOffSnapshot) insysproto.HandOffSnapshotCreateOrUpdateResponse {
-	csatSentAt := ""
-	if snapshot.CSATSentAt.Valid {
-		csatSentAt = snapshot.CSATSentAt.Time.Format(time.RFC3339)
+func convertHandOffSnapshotToProto(snapshot app.HandOffSnapshot) (insysproto.HandOffSnapshotCreateOrUpdateResponse, error) {
+	var result insysproto.HandOffSnapshotCreateOrUpdateResponse
+
+	snapshotJSON, err := json.Marshal(snapshot)
+	if err != nil {
+		return insysproto.HandOffSnapshotCreateOrUpdateResponse{}, werror.Wrap(err, "could not marshal hand-off snapshot into json").Add("snapshot", snapshot)
 	}
 
-	return insysproto.HandOffSnapshotCreateOrUpdateResponse{
-		HandoffSnapshot: &insysproto.HandOffSnapshotRecord{
-			Id:                   snapshot.ID.String(),
-			OnboardersLocationId: snapshot.OnboardersLocationID.String(),
-			CsatRecipientUserId:  snapshot.CSATRecipientUserID.String(),
-			CsatSentAt:           csatSentAt,
-			CreatedAt:            snapshot.CreatedAt.Format(time.RFC3339),
-			UpdatedAt:            snapshot.UpdatedAt.Format(time.RFC3339),
-		},
+	err = json.Unmarshal(snapshotJSON, &result.HandoffSnapshot)
+	if err != nil {
+		return insysproto.HandOffSnapshotCreateOrUpdateResponse{}, werror.Wrap(err, "could not unmarshal hand-off snapshot json into proto").Add("snapshotJSON", string(snapshotJSON))
 	}
+
+	return result, nil
 }

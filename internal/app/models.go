@@ -107,7 +107,7 @@ type TaskInstance struct {
 type HandOffSnapshot struct {
 	ID                   uuid.UUID
 	OnboardersLocationID uuid.UUID `db:"onboarders_location_id" json:"onboarders_location_id"`
-	CSATRecipientUserID  null.UUID `db:"csat_recipient_user_id" json:"customer_satisfaction_survey_recipient_user_id"`
+	CSATRecipientUserID  null.UUID `db:"csat_recipient_user_id" json:"csat_recipient_user_id"`
 	CSATSentAt           null.Time `db:"csat_sent_at" json:"customer_satisfaction_survey_delivered_at"`
 	CreatedAt            time.Time `db:"created_at"`
 	UpdatedAt            time.Time `db:"updated_at"`
