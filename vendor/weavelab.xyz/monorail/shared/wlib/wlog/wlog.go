@@ -136,6 +136,10 @@ func SetDebugLogging(l bool) {
 	currentLogger.SetDebugLogging(l)
 }
 
+func SetDistinctTags(l bool) {
+	currentLogger.SetDistinctTags(l)
+}
+
 func SetLogHandler(h LogHandlerFunc) {
 	currentLogger.SetLogHandler(h)
 }

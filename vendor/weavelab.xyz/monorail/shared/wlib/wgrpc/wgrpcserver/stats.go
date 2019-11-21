@@ -35,7 +35,7 @@ func init() {
 	//WMetricsClient that the stats middleware will use to send stats
 	WMetricsClient = wmetrics.DefaultClient
 	WMetricsClient.SetLabels(grpcStatsPrefix, grpcLabels...)
-	WMetricsClient.SetLabels(grpcStatsConnPrefix, "connAction", "remoteAddr", "localAddr")
+	WMetricsClient.SetLabels(grpcStatsConnPrefix, "connAction", "remoteHost", "localPort")
 }
 
 //UnaryStats for stats for unary gRPC endpoints
@@ -152,14 +152,19 @@ const unknownAddr = "unknown"
 
 // HandleConn processes the Conn stats.
 func (s *statsHandler) HandleConn(ctx context.Context, connStats stats.ConnStats) {
-	remote := extractAddrValue(ctx, remoteAddrKey)
-	local := extractAddrValue(ctx, localAddrKey)
+	remoteAddr := extractAddrValue(ctx, remoteAddrKey)
+	// only care about the remote ip address, and not the remote port
+	remoteHost, _, _ := net.SplitHostPort(remoteAddr)
+
+	localAddr := extractAddrValue(ctx, localAddrKey)
+	// only care about the local port, not the ip address
+	_, localPort, _ := net.SplitHostPort(localAddr)
 
 	switch connStats.(type) {
 	case *stats.ConnBegin:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remote, local)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "begin", remoteHost, localPort)
 	case *stats.ConnEnd:
-		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remote, local)
+		WMetricsClient.Incr(1, grpcStatsConnPrefix, "end", remoteHost, localPort)
 	}
 }
 
