@@ -937,18 +937,6 @@
 			"revisionTime": "2019-11-20T17:06:10Z"
 		},
 		{
-			"checksumSHA1": "+P62lCR4UXI8swnPs0160sZaEvM=",
-			"path": "google.golang.org/grpc/resolver/dns",
-			"revision": "7c1d326729dc9b0a07135f8902ddcc050ff8ab64",
-			"revisionTime": "2019-11-20T17:06:10Z"
-		},
-		{
-			"checksumSHA1": "xH4spdqHMBIRLeLtsMsanirkzzM=",
-			"path": "google.golang.org/grpc/resolver/passthrough",
-			"revision": "7c1d326729dc9b0a07135f8902ddcc050ff8ab64",
-			"revisionTime": "2019-11-20T17:06:10Z"
-		},
-		{
 			"checksumSHA1": "S7duOGyPoeGhK3EOhKNyxa/KHtk=",
 			"path": "google.golang.org/grpc/serviceconfig",
 			"revision": "7c1d326729dc9b0a07135f8902ddcc050ff8ab64",
