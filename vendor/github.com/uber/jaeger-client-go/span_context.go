@@ -84,9 +84,16 @@ type samplingState struct {
 	// like SetOperationName / SetTag, and the spans will remain writable.
 	final atomic.Bool
 
+	// localRootSpan stores the SpanID of the first span created in this process for a given trace.
+	localRootSpan SpanID
+
 	// extendedState allows samplers to keep intermediate state.
 	// The keys and values in this map are completely opaque: interface{} -> interface{}.
 	extendedState sync.Map
+}
+
+func (s *samplingState) isLocalRootSpan(id SpanID) bool {
+	return id == s.localRootSpan
 }
 
 func (s *samplingState) setFlag(newFlag int32) {
@@ -188,6 +195,8 @@ func (c SpanContext) IsFirehose() bool {
 	return c.samplingState.isFirehose()
 }
 
+// ExtendedSamplingState returns the custom state object for a given key. If the value for this key does not exist,
+// it is initialized via initValue function. This state can be used by samplers (e.g. x.PrioritySampler).
 func (c SpanContext) ExtendedSamplingState(key interface{}, initValue func() interface{}) interface{} {
 	return c.samplingState.extendedStateForKey(key, initValue)
 }
@@ -204,9 +213,9 @@ func (c SpanContext) SetFirehose() {
 
 func (c SpanContext) String() string {
 	if c.traceID.High == 0 {
-		return fmt.Sprintf("%x:%x:%x:%x", c.traceID.Low, uint64(c.spanID), uint64(c.parentID), c.samplingState.stateFlags.Load())
+		return fmt.Sprintf("%016x:%016x:%016x:%x", c.traceID.Low, uint64(c.spanID), uint64(c.parentID), c.samplingState.stateFlags.Load())
 	}
-	return fmt.Sprintf("%x%016x:%x:%x:%x", c.traceID.High, c.traceID.Low, uint64(c.spanID), uint64(c.parentID), c.samplingState.stateFlags.Load())
+	return fmt.Sprintf("%016x%016x:%016x:%016x:%x", c.traceID.High, c.traceID.Low, uint64(c.spanID), uint64(c.parentID), c.samplingState.stateFlags.Load())
 }
 
 // ContextFromString reconstructs the Context encoded in a string

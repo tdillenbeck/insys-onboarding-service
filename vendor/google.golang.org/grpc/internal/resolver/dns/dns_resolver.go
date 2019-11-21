@@ -39,6 +39,10 @@ import (
 	"google.golang.org/grpc/resolver"
 )
 
+// EnableSRVLookups controls whether the DNS resolver attempts to fetch gRPCLB
+// addresses from SRV records.  Must not be changed after init time.
+var EnableSRVLookups = false
+
 func init() {
 	resolver.Register(NewBuilder())
 }
@@ -104,7 +108,7 @@ type dnsBuilder struct {
 }
 
 // Build creates and starts a DNS resolver that watches the name resolution of the target.
-func (b *dnsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOption) (resolver.Resolver, error) {
+func (b *dnsBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
 	host, port, err := parseTarget(target.Endpoint, defaultPort)
 	if err != nil {
 		return nil, err
@@ -177,7 +181,7 @@ type ipResolver struct {
 }
 
 // ResolveNow resend the address it stores, no resolution is needed.
-func (i *ipResolver) ResolveNow(opt resolver.ResolveNowOption) {
+func (i *ipResolver) ResolveNow(opt resolver.ResolveNowOptions) {
 	select {
 	case i.rn <- struct{}{}:
 	default:
@@ -225,7 +229,7 @@ type dnsResolver struct {
 }
 
 // ResolveNow invoke an immediate resolution of the target that this dnsResolver watches.
-func (d *dnsResolver) ResolveNow(opt resolver.ResolveNowOption) {
+func (d *dnsResolver) ResolveNow(opt resolver.ResolveNowOptions) {
 	select {
 	case d.rn <- struct{}{}:
 	default:
@@ -280,6 +284,9 @@ func (d *dnsResolver) watcher() {
 }
 
 func (d *dnsResolver) lookupSRV() []resolver.Address {
+	if !EnableSRVLookups {
+		return nil
+	}
 	var newAddrs []resolver.Address
 	_, srvs, err := d.resolver.LookupSRV(d.ctx, "grpclb", "tcp", d.host)
 	if err != nil {

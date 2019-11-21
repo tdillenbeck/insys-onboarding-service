@@ -32,7 +32,6 @@ import (
 
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/balancer/base"
-	_ "google.golang.org/grpc/balancer/roundrobin" // To register roundrobin.
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
@@ -43,10 +42,12 @@ import (
 	"google.golang.org/grpc/internal/transport"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/resolver"
-	_ "google.golang.org/grpc/resolver/dns"         // To register dns resolver.
-	_ "google.golang.org/grpc/resolver/passthrough" // To register passthrough resolver.
 	"google.golang.org/grpc/serviceconfig"
 	"google.golang.org/grpc/status"
+
+	_ "google.golang.org/grpc/balancer/roundrobin"           // To register roundrobin.
+	_ "google.golang.org/grpc/internal/resolver/dns"         // To register dns resolver.
+	_ "google.golang.org/grpc/internal/resolver/passthrough" // To register passthrough resolver.
 )
 
 const (
@@ -937,7 +938,7 @@ func (cc *ClientConn) applyServiceConfigAndBalancer(sc *ServiceConfig, addrs []r
 	}
 }
 
-func (cc *ClientConn) resolveNow(o resolver.ResolveNowOption) {
+func (cc *ClientConn) resolveNow(o resolver.ResolveNowOptions) {
 	cc.mu.RLock()
 	r := cc.resolverWrapper
 	cc.mu.RUnlock()
@@ -1080,7 +1081,7 @@ func (ac *addrConn) adjustParams(r transport.GoAwayReason) {
 func (ac *addrConn) resetTransport() {
 	for i := 0; ; i++ {
 		if i > 0 {
-			ac.cc.resolveNow(resolver.ResolveNowOption{})
+			ac.cc.resolveNow(resolver.ResolveNowOptions{})
 		}
 
 		ac.mu.Lock()
@@ -1284,7 +1285,7 @@ func (ac *addrConn) createTransport(addr resolver.Address, copts transport.Conne
 	}
 
 	select {
-	case <-time.After(connectDeadline.Sub(time.Now())):
+	case <-time.After(time.Until(connectDeadline)):
 		// We didn't get the preface in time.
 		newTr.Close()
 		grpclog.Warningf("grpc: addrConn.createTransport failed to connect to %v: didn't receive server preface in time. Reconnecting...", addr)

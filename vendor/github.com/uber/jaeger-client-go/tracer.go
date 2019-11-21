@@ -74,6 +74,7 @@ type Tracer struct {
 // NewTracer creates Tracer implementation that reports tracing to Jaeger.
 // The returned io.Closer can be used in shutdown hooks to ensure that the internal
 // queue of the Reporter is drained and all buffered spans are submitted to collectors.
+// TODO (breaking change) return *Tracer only, without closer.
 func NewTracer(
 	serviceName string,
 	sampler Sampler,
@@ -272,7 +273,9 @@ func (t *Tracer) startSpanWithOptions(
 			}
 			ctx.spanID = SpanID(ctx.traceID.Low)
 			ctx.parentID = 0
-			ctx.samplingState = &samplingState{}
+			ctx.samplingState = &samplingState{
+				localRootSpan: ctx.spanID,
+			}
 			if hasParent && parent.isDebugIDContainerOnly() && t.isDebugAllowed(operationName) {
 				ctx.samplingState.setDebugAndSampled()
 				internalTags = append(internalTags, Tag{key: JaegerDebugHeader, value: parent.debugID})
@@ -290,6 +293,7 @@ func (t *Tracer) startSpanWithOptions(
 			ctx.samplingState = parent.samplingState
 			if parent.remote {
 				ctx.samplingState.setFinal()
+				ctx.samplingState.localRootSpan = ctx.spanID
 			}
 		}
 		if hasParent {
@@ -464,6 +468,11 @@ func (t *Tracer) setBaggage(sp *Span, key, value string) {
 // (NB) span must hold the lock before making this call
 func (t *Tracer) isDebugAllowed(operation string) bool {
 	return t.debugThrottler.IsAllowed(operation)
+}
+
+// Sampler returns the sampler given to the tracer at creation.
+func (t *Tracer) Sampler() SamplerV2 {
+	return t.sampler
 }
 
 // SelfRef creates an opentracing compliant SpanReference from a jaeger
