@@ -108,7 +108,18 @@ type HandoffSnapshot struct {
 	ID                   uuid.UUID
 	OnboardersLocationID uuid.UUID `db:"onboarders_location_id" json:"onboarders_location_id"`
 	CSATRecipientUserID  null.UUID `db:"csat_recipient_user_id" json:"csat_recipient_user_id"`
-	CSATSentAt           null.Time `db:"csat_sent_at" json:"customer_satisfaction_survey_delivered_at"`
-	CreatedAt            time.Time `db:"created_at"`
-	UpdatedAt            time.Time `db:"updated_at"`
+	CSATSentAt           null.Time `db:"csat_sent_at" json:"csat_sent_at"`
+	CreatedAt            time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt            time.Time `db:"updated_at" json:"updated_at"`
+	HandedOffAt          null.Time `db:"handed_off_at" json:"handed_off_at"`
+	PointOfContact       null.UUID `db:"point_of_contact" json:"point_of_contact"`
+	ReasonForPurchase    null.String `db:"reason_for_purchase" json:"reason_for_purchase"`
+	Customizations       null.Bool `db:"customizations" json:"customizations"`
+	CustomizationSetup   null.String `db:"customization_setup" json:"customization_setup"`
+	FaxPortSubmitted     null.String `db:"fax_port_submitted" json:"fax_port_submitted"`
+	RouterType           null.String `db:"router_type" json:"router_type"`
+	RouterMakeAndModel   null.String `db:"router_make_and_model" json:"router_make_and_model"`
+	NetworkDecision      null.String `db:"network_decision" json:"network_decision"`
+	BillingNotes         null.String `db:"billing_notes" json:"billing_notes"`
+	Notes                null.String `db:"notes" json:"notes"`
 }

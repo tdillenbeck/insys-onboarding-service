@@ -2,7 +2,7 @@ package psql
 
 import (
 	"context"
-
+	"database/sql"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -22,11 +22,89 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 
 	query := `
 		INSERT INTO insys_onboarding.handoff_snapshots
-			(id, onboarders_location_id, csat_recipient_user_id, csat_sent_at, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, now(), now())
+		(
+			id,
+			onboarders_location_id,
+			csat_sent_at,
+			created_at,
+			updated_at,
+			handed_off_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes
+		)
+		VALUES 
+		(
+			$1,
+			$2,
+			NULL,
+			now(),
+			now(),
+			NULL,
+			$3,
+			$4,
+			$5,
+			$6,
+			$7,
+			$8,
+			$9,
+			$10,
+			$11,
+			$12
+		)
 		ON CONFLICT(onboarders_location_id) DO UPDATE SET
-			(csat_recipient_user_id, csat_sent_at, updated_at) = ($3, $4, now())
-		RETURNING id, onboarders_location_id, csat_recipient_user_id, csat_sent_at, created_at, updated_at;
+		(
+			updated_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes
+		)
+		=
+		(
+			now(),
+			$3,
+			$4,
+			$5,
+			$6,
+			$7,
+			$8,
+			$9,
+			$10,
+			$11,
+			$12
+		)
+		RETURNING
+			id,
+			onboarders_location_id,
+			csat_recipient_user_id,
+			csat_sent_at,
+			created_at,
+			updated_at,
+			handed_off_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes;
 		`
 
 	row := hos.DB.QueryRowContext(
@@ -34,8 +112,16 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 		query,
 		uuid.NewV4(),
 		snapshot.OnboardersLocationID,
-		snapshot.CSATRecipientUserID,
-		snapshot.CSATSentAt,
+		snapshot.PointOfContact,
+		snapshot.ReasonForPurchase,
+		snapshot.Customizations,
+		snapshot.CustomizationSetup,
+		snapshot.FaxPortSubmitted,
+		snapshot.RouterType,
+		snapshot.RouterMakeAndModel,
+		snapshot.NetworkDecision,
+		snapshot.BillingNotes,
+		snapshot.Notes,
 	)
 
 	err := row.Scan(
@@ -45,6 +131,17 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 		&result.CSATSentAt,
 		&result.CreatedAt,
 		&result.UpdatedAt,
+		&result.HandedOffAt,
+		&result.PointOfContact,
+		&result.ReasonForPurchase,
+		&result.Customizations,
+		&result.CustomizationSetup,
+		&result.FaxPortSubmitted,
+		&result.RouterType,
+		&result.RouterMakeAndModel,
+		&result.NetworkDecision,
+		&result.BillingNotes,
+		&result.Notes,
 	)
 
 	if err != nil {
@@ -53,3 +150,178 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 
 	return result, nil
 }
+
+func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
+	query := `
+		SELECT 
+			id,
+			onboarders_location_id,
+			csat_recipient_user_id,
+			csat_sent_at,
+			created_at,
+			updated_at,
+			handed_off_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes
+		FROM
+			insys_onboarding.handoff_snapshots
+			WHERE onboarders_location_id = $1
+		`
+
+	rows, err := hos.DB.QueryxContext(ctx, query, onboardersLocationId.String())
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return app.HandoffSnapshot{}, err
+		}
+		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
+	}
+
+	var result app.HandoffSnapshot
+	for rows.Next() {
+		err = rows.StructScan(&result)
+		if err != nil {
+			return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
+		}
+	}
+
+	return result, nil
+}
+
+func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserId uuid.UUID) (app.HandoffSnapshot, error) {
+	var result app.HandoffSnapshot
+
+	query := `
+		UPDATE insys_onboarding.handoff_snapshots 
+		SET
+			csat_recipient_user_id = $2,
+			csat_sent_at = now()
+		WHERE onboarders_location_id = $1
+		RETURNING
+			id,
+			onboarders_location_id,
+			csat_recipient_user_id,
+			csat_sent_at,
+			created_at,
+			updated_at,
+			handed_off_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes
+		`
+
+	row := hos.DB.QueryRowContext(
+		ctx,
+		query,
+		onboardersLocationId,
+		csatRecipientUserId,
+	)
+
+	err := row.Scan(
+		&result.ID,
+		&result.OnboardersLocationID,
+		&result.CSATRecipientUserID,
+		&result.CSATSentAt,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+		&result.HandedOffAt,
+		&result.PointOfContact,
+		&result.ReasonForPurchase,
+		&result.Customizations,
+		&result.CustomizationSetup,
+		&result.FaxPortSubmitted,
+		&result.RouterType,
+		&result.RouterMakeAndModel,
+		&result.NetworkDecision,
+		&result.BillingNotes,
+		&result.Notes,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return app.HandoffSnapshot{}, err
+		}
+		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
+	}
+
+	return result, nil
+}
+
+func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
+	var result app.HandoffSnapshot
+
+	query := `
+		UPDATE insys_onboarding.handoff_snapshots 
+		SET
+			handed_off_at = now()
+		WHERE onboarders_location_id = $1 AND handed_off_at IS NULL
+		RETURNING
+			id,
+			onboarders_location_id,
+			csat_recipient_user_id,
+			csat_sent_at,
+			created_at,
+			updated_at,
+			handed_off_at,
+			point_of_contact,
+			reason_for_purchase,
+			customizations,
+			customization_setup,
+			fax_port_submitted,
+			router_type,
+			router_make_and_model,
+			network_decision,
+			billing_notes,
+			notes
+		`
+
+	row := hos.DB.QueryRowContext(
+		ctx,
+		query,
+		onboardersLocationId,
+	)
+
+	err := row.Scan(
+		&result.ID,
+		&result.OnboardersLocationID,
+		&result.CSATRecipientUserID,
+		&result.CSATSentAt,
+		&result.CreatedAt,
+		&result.UpdatedAt,
+		&result.HandedOffAt,
+		&result.PointOfContact,
+		&result.ReasonForPurchase,
+		&result.Customizations,
+		&result.CustomizationSetup,
+		&result.FaxPortSubmitted,
+		&result.RouterType,
+		&result.RouterMakeAndModel,
+		&result.NetworkDecision,
+		&result.BillingNotes,
+		&result.Notes,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return app.HandoffSnapshot{}, err
+		}
+		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
+	}
+
+	return result, nil
+}
+

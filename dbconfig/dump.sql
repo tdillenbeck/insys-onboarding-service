@@ -17,13 +17,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: mike.campbell@getweave.com
+-- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
 CREATE SCHEMA insys_onboarding;
 
 
-ALTER SCHEMA insys_onboarding OWNER TO "mike.campbell@getweave.com";
+ALTER SCHEMA insys_onboarding OWNER TO postgres;
 
 SET default_tablespace = '';
 
@@ -97,7 +97,18 @@ CREATE TABLE insys_onboarding.handoff_snapshots (
     csat_recipient_user_id uuid,
     csat_sent_at timestamp without time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    submitted_at timestamp without time zone,
+    point_of_contact uuid,
+    reason_for_purchase text,
+    customizations boolean,
+    customization_setup text,
+    fax_port_submitted text,
+    router_type text,
+    router_make_and_model text,
+    network_decision text,
+    billing_notes text,
+    notes text
 );
 
 
