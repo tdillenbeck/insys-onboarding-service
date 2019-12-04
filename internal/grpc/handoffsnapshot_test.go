@@ -4,24 +4,19 @@ import (
 	"context"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"weavelab.xyz/monorail/shared/go-utilities/null"
-	"weavelab.xyz/monorail/shared/wlib/werror"
-	"weavelab.xyz/monorail/shared/wlib/wgrpc"
-
-	//"os"
 	"testing"
 	"time"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
+	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
 // TestHandoffSnapshotServer_SubmitCSAT, tests create, update, submit full cycle.  Note: order and timing matters in this test.
-func TestHandoffSnapshotServer_SubmitCSAT(t *testing.T) {
+func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 
 	userID := uuid.NewV4()
-	//sentAt := time.Now()
 	onboardersLocationID := uuid.NewV4()
 
 	pointOfContact := uuid.NewV4()
@@ -85,10 +80,6 @@ func TestHandoffSnapshotServer_SubmitCSAT(t *testing.T) {
 						return testSnapshot, nil
 					},
 					SubmitHandoffFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
-						if testSnapshot.HandedOffAt.Valid {
-							//TODO: should return Code.AlreadyExists
-							return testSnapshot, wgrpc.Error(wgrpc.CodeInternal, werror.New("this snapshot has already been handed off and cannot be updated"))
-						}
 						testSnapshot.HandedOffAt = null.NewTime(time.Now())
 						return testSnapshot, nil
 					},
@@ -164,10 +155,6 @@ func TestHandoffSnapshotServer_SubmitCSAT(t *testing.T) {
 						return testSnapshot, nil
 					},
 					SubmitHandoffFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
-						if testSnapshot.HandedOffAt.Valid {
-							//TODO: should return Code.AlreadyExists
-							return testSnapshot, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(nil,"this snapshot has already been handed off and cannot be updated"))
-						}
 						testSnapshot.HandedOffAt = null.NewTime(time.Now())
 						return testSnapshot, nil
 					},
@@ -229,7 +216,7 @@ func TestHandoffSnapshotServer_SubmitCSAT(t *testing.T) {
 				t.Errorf("HandoffSnapshotServer.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 
-			// Read to verify it wrote correctly
+			// Test the read function
 			read, err := s.ReadByOnboardersLocationID(tt.args.ctx, tt.args.handoffSnapshotReadRequest)
 			if !cmp.Equal(read, tt.want, opts...) {
 				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() = %v", cmp.Diff(read, tt.want, opts...))

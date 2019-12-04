@@ -52,7 +52,11 @@ func (s *HandoffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 }
 
 func (s *HandoffSnapshotServer) ReadByOnboardersLocationID(ctx context.Context, req *insysproto.HandoffSnapshotReadRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId := parseUUID(req.OnboardersLocationId)
+	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+	}
+
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -69,8 +73,15 @@ func (s *HandoffSnapshotServer) ReadByOnboardersLocationID(ctx context.Context, 
 }
 
 func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.SubmitCSATRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId := parseUUID(req.OnboardersLocationId)
-	csatRecipientUserId := parseUUID(req.CsatRecipientUserId)
+	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+	}
+
+	csatRecipientUserId, err := uuid.Parse(req.CsatRecipientUserId)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("csatRecipientUserId", req.CsatRecipientUserId))
+	}
 
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
 	if err != nil {
@@ -92,20 +103,28 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 
 	proto, err := convertHandoffSnapshotToProto(result)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert handoff snapshot to proto"))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not convert handoff snapshot to proto"))
 	}
 	return &proto, nil
 }
 
 func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insysproto.SubmitHandoffRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId := parseUUID(req.OnboardersLocationId)
+	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+	}
+
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationId", onboardersLocationId))
 		}
-		return nil, werror.Wrap(err, "failed to get porting data")
+		return nil, werror.Wrap(err, "failed to get handoff snapshot")
+	}
+
+	if result.HandedOffAt.Valid {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("this snapshot has already been handed off and cannot be updated"))
 	}
 
 	missingFields := validateHandoffSubmit(result)
@@ -120,7 +139,7 @@ func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insyspro
 
 	proto, err := convertHandoffSnapshotToProto(result)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not convert handoff snapshot to proto"))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not convert handoff snapshot to proto"))
 	}
 	return &proto, nil
 }
@@ -155,14 +174,6 @@ func convertHandoffSnapshotToProto(snapshot app.HandoffSnapshot) (insysproto.Han
 	}
 
 	return result, nil
-}
-
-func parseUUID(uuidStr string) uuid.UUID {
-	parsed, err := uuid.Parse(uuidStr)
-	if err != nil {
-		return uuid.UUID{}
-	}
-	return parsed
 }
 
 func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
