@@ -40,7 +40,6 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 
 	onboardersLocationID := onboarderLocation.ID
 
-	//surveySentAt := null.NewTime(time.Now())
 	updatedSurveySentAt := null.NewTime(time.Now().Add(5 * time.Hour))
 
 	pointOfContact := null.NewUUIDUUID(uuid.NewV4())
