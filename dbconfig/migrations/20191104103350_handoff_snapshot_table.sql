@@ -4,7 +4,7 @@ CREATE TABLE insys_onboarding.handoff_snapshots (
   id uuid NOT NULL PRIMARY KEY,
   onboarders_location_id uuid NOT NULL UNIQUE,
   csat_recipient_user_id uuid,
-  csat_sent_at timestamp without time zone,
+  csat_sent_at timestamp with time zone,
 
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
