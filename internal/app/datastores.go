@@ -7,6 +7,7 @@ import (
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
@@ -62,5 +63,13 @@ type FeatureFlagsClient interface {
 }
 
 type ZapierClient interface {
-	Send(ctx context.Context, username, locationID string) error
+	Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error
+}
+
+type ProvisioningClient interface {
+	PreProvisionsByLocationID(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest) (*insysproto.PreProvisionsByLocationIDResponse, error)
+	PreProvisionByOpportunityID(ctx context.Context, req *insysproto.PreProvisionByOpportunityIDRequest) (*insysproto.PreProvisionByOpportunityIDResponse, error)
+	CreateOrUpdatePreProvision(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest) (*insysproto.CreateOrUpdatePreProvisionResponse, error)
+	InitialProvision(ctx context.Context, req *insysproto.InitialProvisionRequest) (*insysproto.InitialProvisionResponse, error)
+	ProvisionUser(ctx context.Context, req *insysproto.ProvisionUserRequest) (*insysproto.ProvisionUserResponse, error)
 }

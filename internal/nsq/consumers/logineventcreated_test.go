@@ -5,12 +5,15 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -111,15 +114,34 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		}, nil
 	}
 
+	mockProvisioningService := mock.ProvisioningService{}
+
+	// provide two preprovisions with varying dates to ensure that the function only uses the most recent one
+	mockProvisioningService.PreProvisionsByLocationIDFn = func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest) (*insysproto.PreProvisionsByLocationIDResponse, error) {
+		return &insysproto.PreProvisionsByLocationIDResponse{
+			PreProvisions: []*insysproto.PreProvision{
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "older opportunityID",
+					UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
+				},
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "opportunityID",
+					UpdatedAt:               time.Now().String(),
+				},
+			},
+		}, nil
+	}
+
 	mockZapierClient := mock.ZapierClient{}
-	mockZapierClient.SendFn = func(ctx context.Context, username, locationID string) error {
+	mockZapierClient.SendFn = func(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
 		return nil
 	}
 
 	type fields struct {
-		onboardersLocationService app.OnboardersLocationService
 		authClient                app.AuthClient
 		featureFlagsClient        app.FeatureFlagsClient
+		onboardersLocationService app.OnboardersLocationService
+		provisioningService       app.ProvisioningClient
 		zapierClient              app.ZapierClient
 	}
 	type args struct {
@@ -138,6 +160,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				authClient:                &mockAuthClient,
 				featureFlagsClient:        &mockFeatureFlagClient,
 				onboardersLocationService: &mockOnboardersLocationService,
+				provisioningService:       &mockProvisioningService,
 				zapierClient:              &mockZapierClient,
 			},
 			args: args{
@@ -152,13 +175,90 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := LogInEventCreatedSubscriber{
-				onboardersLocationService: tt.fields.onboardersLocationService,
 				authClient:                tt.fields.authClient,
 				featureFlagsClient:        tt.fields.featureFlagsClient,
+				onboardersLocationService: tt.fields.onboardersLocationService,
+				provisioningClient:        tt.fields.provisioningService,
 				zapierClient:              tt.fields.zapierClient,
 			}
 			if err := p.processLoginEventMessage(tt.args.ctx, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_sortPreProvisionsByUpdatedDate(t *testing.T) {
+	type args struct {
+		pps []*insysproto.PreProvision
+	}
+	tests := []struct {
+		name string
+		args args
+		want []*insysproto.PreProvision
+	}{
+		{
+			name: "sorts by updated date correctly",
+			args: args{
+				pps: []*insysproto.PreProvision{
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opp id 1",
+						UpdatedAt:               time.Now().Add(time.Second * -25).String(),
+					},
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opp id 2",
+						UpdatedAt:               time.Now().Add(time.Second * -5).String(),
+					},
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opp id 3",
+						UpdatedAt:               time.Now().Add(time.Second * -15).String(),
+					},
+				},
+			},
+			want: []*insysproto.PreProvision{
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "opp id 2",
+				},
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "opp id 3",
+				},
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "opp id 1",
+				},
+			},
+		},
+		{
+			name: "sorts with single element in slice",
+			args: args{
+				pps: []*insysproto.PreProvision{
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opp id 1",
+						UpdatedAt:               time.Now().String(),
+					},
+				},
+			},
+			want: []*insysproto.PreProvision{
+				&insysproto.PreProvision{
+					SalesforceOpportunityId: "opp id 1",
+				},
+			},
+		},
+		{
+			name: "doesn't panic if no elements",
+			args: args{
+				pps: []*insysproto.PreProvision{},
+			},
+			want: []*insysproto.PreProvision{},
+		},
+	}
+
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(insysproto.PreProvision{}, "UpdatedAt"),
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := sortPreProvisionsByUpdatedDate(tt.args.pps); !cmp.Equal(got, tt.want, opts...) {
+				t.Errorf("sortPreProvisionsByUpdatedDate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}

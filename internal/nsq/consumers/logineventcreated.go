@@ -3,12 +3,14 @@ package consumers
 import (
 	"context"
 	"fmt"
+	"sort"
 
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
@@ -16,17 +18,26 @@ import (
 )
 
 type LogInEventCreatedSubscriber struct {
-	onboardersLocationService app.OnboardersLocationService
 	authClient                app.AuthClient
 	featureFlagsClient        app.FeatureFlagsClient
+	onboardersLocationService app.OnboardersLocationService
+	provisioningClient        app.ProvisioningClient
 	zapierClient              app.ZapierClient
 }
 
-func NewLogInEventCreatedSubscriber(ctx context.Context, onboardersLocationService app.OnboardersLocationService, authclient app.AuthClient, featureFlagsClient app.FeatureFlagsClient, zapierClient app.ZapierClient) *LogInEventCreatedSubscriber {
+func NewLogInEventCreatedSubscriber(
+	ctx context.Context,
+	authclient app.AuthClient,
+	featureFlagsClient app.FeatureFlagsClient,
+	onboardersLocationService app.OnboardersLocationService,
+	provisioningClient app.ProvisioningClient,
+	zapierClient app.ZapierClient,
+) *LogInEventCreatedSubscriber {
 	return &LogInEventCreatedSubscriber{
-		onboardersLocationService: onboardersLocationService,
 		authClient:                authclient,
 		featureFlagsClient:        featureFlagsClient,
+		onboardersLocationService: onboardersLocationService,
+		provisioningClient:        provisioningClient,
 		zapierClient:              zapierClient,
 	}
 }
@@ -89,11 +100,22 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 			continue
 		}
 
+		var salesforceOpportunityID string
+		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
+		if err != nil {
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with ID: %s. Error Message: %v", locationID.String(), err))
+		}
+
+		if len(provisionResponse.PreProvisions) > 0 {
+			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
+			salesforceOpportunityID = pps[0].SalesforceOpportunityId
+		}
+
 		for _, feature := range features {
 			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
 				// make call to zapier, and if zapier succeeds, update the database.
 				// if not, fail silently as the user is sure to log in again.
-				err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String())
+				err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), salesforceOpportunityID)
 				if err != nil {
 					wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
 					continue
@@ -107,4 +129,12 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		}
 	}
 	return nil
+}
+
+func sortPreProvisionsByUpdatedDate(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
+	// only send the most recent one, so sort by updated date
+	sort.Slice(pps, func(i, j int) bool {
+		return pps[i].UpdatedAt > pps[j].UpdatedAt
+	})
+	return pps
 }

@@ -1039,10 +1039,10 @@
 			"revisionTime": "2019-12-05T22:23:28Z"
 		},
 		{
-			"checksumSHA1": "5o17pYFIaRCWabg5bopH6R8ANvw=",
+			"checksumSHA1": "kH0oArjVFu0Zj+PI+MOHuMKyAG4=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "2775d16e82e59bc0404dc472ee0524fd7aa7ff32",
-			"revisionTime": "2019-12-05T22:23:28Z"
+			"revision": "15bd0c8e674ad647da9d99d4bec0e8ac73edf84f",
+			"revisionTime": "2019-12-06T17:20:04Z"
 		},
 		{
 			"checksumSHA1": "UNSlkYu7SHitPNgeKq92ebZnhSw=",
@@ -1059,8 +1059,8 @@
 		{
 			"checksumSHA1": "EtivMQPa8zFK8yuvGv4Fv7PmPbM=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
-			"revision": "2775d16e82e59bc0404dc472ee0524fd7aa7ff32",
-			"revisionTime": "2019-12-05T22:23:28Z"
+			"revision": "15bd0c8e674ad647da9d99d4bec0e8ac73edf84f",
+			"revisionTime": "2019-12-06T17:20:04Z"
 		},
 		{
 			"checksumSHA1": "ulLWJUjuizDBUYTaHG0UoGUygoI=",
