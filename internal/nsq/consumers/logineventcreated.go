@@ -11,6 +11,7 @@ import (
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wgrpc"
@@ -21,7 +22,7 @@ type LogInEventCreatedSubscriber struct {
 	authClient                app.AuthClient
 	featureFlagsClient        app.FeatureFlagsClient
 	onboardersLocationService app.OnboardersLocationService
-	provisioningClient        app.ProvisioningClient
+	provisioningClient        insys.ProvisioningClient
 	zapierClient              app.ZapierClient
 }
 
@@ -30,7 +31,7 @@ func NewLogInEventCreatedSubscriber(
 	authclient app.AuthClient,
 	featureFlagsClient app.FeatureFlagsClient,
 	onboardersLocationService app.OnboardersLocationService,
-	provisioningClient app.ProvisioningClient,
+	provisioningClient insys.ProvisioningClient,
 	zapierClient app.ZapierClient,
 ) *LogInEventCreatedSubscriber {
 	return &LogInEventCreatedSubscriber{

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
+	"google.golang.org/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -15,6 +16,7 @@ import (
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
@@ -117,7 +119,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	mockProvisioningService := mock.ProvisioningService{}
 
 	// provide two preprovisions with varying dates to ensure that the function only uses the most recent one
-	mockProvisioningService.PreProvisionsByLocationIDFn = func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest) (*insysproto.PreProvisionsByLocationIDResponse, error) {
+	mockProvisioningService.PreProvisionsByLocationIDFn = func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
 		return &insysproto.PreProvisionsByLocationIDResponse{
 			PreProvisions: []*insysproto.PreProvision{
 				&insysproto.PreProvision{
@@ -141,7 +143,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		authClient                app.AuthClient
 		featureFlagsClient        app.FeatureFlagsClient
 		onboardersLocationService app.OnboardersLocationService
-		provisioningService       app.ProvisioningClient
+		provisioningService       insys.ProvisioningClient
 		zapierClient              app.ZapierClient
 	}
 	type args struct {

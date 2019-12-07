@@ -17,20 +17,18 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: postgres
+-- Name: insys_onboarding; Type: SCHEMA; Schema: -; Owner: -
 --
 
 CREATE SCHEMA insys_onboarding;
 
-
-ALTER SCHEMA insys_onboarding OWNER TO postgres;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
 
 --
--- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.chili_piper_schedule_events (
@@ -49,10 +47,8 @@ CREATE TABLE insys_onboarding.chili_piper_schedule_events (
 );
 
 
-ALTER TABLE insys_onboarding.chili_piper_schedule_events OWNER TO postgres;
-
 --
--- Name: goose_db_version; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: goose_db_version; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.goose_db_version (
@@ -63,10 +59,8 @@ CREATE TABLE insys_onboarding.goose_db_version (
 );
 
 
-ALTER TABLE insys_onboarding.goose_db_version OWNER TO postgres;
-
 --
--- Name: goose_db_version_id_seq; Type: SEQUENCE; Schema: insys_onboarding; Owner: postgres
+-- Name: goose_db_version_id_seq; Type: SEQUENCE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE SEQUENCE insys_onboarding.goose_db_version_id_seq
@@ -78,24 +72,22 @@ CREATE SEQUENCE insys_onboarding.goose_db_version_id_seq
     CACHE 1;
 
 
-ALTER TABLE insys_onboarding.goose_db_version_id_seq OWNER TO postgres;
-
 --
--- Name: goose_db_version_id_seq; Type: SEQUENCE OWNED BY; Schema: insys_onboarding; Owner: postgres
+-- Name: goose_db_version_id_seq; Type: SEQUENCE OWNED BY; Schema: insys_onboarding; Owner: -
 --
 
 ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboarding.goose_db_version.id;
 
 
 --
--- Name: handoff_snapshots; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: handoff_snapshots; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.handoff_snapshots (
     id uuid NOT NULL,
     onboarders_location_id uuid NOT NULL,
     csat_recipient_user_id uuid,
-    csat_sent_at timestamp with time zone,
+    csat_sent_at timestamp without time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     handed_off_at timestamp with time zone,
@@ -112,10 +104,8 @@ CREATE TABLE insys_onboarding.handoff_snapshots (
 );
 
 
-ALTER TABLE insys_onboarding.handoff_snapshots OWNER TO postgres;
-
 --
--- Name: onboarders; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarders; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.onboarders (
@@ -135,10 +125,8 @@ CREATE TABLE insys_onboarding.onboarders (
 );
 
 
-ALTER TABLE insys_onboarding.onboarders OWNER TO postgres;
-
 --
--- Name: onboarders_location; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarders_location; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.onboarders_location (
@@ -153,10 +141,8 @@ CREATE TABLE insys_onboarding.onboarders_location (
 );
 
 
-ALTER TABLE insys_onboarding.onboarders_location OWNER TO postgres;
-
 --
--- Name: onboarding_categories; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_categories; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.onboarding_categories (
@@ -168,10 +154,8 @@ CREATE TABLE insys_onboarding.onboarding_categories (
 );
 
 
-ALTER TABLE insys_onboarding.onboarding_categories OWNER TO postgres;
-
 --
--- Name: onboarding_task_instances; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_task_instances; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.onboarding_task_instances (
@@ -198,10 +182,8 @@ CREATE TABLE insys_onboarding.onboarding_task_instances (
 );
 
 
-ALTER TABLE insys_onboarding.onboarding_task_instances OWNER TO postgres;
-
 --
--- Name: onboarding_tasks; Type: TABLE; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_tasks; Type: TABLE; Schema: insys_onboarding; Owner: -
 --
 
 CREATE TABLE insys_onboarding.onboarding_tasks (
@@ -218,17 +200,15 @@ CREATE TABLE insys_onboarding.onboarding_tasks (
 );
 
 
-ALTER TABLE insys_onboarding.onboarding_tasks OWNER TO postgres;
-
 --
--- Name: goose_db_version id; Type: DEFAULT; Schema: insys_onboarding; Owner: postgres
+-- Name: goose_db_version id; Type: DEFAULT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.goose_db_version ALTER COLUMN id SET DEFAULT nextval('insys_onboarding.goose_db_version_id_seq'::regclass);
 
 
 --
--- Name: chili_piper_schedule_events chili_piper_schedule_events_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: chili_piper_schedule_events chili_piper_schedule_events_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.chili_piper_schedule_events
@@ -236,7 +216,7 @@ ALTER TABLE ONLY insys_onboarding.chili_piper_schedule_events
 
 
 --
--- Name: goose_db_version goose_db_version_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: goose_db_version goose_db_version_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.goose_db_version
@@ -244,7 +224,7 @@ ALTER TABLE ONLY insys_onboarding.goose_db_version
 
 
 --
--- Name: handoff_snapshots handoff_snapshots_onboarders_location_id_key; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: handoff_snapshots handoff_snapshots_onboarders_location_id_key; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.handoff_snapshots
@@ -252,7 +232,7 @@ ALTER TABLE ONLY insys_onboarding.handoff_snapshots
 
 
 --
--- Name: handoff_snapshots handoff_snapshots_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: handoff_snapshots handoff_snapshots_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.handoff_snapshots
@@ -260,7 +240,7 @@ ALTER TABLE ONLY insys_onboarding.handoff_snapshots
 
 
 --
--- Name: onboarders_location onboarders_location_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarders_location onboarders_location_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarders_location
@@ -268,7 +248,7 @@ ALTER TABLE ONLY insys_onboarding.onboarders_location
 
 
 --
--- Name: onboarders onboarders_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarders onboarders_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarders
@@ -276,7 +256,7 @@ ALTER TABLE ONLY insys_onboarding.onboarders
 
 
 --
--- Name: onboarding_categories onboarding_categories_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_categories onboarding_categories_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_categories
@@ -284,7 +264,7 @@ ALTER TABLE ONLY insys_onboarding.onboarding_categories
 
 
 --
--- Name: onboarding_task_instances onboarding_task_instances_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_task_instances onboarding_task_instances_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
@@ -292,7 +272,7 @@ ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
 
 
 --
--- Name: onboarding_tasks onboarding_tasks_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_tasks onboarding_tasks_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_tasks
@@ -300,42 +280,42 @@ ALTER TABLE ONLY insys_onboarding.onboarding_tasks
 
 
 --
--- Name: index_chili_piper_schedule_events_on_event_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+-- Name: index_chili_piper_schedule_events_on_event_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
 CREATE UNIQUE INDEX index_chili_piper_schedule_events_on_event_id ON insys_onboarding.chili_piper_schedule_events USING btree (event_id);
 
 
 --
--- Name: index_chili_piper_schedule_events_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+-- Name: index_chili_piper_schedule_events_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
 CREATE INDEX index_chili_piper_schedule_events_on_location_id ON insys_onboarding.chili_piper_schedule_events USING btree (location_id);
 
 
 --
--- Name: index_onboarders_location_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+-- Name: index_onboarders_location_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
 CREATE UNIQUE INDEX index_onboarders_location_on_location_id ON insys_onboarding.onboarders_location USING btree (location_id);
 
 
 --
--- Name: index_onboarders_on_user_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+-- Name: index_onboarders_on_user_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
 CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders USING btree (user_id);
 
 
 --
--- Name: index_onboarding_task_instances_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: postgres
+-- Name: index_onboarding_task_instances_on_location_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
 CREATE INDEX index_onboarding_task_instances_on_location_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
 
 
 --
--- Name: handoff_snapshots handoff_snapshots_onboarders_location_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: handoff_snapshots handoff_snapshots_onboarders_location_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.handoff_snapshots
@@ -343,7 +323,7 @@ ALTER TABLE ONLY insys_onboarding.handoff_snapshots
 
 
 --
--- Name: onboarders_location onboarders_location_onboarder_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarders_location onboarders_location_onboarder_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarders_location
@@ -351,7 +331,7 @@ ALTER TABLE ONLY insys_onboarding.onboarders_location
 
 
 --
--- Name: onboarding_task_instances onboarding_task_instances_onboarding_category_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_task_instances onboarding_task_instances_onboarding_category_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
@@ -359,7 +339,7 @@ ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
 
 
 --
--- Name: onboarding_task_instances onboarding_task_instances_onboarding_task_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_task_instances onboarding_task_instances_onboarding_task_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
@@ -367,7 +347,7 @@ ALTER TABLE ONLY insys_onboarding.onboarding_task_instances
 
 
 --
--- Name: onboarding_tasks onboarding_tasks_onboarding_category_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: postgres
+-- Name: onboarding_tasks onboarding_tasks_onboarding_category_id_fkey; Type: FK CONSTRAINT; Schema: insys_onboarding; Owner: -
 --
 
 ALTER TABLE ONLY insys_onboarding.onboarding_tasks
