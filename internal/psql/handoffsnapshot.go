@@ -152,6 +152,7 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 }
 
 func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
+	var result app.HandoffSnapshot
 	query := `
 		SELECT 
 			id,
@@ -176,20 +177,14 @@ func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context
 			WHERE onboarders_location_id = $1
 		`
 
-	rows, err := hos.DB.QueryxContext(ctx, query, onboardersLocationId.String())
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String())
+
+	err := row.StructScan(&result)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return app.HandoffSnapshot{}, err
+			return app.HandoffSnapshot{}, werror.Wrap(err, "no handoff snapshot found with that location id")
 		}
-		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
-	}
-
-	var result app.HandoffSnapshot
-	for rows.Next() {
-		err = rows.StructScan(&result)
-		if err != nil {
-			return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
-		}
+		return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
 	}
 
 	return result, nil
@@ -224,38 +219,14 @@ func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLoca
 			notes
 		`
 
-	row := hos.DB.QueryRowContext(
-		ctx,
-		query,
-		onboardersLocationId,
-		csatRecipientUserId,
-	)
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String(), csatRecipientUserId.String())
 
-	err := row.Scan(
-		&result.ID,
-		&result.OnboardersLocationID,
-		&result.CSATRecipientUserID,
-		&result.CSATSentAt,
-		&result.CreatedAt,
-		&result.UpdatedAt,
-		&result.HandedOffAt,
-		&result.PointOfContact,
-		&result.ReasonForPurchase,
-		&result.Customizations,
-		&result.CustomizationSetup,
-		&result.FaxPortSubmitted,
-		&result.RouterType,
-		&result.RouterMakeAndModel,
-		&result.NetworkDecision,
-		&result.BillingNotes,
-		&result.Notes,
-	)
-
+	err := row.StructScan(&result)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return app.HandoffSnapshot{}, err
+			return app.HandoffSnapshot{}, werror.Wrap(err, "no handoff snapshot found with that location id")
 		}
-		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
+		return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
 	}
 
 	return result, nil
@@ -289,37 +260,14 @@ func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersL
 			notes
 		`
 
-	row := hos.DB.QueryRowContext(
-		ctx,
-		query,
-		onboardersLocationId,
-	)
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String())
 
-	err := row.Scan(
-		&result.ID,
-		&result.OnboardersLocationID,
-		&result.CSATRecipientUserID,
-		&result.CSATSentAt,
-		&result.CreatedAt,
-		&result.UpdatedAt,
-		&result.HandedOffAt,
-		&result.PointOfContact,
-		&result.ReasonForPurchase,
-		&result.Customizations,
-		&result.CustomizationSetup,
-		&result.FaxPortSubmitted,
-		&result.RouterType,
-		&result.RouterMakeAndModel,
-		&result.NetworkDecision,
-		&result.BillingNotes,
-		&result.Notes,
-	)
-
+	err := row.StructScan(&result)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return app.HandoffSnapshot{}, err
+			return app.HandoffSnapshot{}, werror.Wrap(err, "no handoff snapshot found with that location id")
 		}
-		return app.HandoffSnapshot{}, werror.Wrap(err, "failed to get handoff snapshot")
+		return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
 	}
 
 	return result, nil
