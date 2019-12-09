@@ -107,15 +107,11 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID.String(), err))
 		}
 
-		if provisionResponse == nil {
-			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
+		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
+			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
+			salesforceOpportunityID = pps[0].SalesforceOpportunityId
 		} else {
-			if len(provisionResponse.PreProvisions) > 0 {
-				pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
-				salesforceOpportunityID = pps[0].SalesforceOpportunityId
-			} else {
-				wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
-			}
+			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 		}
 
 		if salesforceOpportunityID == "" {
