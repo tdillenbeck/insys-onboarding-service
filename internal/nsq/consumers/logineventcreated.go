@@ -97,19 +97,25 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	for _, locationID := range locationsWithoutFirstLogin {
 		features, err := s.featureFlagsClient.List(ctx, locationID)
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with ID: %s. Error Message: %v", locationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with id: %s. error message: %v", locationID.String(), err))
 			continue
 		}
 
 		var salesforceOpportunityID string
 		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with ID: %s. Error Message: %v", locationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID.String(), err))
 		}
 
 		if len(provisionResponse.PreProvisions) > 0 {
 			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
 			salesforceOpportunityID = pps[0].SalesforceOpportunityId
+		} else {
+			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
+		}
+
+		if salesforceOpportunityID == "" {
+			wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
 		}
 
 		for _, feature := range features {
