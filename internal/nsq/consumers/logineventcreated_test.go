@@ -34,109 +34,109 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 
 	userID := sharedproto.UUIDToProto(uuid.NewV4())
 
-	mockOnboardersLocationService := mock.OnboarderLocationService{}
+	mockOnboardersLocationService := mock.OnboarderLocationService{
+		ReadByLocationIDFn: func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
+			switch locationID {
+			case locationWithNoLoginsA:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithNoLoginsA,
+						OnboarderID:         onboarderA,
+						UserFirstLoggedInAt: null.Time{},
+					}, nil
+				}
+			case locationWithPreviousLoginB:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithPreviousLoginB,
+						OnboarderID:         onboarderB,
+						UserFirstLoggedInAt: null.NewTime(time.Now()),
+					}, nil
+				}
+			case locationWithPreviousLoginA:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithPreviousLoginA,
+						OnboarderID:         onboarderC,
+						UserFirstLoggedInAt: null.NewTime(time.Now()),
+					}, nil
+				}
 
-	mockOnboardersLocationService.ReadByLocationIDFn = func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
-
-		switch locationID {
-		case locationWithNoLoginsA:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithNoLoginsA,
-					OnboarderID:         onboarderA,
-					UserFirstLoggedInAt: null.Time{},
-				}, nil
+			case nonExistantLocationID:
+				{
+					return nil, werror.New("Location Not found")
+				}
 			}
-		case locationWithPreviousLoginB:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithPreviousLoginB,
-					OnboarderID:         onboarderB,
-					UserFirstLoggedInAt: null.NewTime(time.Now()),
-				}, nil
-			}
-		case locationWithPreviousLoginA:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithPreviousLoginA,
-					OnboarderID:         onboarderC,
-					UserFirstLoggedInAt: null.NewTime(time.Now()),
-				}, nil
-			}
 
-		case nonExistantLocationID:
-			{
-				return nil, werror.New("Location Not found")
-			}
-		}
-
-		return nil, nil
+			return nil, nil
+		},
+		RecordFirstLoginFn: func(ctx context.Context, locationID uuid.UUID) error {
+			return nil
+		},
 	}
 
-	mockOnboardersLocationService.RecordFirstLoginFn = func(ctx context.Context, locationID uuid.UUID) error {
-		return nil
+	mockAuthClient := mock.Auth{
+		UserLocationsFn: func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
+			return &authclient.UserAccess{
+				FirstName: "Jack",
+				LastName:  "Frost",
+				Type:      authclient.UserTypePractice,
+				Locations: []authclient.Location{
+					authclient.Location{
+						LocationID: locationWithPreviousLoginA,
+					},
+					authclient.Location{
+						LocationID: locationWithPreviousLoginB,
+					},
+					authclient.Location{
+						LocationID: locationWithNoLoginsA,
+					},
+				},
+			}, nil
+		},
 	}
 
-	mockAuthClient := mock.Auth{}
-
-	mockAuthClient.UserLocationsFn = func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
-		return &authclient.UserAccess{
-			FirstName: "Jack",
-			LastName:  "Frost",
-			Type:      authclient.UserTypePractice,
-			Locations: []authclient.Location{
-				authclient.Location{
-					LocationID: locationWithPreviousLoginA,
+	mockFeatureFlagClient := mock.FeatureFlagsClient{
+		ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
+			return []featureflagsclient.Flag{
+				featureflagsclient.Flag{
+					Name:  "onboardingBetaEnabled",
+					Value: true,
 				},
-				authclient.Location{
-					LocationID: locationWithPreviousLoginB,
+				featureflagsclient.Flag{
+					Name:  "otherflag",
+					Value: false,
 				},
-				authclient.Location{
-					LocationID: locationWithNoLoginsA,
+				featureflagsclient.Flag{
+					Name:  "anotherflag",
+					Value: true,
 				},
-			},
-		}, nil
+			}, nil
+		},
 	}
 
-	mockFeatureFlagClient := mock.FeatureFlagsClient{}
-	mockFeatureFlagClient.ListFn = func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
-		return []featureflagsclient.Flag{
-			featureflagsclient.Flag{
-				Name:  "onboardingBetaEnabled",
-				Value: true,
-			},
-			featureflagsclient.Flag{
-				Name:  "otherflag",
-				Value: false,
-			},
-			featureflagsclient.Flag{
-				Name:  "anotherflag",
-				Value: true,
-			},
-		}, nil
+	mockProvisioningService := mock.ProvisioningService{
+		// provide two preprovisions with varying dates to ensure that the function only uses the most recent one
+		PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
+			return &insysproto.PreProvisionsByLocationIDResponse{
+				PreProvisions: []*insysproto.PreProvision{
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "older opportunityID",
+						UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
+					},
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opportunityID",
+						UpdatedAt:               time.Now().String(),
+					},
+				},
+			}, nil
+		},
 	}
 
-	mockProvisioningService := mock.ProvisioningService{}
-
-	// provide two preprovisions with varying dates to ensure that the function only uses the most recent one
-	mockProvisioningService.PreProvisionsByLocationIDFn = func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
-		return &insysproto.PreProvisionsByLocationIDResponse{
-			PreProvisions: []*insysproto.PreProvision{
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "older opportunityID",
-					UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
-				},
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "opportunityID",
-					UpdatedAt:               time.Now().String(),
-				},
-			},
-		}, nil
-	}
-
-	mockZapierClient := mock.ZapierClient{}
-	mockZapierClient.SendFn = func(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
-		return nil
+	mockZapierClient := mock.ZapierClient{
+		SendFn: func(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
+			return nil
+		},
 	}
 
 	type fields struct {
