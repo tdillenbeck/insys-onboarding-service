@@ -58,6 +58,7 @@ case $env in
         export AUTH_SERVICE_ADDRESS=dev-kube-load:30314
         export FEATURE_FLAGS_ADDRESS=dev-kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=dev-kube-load:30707
+        export PROVISIONING_GRPC_ADDRESS=dev-kube-load:30710
 
         export ZAPIER_URL=https://hooks.zapier.com/hooks/catch/883949/o246fjf
         ;;
@@ -86,6 +87,7 @@ case $env in
         export AUTH_SERVICE_ADDRESS=kube-load:30314
         export FEATURE_FLAGS_ADDRESS=kube-load:30305
         export PORTING_DATA_GRPC_ADDRESS=kube-load:30707
+        export PROVISIONING_GRPC_ADDRESS=kube-load:30710
 
         export ZAPIER_URL=https://hooks.zapier.com/hooks/catch/883949/o246fjf
         ;;

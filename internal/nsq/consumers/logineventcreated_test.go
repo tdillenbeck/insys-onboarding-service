@@ -5,13 +5,16 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
@@ -29,97 +32,116 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 
 	userID := sharedproto.UUIDToProto(uuid.NewV4())
 
-	mockOnboardersLocationService := mock.OnboarderLocationService{}
+	mockOnboardersLocationService := mock.OnboarderLocationService{
+		ReadByLocationIDFn: func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
+			switch locationID {
+			case locationWithNoLoginsA:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithNoLoginsA,
+						OnboarderID:         onboarderA,
+						UserFirstLoggedInAt: null.Time{},
+					}, nil
+				}
+			case locationWithPreviousLoginB:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithPreviousLoginB,
+						OnboarderID:         onboarderB,
+						UserFirstLoggedInAt: null.NewTime(time.Now()),
+					}, nil
+				}
+			case locationWithPreviousLoginA:
+				{
+					return &app.OnboardersLocation{
+						LocationID:          locationWithPreviousLoginA,
+						OnboarderID:         onboarderC,
+						UserFirstLoggedInAt: null.NewTime(time.Now()),
+					}, nil
+				}
 
-	mockOnboardersLocationService.ReadByLocationIDFn = func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
-
-		switch locationID {
-		case locationWithNoLoginsA:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithNoLoginsA,
-					OnboarderID:         onboarderA,
-					UserFirstLoggedInAt: null.Time{},
-				}, nil
-			}
-		case locationWithPreviousLoginB:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithPreviousLoginB,
-					OnboarderID:         onboarderB,
-					UserFirstLoggedInAt: null.NewTime(time.Now()),
-				}, nil
-			}
-		case locationWithPreviousLoginA:
-			{
-				return &app.OnboardersLocation{
-					LocationID:          locationWithPreviousLoginA,
-					OnboarderID:         onboarderC,
-					UserFirstLoggedInAt: null.NewTime(time.Now()),
-				}, nil
+			case nonExistantLocationID:
+				{
+					return nil, werror.New("Location Not found")
+				}
 			}
 
-		case nonExistantLocationID:
-			{
-				return nil, werror.New("Location Not found")
-			}
-		}
-
-		return nil, nil
+			return nil, nil
+		},
+		RecordFirstLoginFn: func(ctx context.Context, locationID uuid.UUID) error {
+			return nil
+		},
 	}
 
-	mockOnboardersLocationService.RecordFirstLoginFn = func(ctx context.Context, locationID uuid.UUID) error {
-		return nil
-	}
-
-	mockAuthClient := mock.Auth{}
-
-	mockAuthClient.UserLocationsFn = func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
-		return &authclient.UserAccess{
-			FirstName: "Jack",
-			LastName:  "Frost",
-			Type:      authclient.UserTypePractice,
-			Locations: []authclient.Location{
-				authclient.Location{
-					LocationID: locationWithPreviousLoginA,
+	mockAuthClient := mock.Auth{
+		UserLocationsFn: func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
+			return &authclient.UserAccess{
+				FirstName: "Jack",
+				LastName:  "Frost",
+				Type:      authclient.UserTypePractice,
+				Locations: []authclient.Location{
+					authclient.Location{
+						LocationID: locationWithPreviousLoginA,
+					},
+					authclient.Location{
+						LocationID: locationWithPreviousLoginB,
+					},
+					authclient.Location{
+						LocationID: locationWithNoLoginsA,
+					},
 				},
-				authclient.Location{
-					LocationID: locationWithPreviousLoginB,
-				},
-				authclient.Location{
-					LocationID: locationWithNoLoginsA,
-				},
-			},
-		}, nil
+			}, nil
+		},
 	}
 
-	mockFeatureFlagClient := mock.FeatureFlagsClient{}
-	mockFeatureFlagClient.ListFn = func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
-		return []featureflagsclient.Flag{
-			featureflagsclient.Flag{
-				Name:  "onboardingBetaEnabled",
-				Value: true,
-			},
-			featureflagsclient.Flag{
-				Name:  "otherflag",
-				Value: false,
-			},
-			featureflagsclient.Flag{
-				Name:  "anotherflag",
-				Value: true,
-			},
-		}, nil
+	mockFeatureFlagClient := mock.FeatureFlagsClient{
+		ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
+			return []featureflagsclient.Flag{
+				featureflagsclient.Flag{
+					Name:  "onboardingBetaEnabled",
+					Value: true,
+				},
+				featureflagsclient.Flag{
+					Name:  "otherflag",
+					Value: false,
+				},
+				featureflagsclient.Flag{
+					Name:  "anotherflag",
+					Value: true,
+				},
+			}, nil
+		},
 	}
 
-	mockZapierClient := mock.ZapierClient{}
-	mockZapierClient.SendFn = func(ctx context.Context, username, locationID string) error {
-		return nil
+	mockProvisioningService := mock.ProvisioningService{
+		// provide two preprovisions with varying dates to ensure that the function only uses the most recent one
+		PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
+			return &insysproto.PreProvisionsByLocationIDResponse{
+				PreProvisions: []*insysproto.PreProvision{
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "older opportunityID",
+						UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
+					},
+					&insysproto.PreProvision{
+						SalesforceOpportunityId: "opportunityID",
+						UpdatedAt:               time.Now().String(),
+					},
+				},
+			}, nil
+		},
+	}
+
+	mockZapierClient := mock.ZapierClient{
+		SendFn: func(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
+			return nil
+		},
 	}
 
 	type fields struct {
-		onboardersLocationService app.OnboardersLocationService
 		authClient                app.AuthClient
 		featureFlagsClient        app.FeatureFlagsClient
+		onboardersLocationService app.OnboardersLocationService
+		provisioningService       insys.ProvisioningClient
 		zapierClient              app.ZapierClient
 	}
 	type args struct {
@@ -138,6 +160,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				authClient:                &mockAuthClient,
 				featureFlagsClient:        &mockFeatureFlagClient,
 				onboardersLocationService: &mockOnboardersLocationService,
+				provisioningService:       &mockProvisioningService,
 				zapierClient:              &mockZapierClient,
 			},
 			args: args{
@@ -152,9 +175,10 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			p := LogInEventCreatedSubscriber{
-				onboardersLocationService: tt.fields.onboardersLocationService,
 				authClient:                tt.fields.authClient,
 				featureFlagsClient:        tt.fields.featureFlagsClient,
+				onboardersLocationService: tt.fields.onboardersLocationService,
+				provisioningClient:        tt.fields.provisioningService,
 				zapierClient:              tt.fields.zapierClient,
 			}
 			if err := p.processLoginEventMessage(tt.args.ctx, tt.args.event); (err != nil) != tt.wantErr {

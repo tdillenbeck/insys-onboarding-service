@@ -74,7 +74,7 @@ func (s *OnboardersLocationServer) ReadByLocationID(ctx context.Context, req *in
 
 	onbl, err := s.onboardersLocationService.ReadByLocationID(ctx, locationID)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error reading onboarders locaiton by location id from the database"))
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("error reading onboarders location by location id from the database"))
 	}
 
 	result, err := convertOnboardersLocationToProto(onbl)

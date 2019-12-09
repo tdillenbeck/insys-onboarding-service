@@ -37,9 +37,10 @@ const (
 	nsqLoginEventCreatedTopic              = "nsq-login-event-created-topic"
 
 	// grpc client settings
-	authServiceAddress     = "auth-service-address"
-	featureFlagsAddress    = "feature-flags-address"
-	portingDataGRPCAddress = "porting-data-grpc-address"
+	authServiceAddress      = "auth-service-address"
+	featureFlagsAddress     = "feature-flags-address"
+	portingDataGRPCAddress  = "porting-data-grpc-address"
+	provisioningGRPCAddress = "provisioning-grpc-address"
 
 	// zapier
 	zapierURL = "zapier-url"
@@ -75,9 +76,10 @@ var (
 	NSQMaxInFlight        int
 	NSQConcurrentHandlers int
 
-	AuthServiceAddr     string
-	FeatureFlagsAddr    string
-	PortingDataGRPCAddr string
+	AuthServiceAddr         string
+	FeatureFlagsAddr        string
+	PortingDataGRPCAddr     string
+	ProvisioningGRPCAddress string
 
 	ZapierURL string
 )
@@ -115,6 +117,7 @@ func init() {
 	config.Add(authServiceAddress, "auth-api.auth.svc.cluster.local.:grpc", "The grpc address of the auth service")
 	config.Add(featureFlagsAddress, "client-feature-flags.client.svc.cluster.local.:grpc", "The grpc address of the feature flags service")
 	config.Add(portingDataGRPCAddress, "insys-porting-data.insys.svc.cluster.local.:grpc", "The grpc address of the Porting Data service")
+	config.Add(provisioningGRPCAddress, "insys-provisioning.insys.svc.cluster.local.:grpc", "The grpc address of the Provisioning Service")
 
 	config.Add(zapierURL, "https://hooks.zapier.com/hooks/catch/883949/o246fjf", "The address zapier webhook")
 }
@@ -194,7 +197,12 @@ func Init() error {
 
 	PortingDataGRPCAddr, err = config.GetAddress(portingDataGRPCAddress, false)
 	if err != nil {
-		return werror.Wrap(err, "error getting proting data grpc address")
+		return werror.Wrap(err, "error getting porting data grpc address")
+	}
+
+	ProvisioningGRPCAddress, err = config.GetAddress(provisioningGRPCAddress, false)
+	if err != nil {
+		return werror.Wrap(err, "error getting provisioning grpc address")
 	}
 
 	ZapierURL = config.Get(zapierURL)

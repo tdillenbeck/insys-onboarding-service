@@ -14,19 +14,21 @@ type ZapierClient struct {
 }
 
 type FirstLoginEventPayload struct {
-	Username   string `json:"username"`
-	LocationID string `json:"location_id"`
+	Username                string `json:"username"`
+	LocationID              string `json:"location_id"`
+	SalesforceOpportunityID string `json:"salesforce_opportunity_id"`
 }
 
 func New(url string) *ZapierClient {
 	return &ZapierClient{url: url}
 }
 
-func (zc *ZapierClient) Send(ctx context.Context, username, locationID string) error {
+func (zc *ZapierClient) Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
 	contentType := "application/json"
 	payload := FirstLoginEventPayload{
-		Username:   username,
-		LocationID: locationID,
+		Username:                username,
+		LocationID:              locationID,
+		SalesforceOpportunityID: salesforceOpportunityID,
 	}
 
 	body, err := json.Marshal(payload)

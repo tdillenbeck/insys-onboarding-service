@@ -70,6 +70,11 @@ func main() {
 		wapp.Exit(werror.Wrap(err, "error setting up porting data client"))
 	}
 
+	provisioningClient, err := initProvisioningClient(ctx, config.ProvisioningGRPCAddress)
+	if err != nil {
+		wapp.Exit(werror.Wrap(err, "error setting up provisioning client"))
+	}
+
 	// setup nsq publishers
 	producers.Init(config.NSQDAddr)
 	chiliPiperScheduleEventCreatedPublisher := producers.NewChiliPiperScheduleEventCreatedPublisher(config.NSQChiliPiperScheduleEventCreatedTopic)
@@ -98,7 +103,7 @@ func main() {
 
 	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
-	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, onboardersLocationService, authClient, featureFlagsClient, zapierClient)
+	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, authClient, featureFlagsClient, onboardersLocationService, provisioningClient, zapierClient)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer, handoffSnapshotServer))
 
@@ -155,4 +160,13 @@ func initPortingDataClient(ctx context.Context, grpcAddr string) (insys.PortingD
 	}
 
 	return insys.NewPortingDataServiceClient(g), nil
+}
+
+func initProvisioningClient(ctx context.Context, grpcAddr string) (insys.ProvisioningClient, error) {
+	g, err := wgrpcclient.NewDefault(ctx, grpcAddr)
+	if err != nil {
+		return nil, werror.Wrap(err, "unable to setup Provisioning grpc client")
+	}
+
+	return insys.NewProvisioningClient(g), nil
 }

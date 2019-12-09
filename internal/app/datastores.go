@@ -60,7 +60,3 @@ type FeatureFlagsClient interface {
 	List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
 	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }
-
-type ZapierClient interface {
-	Send(ctx context.Context, username, locationID string) error
-}
