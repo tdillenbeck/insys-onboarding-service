@@ -5,8 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
@@ -185,82 +183,6 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 			}
 			if err := p.processLoginEventMessage(tt.args.ctx, tt.args.event); (err != nil) != tt.wantErr {
 				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func Test_sortPreProvisionsByUpdatedDate(t *testing.T) {
-	type args struct {
-		pps []*insysproto.PreProvision
-	}
-	tests := []struct {
-		name string
-		args args
-		want []*insysproto.PreProvision
-	}{
-		{
-			name: "sorts by updated date correctly",
-			args: args{
-				pps: []*insysproto.PreProvision{
-					&insysproto.PreProvision{
-						SalesforceOpportunityId: "opp id 1",
-						UpdatedAt:               time.Now().Add(time.Second * -25).String(),
-					},
-					&insysproto.PreProvision{
-						SalesforceOpportunityId: "opp id 2",
-						UpdatedAt:               time.Now().Add(time.Second * -5).String(),
-					},
-					&insysproto.PreProvision{
-						SalesforceOpportunityId: "opp id 3",
-						UpdatedAt:               time.Now().Add(time.Second * -15).String(),
-					},
-				},
-			},
-			want: []*insysproto.PreProvision{
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "opp id 2",
-				},
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "opp id 3",
-				},
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "opp id 1",
-				},
-			},
-		},
-		{
-			name: "sorts with single element in slice",
-			args: args{
-				pps: []*insysproto.PreProvision{
-					&insysproto.PreProvision{
-						SalesforceOpportunityId: "opp id 1",
-						UpdatedAt:               time.Now().String(),
-					},
-				},
-			},
-			want: []*insysproto.PreProvision{
-				&insysproto.PreProvision{
-					SalesforceOpportunityId: "opp id 1",
-				},
-			},
-		},
-		{
-			name: "doesn't panic if no elements",
-			args: args{
-				pps: []*insysproto.PreProvision{},
-			},
-			want: []*insysproto.PreProvision{},
-		},
-	}
-
-	opts := []cmp.Option{
-		cmpopts.IgnoreFields(insysproto.PreProvision{}, "UpdatedAt"),
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := sortPreProvisionsByUpdatedDate(tt.args.pps); !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("sortPreProvisionsByUpdatedDate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 		})
 	}

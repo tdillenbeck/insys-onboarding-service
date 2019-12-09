@@ -24,13 +24,13 @@ func (s *ProvisioningService) PreProvisionByOpportunityID(ctx context.Context, r
 }
 
 func (s *ProvisioningService) CreateOrUpdatePreProvision(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts ...grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
-	return s.CreateOrUpdatePreProvision(ctx, req, opts...)
+	return s.CreateOrUpdatePreProvisionFn(ctx, req, opts)
 }
 
 func (s *ProvisioningService) InitialProvision(ctx context.Context, req *insysproto.InitialProvisionRequest, opts ...grpc.CallOption) (*insysproto.InitialProvisionResponse, error) {
-	return s.InitialProvision(ctx, req, opts...)
+	return s.InitialProvisionFn(ctx, req, opts)
 }
 
 func (s *ProvisioningService) ProvisionUser(ctx context.Context, req *insysproto.ProvisionUserRequest, opts ...grpc.CallOption) (*insysproto.ProvisionUserResponse, error) {
-	return s.ProvisionUser(ctx, req, opts...)
+	return s.ProvisionUserFn(ctx, req, opts)
 }

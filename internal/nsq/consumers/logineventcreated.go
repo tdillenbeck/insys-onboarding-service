@@ -133,9 +133,10 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 }
 
 func sortPreProvisionsByUpdatedDate(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
+	result := pps
 	// only send the most recent one, so sort by updated date
-	sort.Slice(pps, func(i, j int) bool {
-		return pps[i].UpdatedAt > pps[j].UpdatedAt
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].UpdatedAt > result[j].UpdatedAt
 	})
-	return pps
+	return result
 }
