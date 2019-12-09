@@ -107,7 +107,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID.String(), err))
 		}
 
-		if len(provisionResponse.PreProvisions) > 0 {
+		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
 			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
 			salesforceOpportunityID = pps[0].SalesforceOpportunityId
 		} else {
