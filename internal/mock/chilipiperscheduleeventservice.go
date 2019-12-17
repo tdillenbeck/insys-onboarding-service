@@ -9,10 +9,11 @@ import (
 )
 
 type ChiliPiperScheduleEventService struct {
-	ByLocationIDFn func(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error)
-	CancelFn       func(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error)
-	CreateFn       func(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error)
-	UpdateFn       func(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error)
+	ByLocationIDFn          func(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error)
+	CancelFn                func(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error)
+	CreateFn                func(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error)
+	UpdateFn                func(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error)
+	CancelCountByLocationFn func(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
 }
 
 func (cpse *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error) {
@@ -29,4 +30,8 @@ func (cpse *ChiliPiperScheduleEventService) Create(ctx context.Context, schedule
 
 func (cpse *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error) {
 	return cpse.UpdateFn(ctx, eventID, assigneeID, startAt, endAt)
+}
+
+func (cpse *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
+	return cpse.CancelCountByLocationFn(ctx, locationID, eventType)
 }
