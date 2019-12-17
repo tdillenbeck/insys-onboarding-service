@@ -24,19 +24,19 @@ const (
 )
 
 type ChiliPiperScheduleEventCreatedSubscriber struct {
-	onboarderService app.OnboarderService
-
-	featureFlagsClient app.FeatureFlagsClient
+	onboarderService               app.OnboarderService
+	chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+	featureFlagsClient             app.FeatureFlagsClient
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff app.FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(cses app.ChiliPiperScheduleEventService, onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff app.FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
-		onboarderService: onboarderService,
-
-		featureFlagsClient: ff,
+		onboarderService:               onboarderService,
+		chiliPiperScheduleEventService: cses,
+		featureFlagsClient:             ff,
 
 		onboardersLocationServer: ols,
 		onboardingServer:         onboardingServer,
@@ -69,6 +69,10 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		}
 	}
 
+	err = c.rescheduleEventCount(ctx, chiliPiperScheduleEventResponse)
+	if err != nil {
+		return werror.Wrap(err, "could not count the number of cancelled events").Add("locationID", chiliPiperScheduleEventResponse.Event.LocationId)
+	}
 	return nil
 }
 
@@ -122,6 +126,18 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 			return werror.Wrap(err, "failed to turn on onboarding feature flag")
 		}
 	}
+
+	return nil
+}
+
+func (c ChiliPiperScheduleEventCreatedSubscriber) rescheduleEventCount(ctx context.Context, cp insysproto.CreateChiliPiperScheduleEventResponse) error {
+
+	locationID, err := uuid.Parse(cp.Event.LocationId)
+	if err != nil {
+		return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
+	}
+
+	c.chiliPiperScheduleEventService.CanceledCountByLocationIDAndEventType(ctx, locationID, cp.Event.EventType)
 
 	return nil
 }

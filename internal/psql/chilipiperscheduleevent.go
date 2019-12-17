@@ -171,3 +171,27 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, as
 
 	return &resultEvent, nil
 }
+
+func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
+
+	var count int
+
+	query := `
+	 SELECT COUNT(*) FROM insys_onboarding.chili_piper_schedule_events
+		 WHERE location_id = $1 AND event_type =$2 AND canceled_at IS NOT NULL;`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		locationID,
+		eventType,
+	)
+
+	err := row.StructScan(&count)
+	if err != nil {
+		return 0, werror.Wrap(err, "error getting count of canceled events")
+	}
+
+	return count, nil
+
+}
