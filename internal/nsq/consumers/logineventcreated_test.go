@@ -59,7 +59,6 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 						UserFirstLoggedInAt: null.NewTime(time.Now()),
 					}, nil
 				}
-
 			case nonExistantLocationID:
 				{
 					return nil, werror.New("Location Not found")
