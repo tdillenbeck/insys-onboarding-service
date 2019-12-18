@@ -48,7 +48,6 @@ func NewLogInEventCreatedSubscriber(
 	provisioningClient insys.ProvisioningClient,
 	zapierClient *zapier.ZapierClient,
 ) *LogInEventCreatedSubscriber {
-
 	return &LogInEventCreatedSubscriber{
 		authClient:                authclient,
 		featureFlagsClient:        featureFlagsClient,
@@ -74,8 +73,6 @@ func NewLogInEventCreatedSubscriber(
 
 func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.Message) error {
 	var le clientproto.LoginEvent
-
-	fmt.Println(string(m.Body))
 
 	err := proto.Unmarshal(m.Body, &le)
 	if err != nil {
