@@ -161,24 +161,8 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 			locationsWithoutFirstLogin = append(locationsWithoutFirstLogin, location.LocationID)
 		}
 
-		// We need an opportunityID to send to Zapier, but we aren't sure which locationID is associated with the Opportunity in Salesforce, so iterate
-		// over all, logged in or not, in search for the preprovision, select the most recent preprovision, and pull the opportunity_id.
-		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: location.LocationID.String()})
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", location.LocationID.String(), err))
-		}
-
-		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
-			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
-			if pps[0].SalesforceOpportunityId != "" {
-				salesforceOpportunityID = pps[0].SalesforceOpportunityId
-			}
-		} else {
-			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", location.LocationID.String()))
-		}
-
 		if salesforceOpportunityID == "" {
-			wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", location.LocationID.String()))
+			salesforceOpportunityID = s.getMostRecentOpportunityIDForLocation(ctx, location.LocationID.String())
 		}
 	}
 
@@ -210,6 +194,35 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx cont
 		} else {
 			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 		}
+	}
+
+	return salesforceOpportunityID
+}
+
+func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationID string) string {
+	var salesforceOpportunityID string
+	// We need an opportunityID to send to Zapier, but we aren't sure which locationID is associated with the Opportunity in Salesforce, so iterate
+	// over all, logged in or not, in search for the preprovision, select the most recent preprovision, and pull the opportunity_id.
+	provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID})
+	if err != nil {
+		wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
+	}
+
+	if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
+		pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
+
+		for _, record := range pps {
+			if record.SalesforceOpportunityId != "" {
+				salesforceOpportunityID = record.SalesforceOpportunityId
+			}
+		}
+
+	} else {
+		wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID))
+	}
+
+	if salesforceOpportunityID == "" {
+		wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID))
 	}
 
 	return salesforceOpportunityID
