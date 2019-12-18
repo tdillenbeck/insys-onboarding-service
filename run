@@ -65,8 +65,8 @@ case $env in
     2)
         echo "Starting in PROD" >&2
         #======================= PROD ==============================
-        export PG_PRIMARY_CONNECT_STRING=postgres://mikecampbell:jimbo987@pgsql-service-1a/services?sslmode=disable
-        export PG_REPLICA_CONNECT_STRING=postgres://mikecampbell:jimbo987@pgsql-service-1a/services?sslmode=disable
+        export PG_PRIMARY_CONNECT_STRING=postgres://username:password@pgsql-service-1a/services?sslmode=disable
+        export PG_REPLICA_CONNECT_STRING=postgres://username:password@pgsql-service-1a/services?sslmode=disable
 
         export MAX_IDLE_CONNECTIONS=0
         export MAX_OPEN_CONNECTIONS=15
