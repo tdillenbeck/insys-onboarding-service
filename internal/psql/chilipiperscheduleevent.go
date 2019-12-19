@@ -183,11 +183,10 @@ func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(c
 	row := s.DB.QueryRowxContext(
 		ctx,
 		query,
-		locationID,
+		locationID.String(),
 		eventType,
 	)
-
-	err := row.StructScan(&count)
+	err := row.Scan(&count)
 	if err != nil {
 		return 0, werror.Wrap(err, "error getting count of canceled events")
 	}

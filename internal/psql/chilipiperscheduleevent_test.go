@@ -471,14 +471,15 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 
 	locationID := uuid.NewV4()
 	currentTime := time.Now()
+	eventID := uuid.NewV4()
 
 	eventService := ChiliPiperScheduleEventService{DB: db}
 
-	existingEventForCancelation, err := eventService.Create(
+	_, err := eventService.Create(
 		context.Background(),
 		&app.ChiliPiperScheduleEvent{
 			LocationID: locationID,
-			EventID:    "testing event id 2",
+			EventID:    eventID.String(),
 			EventType:  null.NewString("software_install_call"),
 			CanceledAt: null.NewTime(currentTime),
 		},
@@ -501,7 +502,7 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 		name    string
 		fields  fields
 		args    args
-		want    *app.RescheduleEvent
+		want    int
 		wantErr bool
 	}{
 		{
@@ -512,11 +513,7 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 				locationID,
 				"software_install_call",
 			},
-			want: &app.RescheduleEvent{
-				LocationID: existingEventForCancelation.LocationID,
-				EventType:  "software_install_call",
-				Count:      1,
-			},
+			want:    1,
 			wantErr: false,
 		},
 	}
