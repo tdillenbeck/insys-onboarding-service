@@ -56,9 +56,17 @@ func NewLogInEventCreatedSubscriber(
 		zapierClient:              zapierClient,
 	}
 
-	userUUID, _ := uuid.Parse("829cb33a-a157-49cd-bda7-238bd11a7702")
+	userUUID, _ := uuid.Parse("ab792fb8-64ea-418f-a661-de22629c8d9c")
 
-	pretty.Println(sub.getLocationIDWithoutFirstLoginForUser(context.Background(), userUUID))
+	// locIds, err := sub.filterLocationsToThoseWithoutFirstLoginForUser(context.Background(), userUUID)
+	// fmt.Println(locIds, err)
+	// filtered, err := sub.filterLocationsToThoseInOnboarding(context.Background(), locIds)
+	// fmt.Println(filtered, err)
+	// oppID := sub.getMostRecentOpportunityIDForLocations(ctx, filtered)
+	// fmt.Println(oppID)
+	pretty.Println(sub.processLoginEventMessage(ctx, clientproto.LoginEvent{
+		UserID: sharedproto.UUIDToProto(userUUID),
+	}))
 
 	return &sub
 }
@@ -75,15 +83,20 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 	return s.processLoginEventMessage(ctx, le)
 }
 
-func (s LogInEventCreatedSubscriber) getLocationIDWithoutFirstLoginForUser(ctx context.Context, userID uuid.UUID) ([]uuid.UUID, error) {
-	userAccess, err := s.authClient.UserLocations(ctx, userID)
+func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event clientproto.LoginEvent) error {
+	userUUID, err := event.UserID.UUID()
 	if err != nil {
-		return nil, werror.Wrap(err, "could not get userAccess by ID").Add("userID", userID)
+		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
+	}
+
+	userAccess, err := s.authClient.UserLocations(ctx, userUUID)
+	if err != nil {
+		return werror.Wrap(err, "could not get userAccess by ID").Add("userID", userUUID)
 	}
 
 	// don't capture login for non-practice user
 	if userAccess.Type != authclient.UserTypePractice {
-		return nil, nil
+		return nil
 	}
 
 	var locationIDs []uuid.UUID
@@ -140,7 +153,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", locationID))
 				continue
 			} else {
-				return nil, werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
+				return nil, werror.Wrap(err, "could not read location for location by id ").Add("locationID", locationID)
 			}
 		}
 
@@ -176,37 +189,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx cont
 	return result, nil
 }
 
-func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event clientproto.LoginEvent) error {
-	userUUID, err := event.UserID.UUID()
-	if err != nil {
-		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
-	}
-
-	locationsWithoutFirstLogin, err := s.getLocationIDWithoutFirstLoginForUser(ctx, userUUID)
-	if err != nil {
-		return err
-	}
-	if len(locationsWithoutFirstLogin) == 0 {
-		return nil
-	}
-
-	onboardingLocationsWithoutFirstLogin, err := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
-	if err != nil {
-		return err
-	}
-	if len(onboardingLocationsWithoutFirstLogin) == 0 {
-		return nil
-	}
-
-	return nil
-}
-
-func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationIDs []uuid.UUID) string {
-
-	if len(locationIDs) == 0 {
-		return ""
-	}
-
+func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
 	var salesforceOpportunityID string
 
 	for _, locationID := range locationIDs {
