@@ -7,6 +7,7 @@ import (
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
@@ -26,13 +27,13 @@ const (
 type ChiliPiperScheduleEventCreatedSubscriber struct {
 	onboarderService app.OnboarderService
 
-	featureFlagsClient FeatureFlagsClient
+	featureFlagsClient *featureflagsclient.Client
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff *featureflagsclient.Client) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService: onboarderService,
 
