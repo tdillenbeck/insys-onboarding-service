@@ -178,7 +178,7 @@ func (p *PG) connect(s *Settings, isPrimary bool, cs ConnectString) (*DB, error)
 
 	conn, err := sqlx.Connect(cs.Driver, css)
 	if err != nil {
-		return nil, werror.Wrap(err).Add("csHost", cs.Host).Add("csSet", cs.connectString != "").Add("isPrimary", isPrimary)
+		return nil, werror.Wrap(err).Add("csHost", cs.Host).Add("csSet", cs.connectString != "")
 	}
 
 	hostname := hostnameFromConnectionString(css)

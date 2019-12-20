@@ -37,10 +37,10 @@ func wrapPQError(werr *werror.Error, err error) *werror.Error {
 		// replace error with not found error template.
 		werr = ErrorNotFound.Here().SetCode(werror.CodeNotFound)
 
-	case "23": // Integrity Constraint Violation
+	case "23":
+		// Integrity Constraint Violation
 		werr.SetCode(werror.CodeInvalidArgument)
-	case "28": // Invalid Authorization Specification
-		werr.SetCode(werror.CodePermissionDenied)
+
 	default:
 		// default to internal 500 class error
 		werr.SetCode(werror.CodeInternal)
