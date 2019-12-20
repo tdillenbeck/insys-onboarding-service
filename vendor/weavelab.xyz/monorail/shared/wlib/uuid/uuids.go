@@ -28,6 +28,7 @@ import (
 	"errors"
 	"fmt"
 	"hash"
+	"math/big"
 	"regexp"
 	"strings"
 )
@@ -296,4 +297,20 @@ func (u *UUID) Scan(src interface{}) error {
 	}
 
 	return errors.New("unable to scan uuid")
+}
+
+// Cmp compares x and y as integer values and returns:
+//
+//   -1 if x <  y
+//    0 if x == y
+//   +1 if x >  y
+//
+func (x *UUID) Cmp(y UUID) int {
+	xInt := big.Int{}
+	yInt := big.Int{}
+
+	xInt.SetBytes(x.Bytes())
+	yInt.SetBytes(y.Bytes())
+
+	return xInt.Cmp(&yInt)
 }
