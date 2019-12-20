@@ -189,9 +189,15 @@ func (c *Creator) createCredentials(ctx context.Context) error {
 	}
 
 	// tell the database that the credentials changed
-	err = c.updateCredentials(ctx, cr.Data)
-	if err != nil {
-		return werror.Wrap(err)
+	// if this fails, don't apply updates to
+	// the creator meta data
+	if c.db != nil {
+		// TODO: this or the update credentials needs to be smarter
+		//  about handling replication delay
+		err = c.db.UpdateCredentials(c.Username(), c.Password())
+		if err != nil {
+			werror.Wrap(err, "unable to apply updated credentials")
+		}
 	}
 
 	leaseDuration := time.Duration(cr.LeaseDuration) * time.Second
@@ -205,38 +211,6 @@ func (c *Creator) createCredentials(ctx context.Context) error {
 	c.requestIncrement = leaseDuration
 
 	wlog.InfoC(ctx, "[VaultDB] database credentials created", tag.String("username", cr.Data.Username), tag.Int("leaseDuration", cr.LeaseDuration), tag.String("leaseID", cr.LeaseID))
-	return nil
-}
-
-const maxUpdateCredentialsAttempts = 5
-
-// updateCredentials creates a new database connection with
-// the new credentials obtained from Vault
-func (c *Creator) updateCredentials(ctx context.Context, cr wvaulttypes.CredentialsResponseData) error {
-	if c.db == nil {
-		return nil
-	}
-
-	// function for setting database connection credentials
-	// using information obtained from vault
-	f := func(ctx context.Context) error {
-		wlog.InfoC(ctx, "[VaultDB] setting connection database credentials", tag.String("username", cr.Username))
-		return c.db.UpdateCredentials(cr.Username, cr.Password)
-	}
-
-	// return true IF we think that connecting to database
-	// may succeed if we try again (e.g. in the case of replication lag)
-	r := func(err error) bool {
-		werr := werror.Wrap(err)
-		return werr.Code() == werror.CodePermissionDenied
-	}
-
-	// try to update the credentials
-	err := doWithRetries(ctx, f, r, maxUpdateCredentialsAttempts)
-	if err != nil {
-		return werror.Wrap(err)
-	}
-
 	return nil
 }
 

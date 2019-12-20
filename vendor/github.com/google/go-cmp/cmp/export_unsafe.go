@@ -19,7 +19,5 @@ const supportAllowUnexported = true
 // The parent struct, v, must be addressable, while f must be a StructField
 // describing the field to retrieve.
 func retrieveUnexportedField(v reflect.Value, f reflect.StructField) reflect.Value {
-	// See https://github.com/google/go-cmp/issues/167 for discussion of the
-	// following expression.
-	return reflect.NewAt(f.Type, unsafe.Pointer(uintptr(unsafe.Pointer(v.UnsafeAddr()))+f.Offset)).Elem()
+	return reflect.NewAt(f.Type, unsafe.Pointer(v.UnsafeAddr()+f.Offset)).Elem()
 }
