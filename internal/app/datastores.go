@@ -4,8 +4,6 @@ import (
 	"context"
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
@@ -50,13 +48,4 @@ type HandoffSnapshotService interface {
 	ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (HandoffSnapshot, error)
 	SubmitCSAT(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserId uuid.UUID) (HandoffSnapshot, error)
 	SubmitHandoff(ctx context.Context, handoffSnapshot uuid.UUID) (HandoffSnapshot, error)
-}
-
-type AuthClient interface {
-	UserLocations(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error)
-}
-
-type FeatureFlagsClient interface {
-	List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
-	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }

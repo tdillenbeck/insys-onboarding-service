@@ -26,13 +26,13 @@ const (
 type ChiliPiperScheduleEventCreatedSubscriber struct {
 	onboarderService app.OnboarderService
 
-	featureFlagsClient app.FeatureFlagsClient
+	featureFlagsClient FeatureFlagsClient
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff app.FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService: onboarderService,
 
