@@ -571,12 +571,6 @@
 			"revisionTime": "2019-08-29T15:11:34Z"
 		},
 		{
-			"checksumSHA1": "QyBLCM74VEO9bekzOZGcEkJ7V0o=",
-			"path": "google.golang.org/api/gensupport",
-			"revision": "7a8c1af7297d20cbf380c4cfd665c7dbd1fed1a7",
-			"revisionTime": "2019-09-09T00:07:16Z"
-		},
-		{
 			"checksumSHA1": "gp+1hrJZsdxAWvEGQJvzUOCD504=",
 			"path": "google.golang.org/api/googleapi",
 			"revision": "d63bd5fbc004a083dc85ef622366115e8088da62",
@@ -963,12 +957,6 @@
 		{
 			"checksumSHA1": "pNTPPOsB5/eLT+xE1CaiAM+ZDIY=",
 			"path": "weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient",
-			"revision": "11b116d7614c96d4facda9d53ace7a9600631e52",
-			"revisionTime": "2019-12-19T23:49:34Z"
-		},
-		{
-			"checksumSHA1": "LMXM1KXH/R2jb1a7EUyiMcE0cCI=",
-			"path": "weavelab.xyz/monorail/shared/grpc-clients/data-grpc-clients/featureflagsclient",
 			"revision": "11b116d7614c96d4facda9d53ace7a9600631e52",
 			"revisionTime": "2019-12-19T23:49:34Z"
 		},
