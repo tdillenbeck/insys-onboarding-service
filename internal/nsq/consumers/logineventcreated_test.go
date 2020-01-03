@@ -138,8 +138,8 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	}
 
 	type fields struct {
-		authClient                app.AuthClient
-		featureFlagsClient        app.FeatureFlagsClient
+		authClient                AuthClient
+		featureFlagsClient        FeatureFlagsClient
 		onboardersLocationService app.OnboardersLocationService
 		provisioningService       insys.ProvisioningClient
 		zapierClient              app.ZapierClient

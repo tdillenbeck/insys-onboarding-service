@@ -9,6 +9,7 @@ import (
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
+	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
@@ -18,9 +19,18 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/wlog"
 )
 
+type AuthClient interface {
+	UserLocations(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error)
+}
+
+type FeatureFlagsClient interface {
+	List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
+	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
+}
+
 type LogInEventCreatedSubscriber struct {
-	authClient                app.AuthClient
-	featureFlagsClient        app.FeatureFlagsClient
+	authClient                AuthClient
+	featureFlagsClient        FeatureFlagsClient
 	onboardersLocationService app.OnboardersLocationService
 	provisioningClient        insys.ProvisioningClient
 	zapierClient              app.ZapierClient
@@ -28,8 +38,8 @@ type LogInEventCreatedSubscriber struct {
 
 func NewLogInEventCreatedSubscriber(
 	ctx context.Context,
-	authclient app.AuthClient,
-	featureFlagsClient app.FeatureFlagsClient,
+	authclient AuthClient,
+	featureFlagsClient FeatureFlagsClient,
 	onboardersLocationService app.OnboardersLocationService,
 	provisioningClient insys.ProvisioningClient,
 	zapierClient app.ZapierClient,
