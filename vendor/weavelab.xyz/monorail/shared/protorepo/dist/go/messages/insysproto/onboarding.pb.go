@@ -1306,39 +1306,39 @@ func (m *HandoffSnapshotCreateOrUpdateRequest) GetHandoffSnapshot() *HandoffSnap
 	return nil
 }
 
-type HandoffSnapshotCreateOrUpdateResponse struct {
+type HandoffSnapshotResponse struct {
 	HandoffSnapshot      *HandoffSnapshotRecord `protobuf:"bytes,1,opt,name=handoff_snapshot,json=handoffSnapshot,proto3" json:"handoff_snapshot,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}               `json:"-"`
 	XXX_unrecognized     []byte                 `json:"-"`
 	XXX_sizecache        int32                  `json:"-"`
 }
 
-func (m *HandoffSnapshotCreateOrUpdateResponse) Reset()         { *m = HandoffSnapshotCreateOrUpdateResponse{} }
-func (m *HandoffSnapshotCreateOrUpdateResponse) String() string { return proto.CompactTextString(m) }
-func (*HandoffSnapshotCreateOrUpdateResponse) ProtoMessage()    {}
-func (*HandoffSnapshotCreateOrUpdateResponse) Descriptor() ([]byte, []int) {
+func (m *HandoffSnapshotResponse) Reset()         { *m = HandoffSnapshotResponse{} }
+func (m *HandoffSnapshotResponse) String() string { return proto.CompactTextString(m) }
+func (*HandoffSnapshotResponse) ProtoMessage()    {}
+func (*HandoffSnapshotResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_2d88e10ea11481c7, []int{21}
 }
 
-func (m *HandoffSnapshotCreateOrUpdateResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse.Unmarshal(m, b)
+func (m *HandoffSnapshotResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_HandoffSnapshotResponse.Unmarshal(m, b)
 }
-func (m *HandoffSnapshotCreateOrUpdateResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse.Marshal(b, m, deterministic)
+func (m *HandoffSnapshotResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_HandoffSnapshotResponse.Marshal(b, m, deterministic)
 }
-func (m *HandoffSnapshotCreateOrUpdateResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse.Merge(m, src)
+func (m *HandoffSnapshotResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_HandoffSnapshotResponse.Merge(m, src)
 }
-func (m *HandoffSnapshotCreateOrUpdateResponse) XXX_Size() int {
-	return xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse.Size(m)
+func (m *HandoffSnapshotResponse) XXX_Size() int {
+	return xxx_messageInfo_HandoffSnapshotResponse.Size(m)
 }
-func (m *HandoffSnapshotCreateOrUpdateResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse.DiscardUnknown(m)
+func (m *HandoffSnapshotResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_HandoffSnapshotResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_HandoffSnapshotCreateOrUpdateResponse proto.InternalMessageInfo
+var xxx_messageInfo_HandoffSnapshotResponse proto.InternalMessageInfo
 
-func (m *HandoffSnapshotCreateOrUpdateResponse) GetHandoffSnapshot() *HandoffSnapshotRecord {
+func (m *HandoffSnapshotResponse) GetHandoffSnapshot() *HandoffSnapshotRecord {
 	if m != nil {
 		return m.HandoffSnapshot
 	}
@@ -1492,7 +1492,10 @@ func init() {
 	proto.RegisterType((*CancelChiliPiperScheduleEventResponse)(nil), "onboardingproto.CancelChiliPiperScheduleEventResponse")
 	proto.RegisterType((*HandoffSnapshotRecord)(nil), "onboardingproto.HandoffSnapshotRecord")
 	proto.RegisterType((*HandoffSnapshotCreateOrUpdateRequest)(nil), "onboardingproto.HandoffSnapshotCreateOrUpdateRequest")
-	proto.RegisterType((*HandoffSnapshotCreateOrUpdateResponse)(nil), "onboardingproto.HandoffSnapshotCreateOrUpdateResponse")
+	proto.RegisterType((*HandoffSnapshotResponse)(nil), "onboardingproto.HandoffSnapshotResponse")
+	proto.RegisterType((*HandoffSnapshotReadRequest)(nil), "onboardingproto.HandoffSnapshotReadRequest")
+	proto.RegisterType((*SubmitCSATRequest)(nil), "onboardingproto.SubmitCSATRequest")
+	proto.RegisterType((*SubmitHandoffRequest)(nil), "onboardingproto.SubmitHandoffRequest")
 }
 
 func init() {
