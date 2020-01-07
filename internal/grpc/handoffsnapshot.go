@@ -78,11 +78,6 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
 	}
 
-	csatRecipientUserId, err := uuid.Parse(req.CsatRecipientUserId)
-	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("csatRecipientUserId", req.CsatRecipientUserId))
-	}
-
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -96,7 +91,7 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "missing csat fields").Add("missing_fields", missingFields))
 	}
 
-	result, err = s.handoffSnapshotService.SubmitCSAT(ctx, onboardersLocationId, csatRecipientUserId)
+	result, err = s.handoffSnapshotService.SubmitCSAT(ctx, onboardersLocationId, req.CsatRecipientUserEmail)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error submitting csat"))
 	}
@@ -179,7 +174,7 @@ func convertHandoffSnapshotToProto(snapshot app.HandoffSnapshot) (insysproto.Han
 func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 	var missingFields []string
 
-	if !snapshot.PointOfContact.Valid || snapshot.PointOfContact.String() == "" {
+	if !snapshot.PointOfContactEmail.Valid || snapshot.PointOfContactEmail.String() == "" {
 		missingFields = append(missingFields, "point_of_contact")
 	}
 
@@ -193,8 +188,8 @@ func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 	var missingFields []string
 
-	if !snapshot.PointOfContact.Valid || snapshot.PointOfContact.String() == "" {
-		missingFields = append(missingFields, "point_of_contact")
+	if !snapshot.PointOfContactEmail.Valid || snapshot.PointOfContactEmail.String() == "" {
+		missingFields = append(missingFields, "point_of_contact_email")
 	}
 	if !snapshot.ReasonForPurchase.Valid || snapshot.ReasonForPurchase.String() == "" {
 		missingFields = append(missingFields, "reason_for_purchase")
@@ -211,6 +206,9 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 	}
 	if !snapshot.RouterType.Valid || snapshot.RouterType.String() == "" {
 		missingFields = append(missingFields, "router_type")
+	}
+	if !snapshot.DisclaimerTypeSent.Valid || snapshot.DisclaimerTypeSent.String() == "" {
+		missingFields = append(missingFields, "disclaimer_type_sent")
 	}
 	if !snapshot.RouterMakeAndModel.Valid || snapshot.RouterMakeAndModel.String() == "" {
 		missingFields = append(missingFields, "router_make_and_model")

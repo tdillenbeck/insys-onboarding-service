@@ -25,6 +25,7 @@ import (
 	"time"
 
 	"google.golang.org/grpc/balancer"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/internal/channelz"
 	"google.golang.org/grpc/internal/grpcsync"
@@ -33,7 +34,7 @@ import (
 )
 
 // ccResolverWrapper is a wrapper on top of cc for resolvers.
-// It implements resolver.ClientConnection interface.
+// It implements resolver.ClientConn interface.
 type ccResolverWrapper struct {
 	cc         *ClientConn
 	resolverMu sync.Mutex
@@ -73,12 +74,9 @@ func parseTarget(target string) (ret resolver.Target) {
 	return ret
 }
 
-// newCCResolverWrapper parses cc.target for scheme and gets the resolver
-// builder for this scheme and builds the resolver. The monitoring goroutine
-// for it is not started yet and can be created by calling start().
-//
-// If withResolverBuilder dial option is set, the specified resolver will be
-// used instead.
+// newCCResolverWrapper uses the resolver.Builder stored in the ClientConn to
+// build a Resolver and returns a ccResolverWrapper object which wraps the
+// newly built resolver.
 func newCCResolverWrapper(cc *ClientConn) (*ccResolverWrapper, error) {
 	rb := cc.dopts.resolverBuilder
 	if rb == nil {
@@ -90,21 +88,32 @@ func newCCResolverWrapper(cc *ClientConn) (*ccResolverWrapper, error) {
 		done: grpcsync.NewEvent(),
 	}
 
+	var credsClone credentials.TransportCredentials
+	if creds := cc.dopts.copts.TransportCredentials; creds != nil {
+		credsClone = creds.Clone()
+	}
+	rbo := resolver.BuildOptions{
+		DisableServiceConfig: cc.dopts.disableServiceConfig,
+		DialCreds:            credsClone,
+		CredsBundle:          cc.dopts.copts.CredsBundle,
+		Dialer:               cc.dopts.copts.Dialer,
+	}
+
 	var err error
 	// We need to hold the lock here while we assign to the ccr.resolver field
 	// to guard against a data race caused by the following code path,
 	// rb.Build-->ccr.ReportError-->ccr.poll-->ccr.resolveNow, would end up
 	// accessing ccr.resolver which is being assigned here.
 	ccr.resolverMu.Lock()
-	ccr.resolver, err = rb.Build(cc.parsedTarget, ccr, resolver.BuildOption{DisableServiceConfig: cc.dopts.disableServiceConfig})
+	defer ccr.resolverMu.Unlock()
+	ccr.resolver, err = rb.Build(cc.parsedTarget, ccr, rbo)
 	if err != nil {
 		return nil, err
 	}
-	ccr.resolverMu.Unlock()
 	return ccr, nil
 }
 
-func (ccr *ccResolverWrapper) resolveNow(o resolver.ResolveNowOption) {
+func (ccr *ccResolverWrapper) resolveNow(o resolver.ResolveNowOptions) {
 	ccr.resolverMu.Lock()
 	if !ccr.done.HasFired() {
 		ccr.resolver.ResolveNow(o)
@@ -140,7 +149,7 @@ func (ccr *ccResolverWrapper) poll(err error) {
 	ccr.polling = p
 	go func() {
 		for i := 0; ; i++ {
-			ccr.resolveNow(resolver.ResolveNowOption{})
+			ccr.resolveNow(resolver.ResolveNowOptions{})
 			t := time.NewTimer(ccr.cc.dopts.resolveNowBackoff(i))
 			select {
 			case <-p:
@@ -208,6 +217,10 @@ func (ccr *ccResolverWrapper) NewServiceConfig(sc string) {
 		return
 	}
 	grpclog.Infof("ccResolverWrapper: got new service config: %v", sc)
+	if ccr.cc.dopts.disableServiceConfig {
+		grpclog.Infof("Service config lookups disabled; ignoring config")
+		return
+	}
 	scpr := parseServiceConfig(sc)
 	if scpr.Err != nil {
 		grpclog.Warningf("ccResolverWrapper: error parsing service config: %v", scpr.Err)

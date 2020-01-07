@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"unicode/utf8"
+	"weavelab.xyz/monorail/shared/utils/str"
 
 	"weavelab.xyz/monorail/shared/wlib/color"
 )
@@ -170,23 +171,59 @@ func formatEnv(keys []string, settings map[string]*Setting) []env {
 	key := color.SprintFunc(color.FgHiBlue)
 	value := color.SprintFunc(color.FgHiGreen)
 
-	envs := make([]env, len(keys))
-	for i, k := range keys {
+	envs := make([]env, 0)
+	for _, k := range keys {
 
 		a := settings[k].Env
 		b := settings[k].value()
+
+		if a == "" {
+			continue
+		}
 
 		s := fmt.Sprintf("%s=%s", key(a), value(b))
 
 		w := utf8.RuneCountInString(a) + 1 + utf8.RuneCountInString(b)
 
-		envs[i] = env{
+		envs = append(envs, env{
 			s: s,
 			w: w,
+		})
+	}
+
+	envs = removeSecretEnvs(envs)
+
+	return envs
+}
+
+func removeSecretEnvs(envs []env) []env {
+	var keysToRemove []string
+	var newEnvs []env
+	for _, env := range envs {
+		if strings.Contains(env.s, "_SECRET_META") {
+			key := str.Before(env.s, "_SECRET_META")
+			keysToRemove = append(keysToRemove, key)
 		}
 	}
 
-	return envs
+	for _, env := range envs {
+		if !envIsInKeys(env, keysToRemove) {
+			newEnvs = append(newEnvs, env)
+		}
+	}
+
+	return newEnvs
+}
+
+func envIsInKeys(e env, keys []string) bool {
+	realEnvKey := str.Before(e.s, "=")
+	for _, key := range keys {
+		if realEnvKey == key {
+			return true
+		}
+	}
+
+	return false
 }
 
 func printSpace(w io.Writer) {

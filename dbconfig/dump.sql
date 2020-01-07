@@ -86,12 +86,12 @@ ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboardin
 CREATE TABLE insys_onboarding.handoff_snapshots (
     id uuid NOT NULL,
     onboarders_location_id uuid NOT NULL,
-    csat_recipient_user_id uuid,
+    csat_recipient_user_email text,
     csat_sent_at timestamp with time zone,
     created_at timestamp with time zone DEFAULT now() NOT NULL,
     updated_at timestamp with time zone DEFAULT now() NOT NULL,
     handed_off_at timestamp with time zone,
-    point_of_contact uuid,
+    point_of_contact_email text,
     reason_for_purchase text,
     customizations boolean,
     customization_setup text,
@@ -100,7 +100,8 @@ CREATE TABLE insys_onboarding.handoff_snapshots (
     router_make_and_model text,
     network_decision text,
     billing_notes text,
-    notes text
+    notes text,
+    disclaimer_type_sent text
 );
 
 
