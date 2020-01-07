@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/kr/pretty"
-
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -14,7 +12,6 @@ import (
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
-	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -51,27 +48,13 @@ func NewLogInEventCreatedSubscriber(
 	provisioningClient insys.ProvisioningClient,
 	zapierClient ZapierClient,
 ) *LogInEventCreatedSubscriber {
-	sub := LogInEventCreatedSubscriber{
+	return &LogInEventCreatedSubscriber{
 		authClient:                authclient,
 		featureFlagsClient:        featureFlagsClient,
 		onboardersLocationService: onboardersLocationService,
 		provisioningClient:        provisioningClient,
 		zapierClient:              zapierClient,
 	}
-
-	userUUID, _ := uuid.Parse("ab792fb8-64ea-418f-a661-de22629c8d9c")
-
-	// locIds, err := sub.filterLocationsToThoseWithoutFirstLoginForUser(context.Background(), userUUID)
-	// fmt.Println(locIds, err)
-	// filtered, err := sub.filterLocationsToThoseInOnboarding(context.Background(), locIds)
-	// fmt.Println(filtered, err)
-	// oppID := sub.getMostRecentOpportunityIDForLocations(ctx, filtered)
-	// fmt.Println(oppID)
-	pretty.Println(sub.processLoginEventMessage(ctx, clientproto.LoginEvent{
-		UserID: sharedproto.UUIDToProto(userUUID),
-	}))
-
-	return &sub
 }
 
 func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.Message) error {
@@ -200,7 +183,7 @@ func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx 
 		}
 
 		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
-			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
+			pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
 
 			for _, record := range pps {
 				if record.SalesforceOpportunityId != "" {
@@ -218,7 +201,7 @@ func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx 
 	return salesforceOpportunityID
 }
 
-func sortPreProvisionsByUpdatedDate(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
+func sortPreProvisionsByUpdatedDateDescending(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
 	result := pps
 	// only send the most recent one, so sort by updated date
 	sort.Slice(result, func(i, j int) bool {
