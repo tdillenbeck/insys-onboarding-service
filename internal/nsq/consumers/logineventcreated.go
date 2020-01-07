@@ -222,7 +222,7 @@ func sortPreProvisionsByUpdatedDate(pps []*insysproto.PreProvision) []*insysprot
 	result := pps
 	// only send the most recent one, so sort by updated date
 	sort.Slice(result, func(i, j int) bool {
-		return result[i].UpdatedAt > result[j].UpdatedAt
+		return result[i].UpdatedAt < result[j].UpdatedAt
 	})
 	return result
 }
