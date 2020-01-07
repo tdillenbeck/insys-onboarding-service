@@ -21,6 +21,7 @@ type ChiliPiperScheduleEventService interface {
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
 	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
 	CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
+	UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error
 }
 
 type OnboarderService interface {

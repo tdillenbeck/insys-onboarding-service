@@ -129,7 +129,7 @@ func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insyspro
 
 	missingFields := validateHandoffSubmit(result)
 	if missingFields != "" {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("missing handoff fields: " + missingFields))
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("missing handoff fields: "+missingFields))
 	}
 
 	result, err = s.handoffSnapshotService.SubmitHandoff(ctx, onboardersLocationId)
@@ -231,4 +231,3 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 		return strings.Join(missingFields[:], ", ")
 	}
 }
-
