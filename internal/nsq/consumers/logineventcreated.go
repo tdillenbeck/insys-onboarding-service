@@ -10,7 +10,6 @@ import (
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
-	"weavelab.xyz/insys-onboarding-service/internal/zapier"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
@@ -32,21 +31,25 @@ type FeatureFlagsClient interface {
 	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }
 
+type ZapierClient interface {
+	Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error
+}
+
 type LogInEventCreatedSubscriber struct {
-	authClient                *authclient.Auth
-	featureFlagsClient        *featureflagsclient.Client
+	authClient                AuthClient
+	featureFlagsClient        FeatureFlagsClient
 	onboardersLocationService app.OnboardersLocationService
 	provisioningClient        insys.ProvisioningClient
-	zapierClient              *zapier.ZapierClient
+	zapierClient              ZapierClient
 }
 
 func NewLogInEventCreatedSubscriber(
 	ctx context.Context,
-	authclient *authclient.Auth,
-	featureFlagsClient *featureflagsclient.Client,
+	authclient AuthClient,
+	featureFlagsClient FeatureFlagsClient,
 	onboardersLocationService app.OnboardersLocationService,
 	provisioningClient insys.ProvisioningClient,
-	zapierClient *zapier.ZapierClient,
+	zapierClient ZapierClient,
 ) *LogInEventCreatedSubscriber {
 	sub := LogInEventCreatedSubscriber{
 		authClient:                authclient,
@@ -105,8 +108,6 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		locationIDs = append(locationIDs, location.LocationID)
 	}
 
-	fmt.Println(locationIDs)
-
 	locationsWithoutFirstLogin, err := s.filterLocationsToThoseWithoutFirstLoginForUser(ctx, locationIDs)
 	if err != nil {
 		return err
@@ -124,7 +125,6 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, onboardingLocationsWithoutFirstLogin)
-	fmt.Println("OppID: ", opportunityID)
 
 	for _, locationID := range onboardingLocationsWithoutFirstLogin {
 		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)

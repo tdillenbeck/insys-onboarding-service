@@ -9,9 +9,6 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/whttp/whttpclient"
 )
 
-// type ZapierClient interface {
-// 	Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error
-// }
 type ZapierClient struct {
 	url string
 }
