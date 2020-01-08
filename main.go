@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	cgrpc "google.golang.org/grpc"
 
@@ -168,8 +167,6 @@ func initProvisioningClient(ctx context.Context, grpcAddr string) (insys.Provisi
 	if err != nil {
 		return nil, werror.Wrap(err, "unable to setup Provisioning grpc client")
 	}
-
-	fmt.Println("###########")
 
 	return insys.NewProvisioningClient(g), nil
 }
