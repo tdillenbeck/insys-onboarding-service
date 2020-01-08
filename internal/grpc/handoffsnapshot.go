@@ -88,7 +88,7 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 
 	missingFields := validateCsatSubmit(result)
 	if missingFields != "" {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "missing csat fields").Add("missing_fields", missingFields))
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("missing csat fields").Add("missing_fields", missingFields))
 	}
 
 	result, err = s.handoffSnapshotService.SubmitCSAT(ctx, onboardersLocationId, req.CsatRecipientUserEmail)
@@ -175,7 +175,7 @@ func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 	var missingFields []string
 
 	if !snapshot.PointOfContactEmail.Valid || snapshot.PointOfContactEmail.String() == "" {
-		missingFields = append(missingFields, "point_of_contact")
+		missingFields = append(missingFields, "point_of_contact_email")
 	}
 
 	if missingFields == nil {
