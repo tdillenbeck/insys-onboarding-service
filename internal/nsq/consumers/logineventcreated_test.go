@@ -19,7 +19,7 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/werror"
 )
 
-func TestLogInEventCreatedSubscriber_processLoginEvent(t *testing.T) {
+func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 
 	locationWithPreviousLoginA := uuid.NewV4()
 	locationWithPreviousLoginB := uuid.NewV4()
