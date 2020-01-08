@@ -206,7 +206,7 @@ func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.
 				rescheduled_events_calculated_at = $4
 				created_at = now(),
 				updated_at = now(),
-		 WHERE location_id = $1
+		 WHERE location_id = $5
 		 RETURNING insys_onboarding.reschedule_tracking.*`
 
 	row := s.DB.QueryRowxContext(
@@ -214,6 +214,7 @@ func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.
 		query,
 		eventType,
 		count,
+		locationID,
 	)
 	err := row.StructScan(&resultEvent)
 	if err != nil {
