@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 
 	cgrpc "google.golang.org/grpc"
 
@@ -116,6 +117,7 @@ func main() {
 		nsqwapp.Bootstrap(config.NSQLoginEventCreatedTopic, config.NSQChannel, config.NSQLookupAddrs, nsqConfig, loginEventCreatedSubscriber),
 	)
 
+	fmt.Println("done")
 	// whenever wapp gets the signal to shutdown it will stop all of your "starters" in reverse order and then return
 	wlog.InfoC(ctx, "done")
 }
