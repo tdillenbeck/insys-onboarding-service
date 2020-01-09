@@ -28,12 +28,16 @@ type FeatureFlagsClient interface {
 	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }
 
+type ZapierClient interface {
+	Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error
+}
+
 type LogInEventCreatedSubscriber struct {
 	authClient                AuthClient
 	featureFlagsClient        FeatureFlagsClient
 	onboardersLocationService app.OnboardersLocationService
 	provisioningClient        insys.ProvisioningClient
-	zapierClient              app.ZapierClient
+	zapierClient              ZapierClient
 }
 
 func NewLogInEventCreatedSubscriber(
@@ -42,7 +46,7 @@ func NewLogInEventCreatedSubscriber(
 	featureFlagsClient FeatureFlagsClient,
 	onboardersLocationService app.OnboardersLocationService,
 	provisioningClient insys.ProvisioningClient,
-	zapierClient app.ZapierClient,
+	zapierClient ZapierClient,
 ) *LogInEventCreatedSubscriber {
 	return &LogInEventCreatedSubscriber{
 		authClient:                authclient,
@@ -73,7 +77,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 	userAccess, err := s.authClient.UserLocations(ctx, userUUID)
 	if err != nil {
-		return werror.Wrap(err, "could not get userAccess by ID").Add("userID", userUUID.String())
+		return werror.Wrap(err, "could not get userAccess by ID").Add("userID", userUUID)
 	}
 
 	// don't capture login for non-practice user
@@ -81,16 +85,58 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
+	var locationIDs []uuid.UUID
+
+	for _, location := range userAccess.Locations {
+		locationIDs = append(locationIDs, location.LocationID)
+	}
+
+	locationsWithoutFirstLogin, err := s.filterLocationsToThoseWithoutFirstLoginForUser(ctx, locationIDs)
+	if err != nil {
+		return err
+	}
+	if len(locationsWithoutFirstLogin) == 0 {
+		return nil
+	}
+
+	onboardingLocationsWithoutFirstLogin, err := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
+	if err != nil {
+		return err
+	}
+	if len(onboardingLocationsWithoutFirstLogin) == 0 {
+		return nil
+	}
+
+	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, onboardingLocationsWithoutFirstLogin)
+
+	for _, locationID := range onboardingLocationsWithoutFirstLogin {
+		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)
+		if err != nil {
+			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
+			continue
+		}
+		err = s.onboardersLocationService.RecordFirstLogin(ctx, locationID)
+		if err != nil {
+			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
+			continue
+		}
+	}
+
+	return nil
+}
+
+func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForUser(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
+
 	var locationsWithoutFirstLogin []uuid.UUID
 
-	for i := 0; i < len(userAccess.Locations); i++ {
-		location, err := s.onboardersLocationService.ReadByLocationID(ctx, userAccess.Locations[i].LocationID)
+	for _, locationID := range locationIDs {
+		location, err := s.onboardersLocationService.ReadByLocationID(ctx, locationID)
 		if err != nil {
 			if werror.HasCode(err, wgrpc.CodeNotFound) {
-				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", userAccess.Locations[i].LocationID.String()))
+				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", locationID))
 				continue
 			} else {
-				return werror.Wrap(err, "could not read location for location by id ").Add("locationID", userAccess.Locations[i].LocationID.String())
+				return nil, werror.Wrap(err, "could not read location for location by id ").Add("locationID", locationID)
 			}
 		}
 
@@ -99,60 +145,64 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		}
 	}
 
-	// exit if there are no locations that have not already been logged in to
-	if len(locationsWithoutFirstLogin) == 0 {
-		return nil
-	}
+	return locationsWithoutFirstLogin, nil
+}
 
-	for _, locationID := range locationsWithoutFirstLogin {
+func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
+	var result []uuid.UUID
+
+	for _, locationID := range locationIDs {
 		features, err := s.featureFlagsClient.List(ctx, locationID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with id: %s. error message: %v", locationID.String(), err))
 			continue
 		}
 
-		var salesforceOpportunityID string
-		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID.String(), err))
-		}
-
-		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
-			pps := sortPreProvisionsByUpdatedDate(provisionResponse.PreProvisions)
-			salesforceOpportunityID = pps[0].SalesforceOpportunityId
-		} else {
-			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
-		}
-
-		if salesforceOpportunityID == "" {
-			wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
-		}
-
+		// we need to ensure that the location is in the onboarding process, so loop through in search of the feature that indicates that it is
 		for _, feature := range features {
 			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
-				// make call to zapier, and if zapier succeeds, update the database.
-				// if not, fail silently as the user is sure to log in again.
-				err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), salesforceOpportunityID)
-				if err != nil {
-					wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
-					continue
-				}
-				err = s.onboardersLocationService.RecordFirstLogin(ctx, locationID)
-				if err != nil {
-					wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
-					continue
-				}
+				result = append(result, locationID)
 			}
 		}
 	}
-	return nil
+
+	return result, nil
 }
 
-func sortPreProvisionsByUpdatedDate(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
+func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
+	var salesforceOpportunityID string
+
+	for _, locationID := range locationIDs {
+
+		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
+		if err != nil {
+			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
+		}
+
+		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
+			pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
+
+			for _, record := range pps {
+				if record.SalesforceOpportunityId != "" {
+					salesforceOpportunityID = record.SalesforceOpportunityId
+				} else {
+					wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
+				}
+			}
+
+		} else {
+			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
+		}
+	}
+
+	return salesforceOpportunityID
+}
+
+func sortPreProvisionsByUpdatedDateDescending(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
 	result := pps
 	// only send the most recent one, so sort by updated date
 	sort.Slice(result, func(i, j int) bool {
-		return result[i].UpdatedAt > result[j].UpdatedAt
+		return result[i].UpdatedAt < result[j].UpdatedAt
 	})
 	return result
 }
