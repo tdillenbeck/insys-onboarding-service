@@ -42,12 +42,13 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 
 	updatedSurveySentAt := null.NewTime(time.Now().Add(5 * time.Hour))
 
-	pointOfContact := null.NewUUIDUUID(uuid.NewV4())
+	pointOfContact := null.NewString("client@example.com")
 	reasonForPurchase := null.NewString("reason")
 	customizations := null.NewBool(true)
 	customizationSetup := null.NewString("notes about customizations")
 	faxPortSubmitted := null.NewString("yes")
 	routerType := null.NewString("Red")
+	disclaimerTypeSent := null.NewString("email")
 	routerMakeAndModel := null.NewString("make and model")
 	networkDecision := null.NewString("notes about network")
 	billingNotes := null.NewString("notes about billing")
@@ -167,12 +168,13 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 				ctx: context.Background(),
 				snapshot: app.HandoffSnapshot{
 					OnboardersLocationID: onboardersLocationID,
-					PointOfContact:       pointOfContact,
+					PointOfContactEmail:  pointOfContact,
 					ReasonForPurchase:    reasonForPurchase,
 					Customizations:       customizations,
 					CustomizationSetup:   customizationSetup,
 					FaxPortSubmitted:     faxPortSubmitted,
 					RouterType:           routerType,
+					DisclaimerTypeSent:   disclaimerTypeSent,
 					RouterMakeAndModel:   routerMakeAndModel,
 					NetworkDecision:      networkDecision,
 					BillingNotes:         billingNotes,
@@ -181,12 +183,13 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 			},
 			want: app.HandoffSnapshot{
 				OnboardersLocationID: onboardersLocationID,
-				PointOfContact:       pointOfContact,
+				PointOfContactEmail:  pointOfContact,
 				ReasonForPurchase:    reasonForPurchase,
 				Customizations:       customizations,
 				CustomizationSetup:   customizationSetup,
 				FaxPortSubmitted:     faxPortSubmitted,
 				RouterType:           routerType,
+				DisclaimerTypeSent:   disclaimerTypeSent,
 				RouterMakeAndModel:   routerMakeAndModel,
 				NetworkDecision:      networkDecision,
 				BillingNotes:         billingNotes,
@@ -248,13 +251,13 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 
 	onboardersLocationID := onboarderLocation.ID
 
-	userID := null.NewUUIDUUID(uuid.NewV4())
-
-	pointOfContact := null.NewUUIDUUID(uuid.NewV4())
+	userID := null.NewString("client@example.com")
+	pointOfContactEmail := null.NewString("client2@example.com")
 	reasonForPurchase := null.NewString("reason")
 	customizations := null.NewBool(true)
 	faxPortSubmitted := null.NewString("yes")
 	routerType := null.NewString("Red")
+	disclaimerTypeSent := null.NewString("email")
 	routerMakeAndModel := null.NewString("make and model")
 	networkDecision := null.NewString("notes about network")
 	billingNotes := null.NewString("notes about billing")
@@ -283,11 +286,12 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 				ctx: context.Background(),
 				snapshot: app.HandoffSnapshot{
 					OnboardersLocationID: onboardersLocationID,
-					PointOfContact:       pointOfContact,
+					PointOfContactEmail:  pointOfContactEmail,
 					ReasonForPurchase:    reasonForPurchase,
 					Customizations:       customizations,
 					FaxPortSubmitted:     faxPortSubmitted,
 					RouterType:           routerType,
+					DisclaimerTypeSent:   disclaimerTypeSent,
 					RouterMakeAndModel:   routerMakeAndModel,
 					NetworkDecision:      networkDecision,
 					BillingNotes:         billingNotes,
@@ -296,11 +300,12 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 			},
 			want: app.HandoffSnapshot{
 				OnboardersLocationID: onboardersLocationID,
-				PointOfContact:       pointOfContact,
+				PointOfContactEmail:  pointOfContactEmail,
 				ReasonForPurchase:    reasonForPurchase,
 				Customizations:       customizations,
 				FaxPortSubmitted:     faxPortSubmitted,
 				RouterType:           routerType,
+				DisclaimerTypeSent:   disclaimerTypeSent,
 				RouterMakeAndModel:   routerMakeAndModel,
 				NetworkDecision:      networkDecision,
 				BillingNotes:         billingNotes,
@@ -337,7 +342,7 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 			}
 
 			// Submit CSAT
-			csat, err := hos.SubmitCSAT(tt.args.ctx, got.OnboardersLocationID, userID.UUID)
+			csat, err := hos.SubmitCSAT(tt.args.ctx, got.OnboardersLocationID, userID.String())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HandoffSnapshotService.SubmitCSAT() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -348,7 +353,7 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 			}
 
 			// Submit CSAT again and it should pass
-			csat2, err := hos.SubmitCSAT(tt.args.ctx, got.OnboardersLocationID, userID.UUID)
+			csat2, err := hos.SubmitCSAT(tt.args.ctx, got.OnboardersLocationID, userID.String())
 			if (err != nil) != tt.wantErr {
 				t.Errorf("HandoffSnapshotService.SubmitCSAT() error = %v, wantErr %v", err, tt.wantErr)
 				return

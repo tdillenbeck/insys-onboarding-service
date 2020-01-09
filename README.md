@@ -133,4 +133,3 @@ View the kubernetes dashboard for the prod environment at http://dashboard-ut.we
 
 * [Go](https://golang.org/) - Programming Language
 * [Vendor](https://github.com/kardianos/govendor) - Dependency Management
-
