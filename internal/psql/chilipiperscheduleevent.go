@@ -198,23 +198,20 @@ func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(c
 func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
 
 	var resultEvent app.RescheduleEvent
-
-	query := `
-	  UPDATE insys_onboarding.reschedule_tracking
-			SET event_type = $2,
-				rescheduled_events_count = $3
-				rescheduled_events_calculated_at = $4
-				created_at = now(),
-				updated_at = now(),
-		 WHERE location_id = $5
-		 RETURNING insys_onboarding.reschedule_tracking.*`
-
+	query := `INSERT INTO insys_onboarding.reschedule_tracking
+				(id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at)
+				VALUES ($2, $3, $4, now(), now(), now())
+				ON CONFLICT (location_id, event_type) DO UPDATE SET (rescheduled_events_count,rescheduled_events_calculated_at, updated_at) = (
+    				$4
+    				now(),
+    				now()
+  				)`
 	row := s.DB.QueryRowxContext(
 		ctx,
 		query,
+		locationID,
 		eventType,
 		count,
-		locationID,
 	)
 	err := row.StructScan(&resultEvent)
 	if err != nil {

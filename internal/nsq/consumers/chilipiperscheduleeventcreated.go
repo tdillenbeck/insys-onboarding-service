@@ -24,15 +24,16 @@ const (
 )
 
 type ChiliPiperScheduleEventCreatedSubscriber struct {
-	onboarderService               app.OnboarderService
 	chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
-	featureFlagsClient             app.FeatureFlagsClient
+	onboarderService               app.OnboarderService
+
+	featureFlagsClient FeatureFlagsClient
 
 	onboardersLocationServer insys.OnboardersLocationServer
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(cses app.ChiliPiperScheduleEventService, onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff app.FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(cses app.ChiliPiperScheduleEventService, onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService:               onboarderService,
 		chiliPiperScheduleEventService: cses,
