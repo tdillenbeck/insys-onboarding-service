@@ -518,14 +518,6 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 		},
 	}
 
-	opts := []cmp.Option{
-		cmpopts.IgnoreFields(app.ChiliPiperScheduleEvent{}, "UpdatedAt", "CanceledAt"),
-		cmp.Comparer(func(x, y null.Time) bool {
-			diff := x.Time.Sub(y.Time)
-			return diff < (10 * time.Second)
-		}),
-	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &ChiliPiperScheduleEventService{
@@ -534,12 +526,12 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 
 			got, err := s.CanceledCountByLocationIDAndEventType(tt.args.ctx, tt.args.locationID, tt.args.eventType)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("ChiliPiperEventService.CanceledCountByLocationIDAndEventType() error = %v", cmp.Diff(got, tt.want, opts...))
+				t.Errorf("ChiliPiperEventService.CanceledCountByLocationIDAndEventType() error = %v", cmp.Diff(got, tt.want))
 				return
 			}
 
-			if !cmp.Equal(got, tt.want, opts...) {
-				t.Errorf("ChiliPiperScheduleEventsService.CanceledCountByLocationIDAndEventType() Diff: %v", cmp.Diff(got, tt.want, opts...))
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("ChiliPiperScheduleEventsService.CanceledCountByLocationIDAndEventType() Diff: %v", cmp.Diff(got, tt.want))
 			}
 		})
 	}
