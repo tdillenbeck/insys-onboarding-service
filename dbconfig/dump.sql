@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.5
--- Dumped by pg_dump version 11.5
+-- Dumped from database version 12.1
+-- Dumped by pg_dump version 12.1
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -25,7 +25,7 @@ CREATE SCHEMA insys_onboarding;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: -
@@ -202,6 +202,21 @@ CREATE TABLE insys_onboarding.onboarding_tasks (
 
 
 --
+-- Name: reschedule_tracking; Type: TABLE; Schema: insys_onboarding; Owner: -
+--
+
+CREATE TABLE insys_onboarding.reschedule_tracking (
+    id uuid NOT NULL,
+    location_id uuid NOT NULL,
+    event_type text NOT NULL,
+    rescheduled_events_count integer NOT NULL,
+    rescheduled_events_calculated_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: goose_db_version id; Type: DEFAULT; Schema: insys_onboarding; Owner: -
 --
 
@@ -281,6 +296,14 @@ ALTER TABLE ONLY insys_onboarding.onboarding_tasks
 
 
 --
+-- Name: reschedule_tracking reschedule_tracking_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
+--
+
+ALTER TABLE ONLY insys_onboarding.reschedule_tracking
+    ADD CONSTRAINT reschedule_tracking_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: index_chili_piper_schedule_events_on_event_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
@@ -313,6 +336,13 @@ CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders U
 --
 
 CREATE INDEX index_onboarding_task_instances_on_location_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
+
+
+--
+-- Name: index_reschedule_event_tracking_on_location_id_and_event_type; Type: INDEX; Schema: insys_onboarding; Owner: -
+--
+
+CREATE UNIQUE INDEX index_reschedule_event_tracking_on_location_id_and_event_type ON insys_onboarding.reschedule_tracking USING btree (location_id, event_type);
 
 
 --

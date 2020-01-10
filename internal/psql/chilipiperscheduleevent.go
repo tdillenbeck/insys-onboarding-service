@@ -171,3 +171,54 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, as
 
 	return &resultEvent, nil
 }
+
+func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
+
+	var count int
+
+	query := `
+	 SELECT COUNT(*) FROM insys_onboarding.chili_piper_schedule_events
+		 WHERE location_id = $1 AND event_type =$2 AND canceled_at IS NOT NULL;`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		locationID.String(),
+		eventType,
+	)
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, werror.Wrap(err, "error getting count of canceled events")
+	}
+
+	return count, nil
+
+}
+
+func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
+
+	var resultEvent app.RescheduleTracking
+	query := `INSERT INTO insys_onboarding.reschedule_tracking
+				(id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at)
+				VALUES ($1, $2, $3, $4, now(), now(), now())
+				ON CONFLICT (location_id, event_type) DO UPDATE SET (rescheduled_events_count,rescheduled_events_calculated_at, updated_at) = (
+    				$4,
+    				now(),
+    				now()
+			)`
+
+	row := s.DB.QueryRowxContext(
+		ctx,
+		query,
+		uuid.NewV4(),
+		locationID,
+		eventType,
+		count,
+	)
+	err := row.StructScan(&resultEvent)
+	if err != nil {
+		return werror.Wrap(err, "error executing chili piper schedule event update")
+	}
+
+	return nil
+}
