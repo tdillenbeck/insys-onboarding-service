@@ -26,6 +26,7 @@ const (
 type ChiliPiperScheduleEventCreatedSubscriber struct {
 	chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
 	onboarderService               app.OnboarderService
+	rescheduleTrackingService      app.RescheduleTrackingService
 
 	featureFlagsClient FeatureFlagsClient
 
@@ -33,11 +34,13 @@ type ChiliPiperScheduleEventCreatedSubscriber struct {
 	onboardingServer         insys.OnboardingServer
 }
 
-func NewChiliPiperScheduleEventCreatedSubscriber(cses app.ChiliPiperScheduleEventService, onboarderService app.OnboarderService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
+func NewChiliPiperScheduleEventCreatedSubscriber(cses app.ChiliPiperScheduleEventService, onboarderService app.OnboarderService, rs app.RescheduleTrackingService, ols insys.OnboardersLocationServer, onboardingServer insys.OnboardingServer, ff FeatureFlagsClient) *ChiliPiperScheduleEventCreatedSubscriber {
 	return &ChiliPiperScheduleEventCreatedSubscriber{
 		onboarderService:               onboarderService,
 		chiliPiperScheduleEventService: cses,
-		featureFlagsClient:             ff,
+		rescheduleTrackingService:      rs,
+
+		featureFlagsClient: ff,
 
 		onboardersLocationServer: ols,
 		onboardingServer:         onboardingServer,
@@ -157,7 +160,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) updateRescheduledCount(ctx con
 		return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
 	}
 
-	err = c.chiliPiperScheduleEventService.UpdateRescheduleEventCount(ctx, locationId, count, cp.Event.EventType)
+	err = c.rescheduleTrackingService.CreateOrUpdate(ctx, locationId, count, cp.Event.EventType)
 	if err != nil {
 		return werror.Wrap(err, "could not update reschedule count  ")
 	}

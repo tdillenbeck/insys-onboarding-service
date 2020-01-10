@@ -85,6 +85,7 @@ func main() {
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
 	chiliPiperScheduleEventsService := &psql.ChiliPiperScheduleEventService{DB: db}
+	rescheduleTrackingService := &psql.RescheduleTrackingService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
@@ -101,7 +102,7 @@ func main() {
 	nsqConfig.ConcurrentHandlers = config.NSQConcurrentHandlers
 	nsqConfig.NSQConfig.MaxInFlight = config.NSQMaxInFlight
 
-	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(chiliPiperScheduleEventsService, onboarderService, onboardersLocationServer, onboardingServer, featureFlagsClient)
+	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(chiliPiperScheduleEventsService, onboarderService, rescheduleTrackingService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, authClient, featureFlagsClient, onboardersLocationService, provisioningClient, zapierClient)
 

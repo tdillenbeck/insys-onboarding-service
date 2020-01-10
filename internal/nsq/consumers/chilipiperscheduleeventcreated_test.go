@@ -1,0 +1,67 @@
+package consumers
+
+import (
+	"context"
+	"testing"
+
+	"github.com/gogo/protobuf/proto"
+	"github.com/nsqio/go-nsq"
+	nsq "github.com/nsqio/go-nsq"
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
+)
+
+func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
+	locationID := uuid.NewV4()
+
+	type fields struct {
+		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
+		onboarderService               app.OnboarderService
+		featureFlagsClient             FeatureFlagsClient
+		onboardersLocationServer       insys.OnboardersLocationServer
+		onboardingServer               insys.OnboardingServer
+	}
+	type args struct {
+		ctx context.Context
+		m   *nsq.Message
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		wantErr bool
+	}{
+		// TODO: Add test cases
+		{
+			name:   "successfully create reschedule event",
+			fields: {},
+			args: {
+				ctx: context.Background(),
+				m: &nsq.Message{
+					Body: proto.Marshal(insysproto.CreateChiliPiperScheduleEventResponse{
+						Event: &ChiliPiperScheduleEventRecord{
+							LocationId: locationID.String(),
+							EventType:  "software_install_call",
+						},
+					}),
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := ChiliPiperScheduleEventCreatedSubscriber{
+				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
+				onboarderService:               tt.fields.onboarderService,
+				featureFlagsClient:             tt.fields.featureFlagsClient,
+				onboardersLocationServer:       tt.fields.onboardersLocationServer,
+				onboardingServer:               tt.fields.onboardingServer,
+			}
+			if err := c.HandleMessage(tt.args.ctx, tt.args.m); (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperScheduleEventCreatedSubscriber.HandleMessage() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
