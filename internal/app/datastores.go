@@ -36,7 +36,7 @@ type OnboardersLocationService interface {
 }
 
 type RescheduleTrackingService interface {
-	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) error
+	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*RescheduleTracking, error)
 }
 
 // TaskInstanceService defines the actions for the database related to TaskInstances

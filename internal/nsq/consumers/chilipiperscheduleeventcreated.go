@@ -160,7 +160,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) updateRescheduledCount(ctx con
 		return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
 	}
 
-	err = c.rescheduleTrackingService.CreateOrUpdate(ctx, locationId, count, cp.Event.EventType)
+	_, err = c.rescheduleTrackingService.CreateOrUpdate(ctx, locationId, count, cp.Event.EventType)
 	if err != nil {
 		return werror.Wrap(err, "could not update reschedule count  ")
 	}

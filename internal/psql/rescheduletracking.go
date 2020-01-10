@@ -13,7 +13,7 @@ type RescheduleTrackingService struct {
 	DB *wsql.PG
 }
 
-func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
+func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
 
 	var resultEvent app.RescheduleTracking
 	query := `INSERT INTO insys_onboarding.reschedule_tracking
@@ -22,8 +22,9 @@ func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, location
 				ON CONFLICT (location_id, event_type) DO UPDATE SET (rescheduled_events_count,rescheduled_events_calculated_at, updated_at) = (
     				$4,
     				now(),
-    				now()
-			)`
+					now()
+			)
+			RETURNING id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at`
 
 	row := s.DB.QueryRowxContext(
 		ctx,
@@ -35,8 +36,8 @@ func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, location
 	)
 	err := row.StructScan(&resultEvent)
 	if err != nil {
-		return werror.Wrap(err, "error executing chili piper schedule event update")
+		return nil, werror.Wrap(err, "error executing chili piper schedule event update")
 	}
 
-	return nil
+	return &resultEvent, nil
 }

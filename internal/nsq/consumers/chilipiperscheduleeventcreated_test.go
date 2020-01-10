@@ -24,8 +24,8 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 	}
 
 	successfulRescheduleTrackingService := &mock.RescheduleTrackingService{
-		CreateOrUpdateFn: func(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
-			return nil
+		CreateOrUpdateFn: func(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
+			return nil, nil
 		},
 	}
 
@@ -54,7 +54,6 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		// TODO: Add test cases
 		{
 			name: "successfully create reschedule event",
 			fields: fields{
