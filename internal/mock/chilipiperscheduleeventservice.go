@@ -9,12 +9,11 @@ import (
 )
 
 type ChiliPiperScheduleEventService struct {
-	ByLocationIDFn               func(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error)
-	CancelFn                     func(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error)
-	CancelCountByLocationFn      func(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
-	CreateFn                     func(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error)
-	UpdateFn                     func(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error)
-	UpdateRescheduleEventCountFn func(ctx context.Context, locationID uuid.UUID, count int, eventType string) error
+	ByLocationIDFn                          func(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error)
+	CancelFn                                func(ctx context.Context, eventID string) (*app.ChiliPiperScheduleEvent, error)
+	CanceledCountByLocationIDAndEventTypeFn func(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
+	CreateFn                                func(ctx context.Context, scheduleEvent *app.ChiliPiperScheduleEvent) (*app.ChiliPiperScheduleEvent, error)
+	UpdateFn                                func(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*app.ChiliPiperScheduleEvent, error)
 }
 
 func (cpse *ChiliPiperScheduleEventService) ByLocationID(ctx context.Context, locationID uuid.UUID) ([]app.ChiliPiperScheduleEvent, error) {
@@ -34,8 +33,5 @@ func (cpse *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID,
 }
 
 func (cpse *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
-	return cpse.CancelCountByLocationFn(ctx, locationID, eventType)
-}
-func (cpse *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
-	return nil
+	return cpse.CanceledCountByLocationIDAndEventTypeFn(ctx, locationID, eventType)
 }

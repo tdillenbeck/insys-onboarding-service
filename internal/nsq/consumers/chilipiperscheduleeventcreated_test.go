@@ -6,8 +6,9 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/nsqio/go-nsq"
-	nsq "github.com/nsqio/go-nsq"
+	gnsq "github.com/nsqio/go-nsq"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
@@ -16,16 +17,36 @@ import (
 func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 	locationID := uuid.NewV4()
 
+	successfulChiliPiperScheduleEventService := &mock.ChiliPiperScheduleEventService{
+		CanceledCountByLocationIDAndEventTypeFn: func(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
+			return 6, nil
+		},
+	}
+
+	successfulRescheduleTrackingService := &mock.RescheduleTrackingService{
+		CreateOrUpdateFn: func(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
+			return nil
+		},
+	}
+
+	message, _ := proto.Marshal(&insysproto.CreateChiliPiperScheduleEventResponse{
+		Event: &insysproto.ChiliPiperScheduleEventRecord{
+			LocationId: locationID.String(),
+			EventType:  "software_install_call",
+		},
+	})
+
 	type fields struct {
 		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
 		onboarderService               app.OnboarderService
+		rescheduleTrackingService      app.RescheduleTrackingService
 		featureFlagsClient             FeatureFlagsClient
 		onboardersLocationServer       insys.OnboardersLocationServer
 		onboardingServer               insys.OnboardingServer
 	}
 	type args struct {
 		ctx context.Context
-		m   *nsq.Message
+		m   *gnsq.Message
 	}
 	tests := []struct {
 		name    string
@@ -35,17 +56,15 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 	}{
 		// TODO: Add test cases
 		{
-			name:   "successfully create reschedule event",
-			fields: {},
-			args: {
+			name: "successfully create reschedule event",
+			fields: fields{
+				chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService,
+				rescheduleTrackingService:      successfulRescheduleTrackingService,
+			},
+			args: args{
 				ctx: context.Background(),
 				m: &nsq.Message{
-					Body: proto.Marshal(insysproto.CreateChiliPiperScheduleEventResponse{
-						Event: &ChiliPiperScheduleEventRecord{
-							LocationId: locationID.String(),
-							EventType:  "software_install_call",
-						},
-					}),
+					Body: message,
 				},
 			},
 		},
@@ -55,6 +74,7 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 			c := ChiliPiperScheduleEventCreatedSubscriber{
 				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
 				onboarderService:               tt.fields.onboarderService,
+				rescheduleTrackingService:      tt.fields.rescheduleTrackingService,
 				featureFlagsClient:             tt.fields.featureFlagsClient,
 				onboardersLocationServer:       tt.fields.onboardersLocationServer,
 				onboardingServer:               tt.fields.onboardingServer,
