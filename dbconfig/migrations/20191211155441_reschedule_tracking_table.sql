@@ -8,6 +8,6 @@ CREATE TABLE insys_onboarding.reschedule_tracking
     rescheduled_events_calculated_at timestamp with time zone NOT NULL,
     created_at timestamp with time zone NOT NULL DEFAULT now(),
     updated_at timestamp with time zone NOT NULL DEFAULT now()
-)
+);
 -- +goose Down
-DROP TABLE insys_onboarding.reschedule_tracking
+DROP TABLE IF EXISTS insys_onboarding.reschedule_tracking;
