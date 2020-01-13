@@ -96,7 +96,6 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 					OnboardersLocationID: onboardersLocationID,
 					Customizations:       customizations,
 					FaxPortSubmitted:     faxPortSubmitted,
-
 				},
 			},
 			want: app.HandoffSnapshot{
@@ -115,7 +114,6 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 				snapshot: app.HandoffSnapshot{
 					OnboardersLocationID: onboardersLocationID,
 					Notes:                notes,
-
 				},
 			},
 			want: app.HandoffSnapshot{
