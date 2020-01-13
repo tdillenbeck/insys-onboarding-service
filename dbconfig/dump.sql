@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 12.1
--- Dumped by pg_dump version 12.1
+-- Dumped from database version 11.6
+-- Dumped by pg_dump version 11.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -25,7 +25,7 @@ CREATE SCHEMA insys_onboarding;
 
 SET default_tablespace = '';
 
-SET default_table_access_method = heap;
+SET default_with_oids = false;
 
 --
 -- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: -
@@ -86,22 +86,22 @@ ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboardin
 CREATE TABLE insys_onboarding.handoff_snapshots (
     id uuid NOT NULL,
     onboarders_location_id uuid NOT NULL,
-    csat_sent_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    handed_off_at timestamp with time zone,
-    reason_for_purchase text,
-    customizations boolean,
-    customization_setup text,
-    fax_port_submitted text,
-    router_type text,
-    router_make_and_model text,
-    network_decision text,
     billing_notes text,
+    csat_recipient_user_email text,
+    csat_sent_at timestamp with time zone,
+    customization_setup text,
+    customizations boolean,
+    disclaimer_type_sent text,
+    fax_port_submitted text,
+    handed_off_at timestamp with time zone,
+    network_decision text,
     notes text,
     point_of_contact_email text,
-    csat_recipient_user_email text,
-    disclaimer_type_sent text
+    reason_for_purchase text,
+    router_make_and_model text,
+    router_type text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
