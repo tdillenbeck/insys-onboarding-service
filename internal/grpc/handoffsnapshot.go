@@ -184,9 +184,9 @@ func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 
 	if missingFields == nil {
 		return ""
-	} else {
-		return strings.Join(missingFields, ", ")
 	}
+
+	return strings.Join(missingFields, ", ")
 }
 
 func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
@@ -229,7 +229,7 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 
 	if missingFields == nil {
 		return ""
-	} else {
-		return strings.Join(missingFields, ", ")
 	}
+
+	return strings.Join(missingFields, ", ")
 }
