@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"strings"
+
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -198,7 +199,7 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 		missingFields = append(missingFields, "customizations")
 	}
 	// CustomizationSetup only needed if Customizations is true
-	if snapshot.Customizations.Bool == true && !snapshot.CustomizationSetup.Valid {
+	if snapshot.Customizations.Bool && !snapshot.CustomizationSetup.Valid {
 		missingFields = append(missingFields, "customization_setup")
 	}
 	if !snapshot.FaxPortSubmitted.Valid || snapshot.FaxPortSubmitted.String() == "" {

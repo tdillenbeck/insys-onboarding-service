@@ -192,7 +192,6 @@ func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(c
 	}
 
 	return count, nil
-
 }
 
 func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {

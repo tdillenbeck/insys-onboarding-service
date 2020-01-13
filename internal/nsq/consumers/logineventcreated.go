@@ -160,7 +160,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx cont
 
 		// we need to ensure that the location is in the onboarding process, so loop through in search of the feature that indicates that it is
 		for _, feature := range features {
-			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
+			if feature.Name == "onboardingBetaEnabled" && feature.Value {
 				result = append(result, locationID)
 			}
 		}
