@@ -36,6 +36,9 @@ func (s *HandoffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 
 	onboardersLocationId := snapshot.OnboardersLocationID
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not read onnboarderslocationid"))
+	}
 	if result.HandedOffAt.Valid {
 		return nil, wgrpc.Error(wgrpc.CodePermissionDenied, werror.New("handoff has already been submitted"))
 	}
