@@ -37,11 +37,11 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 		handoffSnapshotService app.HandoffSnapshotService
 	}
 	type args struct {
-		ctx context.Context
-		req *insysproto.HandoffSnapshotCreateOrUpdateRequest
+		ctx                        context.Context
+		req                        *insysproto.HandoffSnapshotCreateOrUpdateRequest
 		handoffSnapshotReadRequest *insysproto.HandoffSnapshotReadRequest
-		submitCsatParams *insysproto.SubmitCSATRequest
-		submitHandoffRequest *insysproto.SubmitHandoffRequest
+		submitCsatParams           *insysproto.SubmitCSATRequest
+		submitHandoffRequest       *insysproto.SubmitHandoffRequest
 	}
 	tests := []struct {
 		name    string
@@ -60,17 +60,17 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 						testSnapshot.UpdatedAt = time.Now()
 
 						testSnapshot.OnboardersLocationID = snapshot.OnboardersLocationID
-						testSnapshot.PointOfContactEmail =  snapshot.PointOfContactEmail
-						testSnapshot.ReasonForPurchase =    snapshot.ReasonForPurchase
-						testSnapshot.Customizations =       snapshot.Customizations
-						testSnapshot.CustomizationSetup =   snapshot.CustomizationSetup
-						testSnapshot.FaxPortSubmitted =     snapshot.FaxPortSubmitted
-						testSnapshot.RouterType =           snapshot.RouterType
-						testSnapshot.DisclaimerTypeSent =   snapshot.DisclaimerTypeSent
-						testSnapshot.RouterMakeAndModel =   snapshot.RouterMakeAndModel
-						testSnapshot.NetworkDecision =      snapshot.NetworkDecision
-						testSnapshot.BillingNotes =         snapshot.BillingNotes
-						testSnapshot.Notes =                snapshot.Notes
+						testSnapshot.PointOfContactEmail = snapshot.PointOfContactEmail
+						testSnapshot.ReasonForPurchase = snapshot.ReasonForPurchase
+						testSnapshot.Customizations = snapshot.Customizations
+						testSnapshot.CustomizationSetup = snapshot.CustomizationSetup
+						testSnapshot.FaxPortSubmitted = snapshot.FaxPortSubmitted
+						testSnapshot.RouterType = snapshot.RouterType
+						testSnapshot.DisclaimerTypeSent = snapshot.DisclaimerTypeSent
+						testSnapshot.RouterMakeAndModel = snapshot.RouterMakeAndModel
+						testSnapshot.NetworkDecision = snapshot.NetworkDecision
+						testSnapshot.BillingNotes = snapshot.BillingNotes
+						testSnapshot.Notes = snapshot.Notes
 						return testSnapshot, nil
 					},
 					ReadByOnboardersLocationIDFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
@@ -106,8 +106,8 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 					},
 				},
 				submitCsatParams: &insysproto.SubmitCSATRequest{
-					OnboardersLocationId: onboardersLocationID.String(),
-					CsatRecipientUserEmail:  userID.String(),
+					OnboardersLocationId:   onboardersLocationID.String(),
+					CsatRecipientUserEmail: userID.String(),
 				},
 				handoffSnapshotReadRequest: &insysproto.HandoffSnapshotReadRequest{
 					OnboardersLocationId: onboardersLocationID.String(),
@@ -144,10 +144,10 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 						testSnapshot.UpdatedAt = time.Now()
 
 						testSnapshot.OnboardersLocationID = snapshot.OnboardersLocationID
-						testSnapshot.PointOfContactEmail =  snapshot.PointOfContactEmail
-						testSnapshot.ReasonForPurchase =    snapshot.ReasonForPurchase
-						testSnapshot.Customizations =       snapshot.Customizations
-						testSnapshot.CustomizationSetup =   snapshot.CustomizationSetup
+						testSnapshot.PointOfContactEmail = snapshot.PointOfContactEmail
+						testSnapshot.ReasonForPurchase = snapshot.ReasonForPurchase
+						testSnapshot.Customizations = snapshot.Customizations
+						testSnapshot.CustomizationSetup = snapshot.CustomizationSetup
 						return testSnapshot, nil
 					},
 					ReadByOnboardersLocationIDFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
@@ -176,8 +176,8 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 					},
 				},
 				submitCsatParams: &insysproto.SubmitCSATRequest{
-					OnboardersLocationId: onboardersLocationID.String(),
-					CsatRecipientUserEmail:  userID.String(),
+					OnboardersLocationId:   onboardersLocationID.String(),
+					CsatRecipientUserEmail: userID.String(),
 				},
 				handoffSnapshotReadRequest: &insysproto.HandoffSnapshotReadRequest{
 					OnboardersLocationId: onboardersLocationID.String(),
