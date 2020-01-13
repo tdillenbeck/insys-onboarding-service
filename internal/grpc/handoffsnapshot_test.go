@@ -2,10 +2,11 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -13,9 +14,8 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
-// TestHandoffSnapshotServer_SubmitCSAT, tests create, update, submit full cycle.  Note: order and timing matters in this test.
+// TestHandoffSnapshotServer_HandoffCycle, tests create, update, submit full cycle.  Note: order and timing matters in this test.
 func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
-
 	userID := uuid.NewV4()
 	onboardersLocationID := uuid.NewV4()
 

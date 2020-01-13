@@ -535,5 +535,4 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 			}
 		})
 	}
-
 }

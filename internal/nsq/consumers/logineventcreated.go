@@ -126,7 +126,6 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 }
 
 func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForUser(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
-
 	var locationsWithoutFirstLogin []uuid.UUID
 
 	for _, locationID := range locationIDs {
@@ -173,7 +172,6 @@ func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx 
 	var salesforceOpportunityID string
 
 	for _, locationID := range locationIDs {
-
 		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
@@ -189,7 +187,6 @@ func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx 
 					wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
 				}
 			}
-
 		} else {
 			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 		}

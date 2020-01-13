@@ -20,7 +20,6 @@ import (
 )
 
 func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
-
 	locationWithPreviousLoginA := uuid.NewV4()
 	locationWithPreviousLoginB := uuid.NewV4()
 	locationWithPreviousLoginC := uuid.NewV4()

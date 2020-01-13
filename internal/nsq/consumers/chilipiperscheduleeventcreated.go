@@ -116,7 +116,6 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 				}
 			}
 		}
-
 	}
 
 	_, err = c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
@@ -139,7 +138,6 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 }
 
 func (c ChiliPiperScheduleEventCreatedSubscriber) rescheduleEventCount(ctx context.Context, cp insysproto.CreateChiliPiperScheduleEventResponse) (int, error) {
-
 	locationID, err := uuid.Parse(cp.Event.LocationId)
 	if err != nil {
 		return 0, werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
@@ -154,7 +152,6 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) rescheduleEventCount(ctx conte
 }
 
 func (c ChiliPiperScheduleEventCreatedSubscriber) updateRescheduledCount(ctx context.Context, count int, cp insysproto.CreateChiliPiperScheduleEventResponse) error {
-
 	locationId, err := uuid.Parse(cp.Event.LocationId)
 	if err != nil {
 		return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)

@@ -3,6 +3,7 @@ package psql
 import (
 	"context"
 	"database/sql"
+
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -17,7 +18,6 @@ type HandoffSnapshotService struct {
 }
 
 func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error) {
-
 	var result app.HandoffSnapshot
 
 	query := `
@@ -282,4 +282,3 @@ func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersL
 
 	return result, nil
 }
-

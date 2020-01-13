@@ -12,7 +12,6 @@ import (
 )
 
 func TestRescheduleTrackingService_CreateOrUpdate(t *testing.T) {
-
 	db := initDBConnection(t)
 	clearExistingData(db)
 

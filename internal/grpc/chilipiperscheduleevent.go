@@ -91,7 +91,6 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 }
 
 func (s *ChiliPiperScheduleEventServer) Update(ctx context.Context, req *insysproto.UpdateChiliPiperScheduleEventRequest) (*insysproto.UpdateChiliPiperScheduleEventResponse, error) {
-
 	parsedStartAt, err := time.Parse(time.RFC3339, req.StartAt)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not parse request StartAt into null.Time").Add("req.StartAt", req.StartAt))
