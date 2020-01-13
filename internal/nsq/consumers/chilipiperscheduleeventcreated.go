@@ -73,7 +73,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		}
 	}
 
-	// retrive number of times this office/event has been canceled.
+	// retrieve number of times this office/event has been canceled.
 	totalCanceledEvents, err := c.rescheduleEventCount(ctx, chiliPiperScheduleEventResponse)
 	if err != nil {
 		return werror.Wrap(err, "could not count the number of cancelled events").Add("locationID", chiliPiperScheduleEventResponse.Event.LocationId)

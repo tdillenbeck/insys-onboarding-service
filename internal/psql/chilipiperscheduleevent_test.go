@@ -506,7 +506,7 @@ func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *test
 		wantErr bool
 	}{
 		{
-			name:   "successfully retrive total cancel count",
+			name:   "successfully retrieve total cancel count",
 			fields: fields{DB: db},
 			args: args{
 				context.Background(),
