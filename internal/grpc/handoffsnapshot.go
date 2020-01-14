@@ -36,8 +36,8 @@ func (s *HandoffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 
 	onboardersLocationID := snapshot.OnboardersLocationID
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
-	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not read onnboarderslocationid"))
+	if err != nil && err != sql.ErrNoRows {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not read onboardersLocationID"))
 	}
 	if result.HandedOffAt.Valid {
 		return nil, wgrpc.Error(wgrpc.CodePermissionDenied, werror.New("handoff has already been submitted"))
@@ -114,7 +114,6 @@ func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insyspro
 	}
 
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
-
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationID", onboardersLocationID))
