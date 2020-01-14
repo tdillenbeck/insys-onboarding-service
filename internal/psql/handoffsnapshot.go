@@ -189,10 +189,7 @@ func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context
 
 	err := row.StructScan(&result)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return app.HandoffSnapshot{}, werror.Wrap(err, "no handoff snapshot found with that location id")
-		}
-		return app.HandoffSnapshot{}, werror.Wrap(err, "error marshalling result into handoff snapshot")
+		return app.HandoffSnapshot{}, err
 	}
 
 	return result, nil
