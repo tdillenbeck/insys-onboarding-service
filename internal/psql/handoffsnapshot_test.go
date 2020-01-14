@@ -215,6 +215,10 @@ func TestHandoffSnapshotService_CreateOrUpdate(t *testing.T) {
 				t.Errorf("HandoffSnapshotService.CreateOrUpdate() = %v", cmp.Diff(got, tt.want, opts...))
 			}
 			read, err := hos.ReadByOnboardersLocationID(tt.args.ctx, got.OnboardersLocationID)
+			if err != nil {
+				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 			if !cmp.Equal(read, tt.want, opts...) {
 				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() = %v", cmp.Diff(read, tt.want, opts...))
 			}
@@ -335,6 +339,10 @@ func TestHandoffSnapshotService_Submit(t *testing.T) {
 
 			// Read to verify it wrote correctly
 			read, err := hos.ReadByOnboardersLocationID(tt.args.ctx, got.OnboardersLocationID)
+			if err != nil {
+				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 			if !cmp.Equal(read, tt.want, opts...) {
 				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() = %v", cmp.Diff(read, tt.want, opts...))
 			}
