@@ -99,10 +99,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
-	onboardingLocationsWithoutFirstLogin, err := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
-	if err != nil {
-		return err
-	}
+	onboardingLocationsWithoutFirstLogin := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
 	if len(onboardingLocationsWithoutFirstLogin) == 0 {
 		return nil
 	}
@@ -147,7 +144,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 	return locationsWithoutFirstLogin, nil
 }
 
-func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
+func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) []uuid.UUID {
 	var result []uuid.UUID
 
 	for _, locationID := range locationIDs {
@@ -165,7 +162,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx cont
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
