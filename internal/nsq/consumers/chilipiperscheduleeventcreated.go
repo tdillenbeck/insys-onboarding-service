@@ -80,6 +80,9 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 	}
 
 	err = c.updateRescheduledCount(ctx, totalCanceledEvents, chiliPiperScheduleEventResponse)
+	if err != nil {
+		return werror.Wrap(err, "could not update reschedule count").Add("locationID", chiliPiperScheduleEventResponse.Event.LocationId).Add("event type", chiliPiperScheduleEventResponse.Event.EventType)
+	}
 
 	return nil
 }

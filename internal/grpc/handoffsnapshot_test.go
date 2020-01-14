@@ -222,6 +222,10 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 
 			// Test the read function
 			read, err := s.ReadByOnboardersLocationID(tt.args.ctx, tt.args.handoffSnapshotReadRequest)
+			if err != nil {
+				t.Errorf("HandoffSnapshotServer.ReadByOnboardersLocationID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 			if !cmp.Equal(read, tt.want, opts...) {
 				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() = %v", cmp.Diff(read, tt.want, opts...))
 			}
