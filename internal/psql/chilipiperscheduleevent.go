@@ -173,7 +173,6 @@ func (s *ChiliPiperScheduleEventService) Update(ctx context.Context, eventID, as
 }
 
 func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error) {
-
 	var count int
 
 	query := `
@@ -192,11 +191,9 @@ func (s *ChiliPiperScheduleEventService) CanceledCountByLocationIDAndEventType(c
 	}
 
 	return count, nil
-
 }
 
 func (s *ChiliPiperScheduleEventService) UpdateRescheduleEventCount(ctx context.Context, locationID uuid.UUID, count int, eventType string) error {
-
 	var resultEvent app.RescheduleTracking
 	query := `INSERT INTO insys_onboarding.reschedule_tracking
 				(id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at)

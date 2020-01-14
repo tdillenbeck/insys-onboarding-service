@@ -73,13 +73,16 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 		}
 	}
 
-	// retrive number of times this office/event has been canceled.
+	// retrieve number of times this office/event has been canceled.
 	totalCanceledEvents, err := c.rescheduleEventCount(ctx, chiliPiperScheduleEventResponse)
 	if err != nil {
 		return werror.Wrap(err, "could not count the number of cancelled events").Add("locationID", chiliPiperScheduleEventResponse.Event.LocationId)
 	}
 
 	err = c.updateRescheduledCount(ctx, totalCanceledEvents, chiliPiperScheduleEventResponse)
+	if err != nil {
+		return werror.Wrap(err, "could not update reschedule count").Add("locationID", chiliPiperScheduleEventResponse.Event.LocationId).Add("event type", chiliPiperScheduleEventResponse.Event.EventType)
+	}
 
 	return nil
 }
@@ -116,7 +119,6 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 				}
 			}
 		}
-
 	}
 
 	_, err = c.onboardersLocationServer.CreateOrUpdate(ctx, &insysproto.OnboardersLocation{
@@ -139,7 +141,6 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) turnOnOnboardingTracker(ctx co
 }
 
 func (c ChiliPiperScheduleEventCreatedSubscriber) rescheduleEventCount(ctx context.Context, cp insysproto.CreateChiliPiperScheduleEventResponse) (int, error) {
-
 	locationID, err := uuid.Parse(cp.Event.LocationId)
 	if err != nil {
 		return 0, werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
@@ -154,13 +155,12 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) rescheduleEventCount(ctx conte
 }
 
 func (c ChiliPiperScheduleEventCreatedSubscriber) updateRescheduledCount(ctx context.Context, count int, cp insysproto.CreateChiliPiperScheduleEventResponse) error {
-
-	locationId, err := uuid.Parse(cp.Event.LocationId)
+	locationID, err := uuid.Parse(cp.Event.LocationId)
 	if err != nil {
 		return werror.Wrap(err, "could not parse location id from chili piper schedule event create response").Add("LocationId", cp.Event.LocationId)
 	}
 
-	_, err = c.rescheduleTrackingService.CreateOrUpdate(ctx, locationId, count, cp.Event.EventType)
+	_, err = c.rescheduleTrackingService.CreateOrUpdate(ctx, locationID, count, cp.Event.EventType)
 	if err != nil {
 		return werror.Wrap(err, "could not update reschedule count  ")
 	}

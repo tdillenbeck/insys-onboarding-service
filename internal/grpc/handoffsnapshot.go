@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"strings"
+
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -33,8 +34,11 @@ func (s *HandoffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "could not convert proto to handoff snapshot").Add("req", req))
 	}
 
-	onboardersLocationId := snapshot.OnboardersLocationID
-	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
+	onboardersLocationID := snapshot.OnboardersLocationID
+	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "could not read onnboarderslocationid"))
+	}
 	if result.HandedOffAt.Valid {
 		return nil, wgrpc.Error(wgrpc.CodePermissionDenied, werror.New("handoff has already been submitted"))
 	}
@@ -52,15 +56,15 @@ func (s *HandoffSnapshotServer) CreateOrUpdate(ctx context.Context, req *insyspr
 }
 
 func (s *HandoffSnapshotServer) ReadByOnboardersLocationID(ctx context.Context, req *insysproto.HandoffSnapshotReadRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	onboardersLocationID, err := uuid.Parse(req.OnboardersLocationId)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("req.OnboardersLocationId", req.OnboardersLocationId))
 	}
 
-	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
+	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationId", onboardersLocationId))
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationID", onboardersLocationID))
 		}
 		return nil, werror.Wrap(err, "failed to get porting data")
 	}
@@ -73,15 +77,15 @@ func (s *HandoffSnapshotServer) ReadByOnboardersLocationID(ctx context.Context, 
 }
 
 func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.SubmitCSATRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	onboardersLocationID, err := uuid.Parse(req.OnboardersLocationId)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("req.OnboardersLocationId", req.OnboardersLocationId))
 	}
 
-	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
+	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationId", onboardersLocationId))
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationID", onboardersLocationID))
 		}
 		return nil, werror.Wrap(err, "failed to get porting data")
 	}
@@ -91,7 +95,7 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("missing csat fields").Add("missing_fields", missingFields))
 	}
 
-	result, err = s.handoffSnapshotService.SubmitCSAT(ctx, onboardersLocationId, req.CsatRecipientUserEmail)
+	result, err = s.handoffSnapshotService.SubmitCSAT(ctx, onboardersLocationID, req.CsatRecipientUserEmail)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error submitting csat"))
 	}
@@ -104,16 +108,16 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 }
 
 func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insysproto.SubmitHandoffRequest) (*insysproto.HandoffSnapshotResponse, error) {
-	onboardersLocationId, err := uuid.Parse(req.OnboardersLocationId)
+	onboardersLocationID, err := uuid.Parse(req.OnboardersLocationId)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("onboardersLocationId", req.OnboardersLocationId))
+		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("req.OnboardersLocationId", req.OnboardersLocationId))
 	}
 
-	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationId)
+	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationId", onboardersLocationId))
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationID", onboardersLocationID))
 		}
 		return nil, werror.Wrap(err, "failed to get handoff snapshot")
 	}
@@ -127,7 +131,7 @@ func (s *HandoffSnapshotServer) SubmitHandoff(ctx context.Context, req *insyspro
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.New("missing handoff fields: "+missingFields))
 	}
 
-	result, err = s.handoffSnapshotService.SubmitHandoff(ctx, onboardersLocationId)
+	result, err = s.handoffSnapshotService.SubmitHandoff(ctx, onboardersLocationID)
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error submitting handoff"))
 	}
@@ -180,9 +184,9 @@ func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 
 	if missingFields == nil {
 		return ""
-	} else {
-		return strings.Join(missingFields[:], ", ")
 	}
+
+	return strings.Join(missingFields, ", ")
 }
 
 func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
@@ -198,7 +202,7 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 		missingFields = append(missingFields, "customizations")
 	}
 	// CustomizationSetup only needed if Customizations is true
-	if snapshot.Customizations.Bool == true && !snapshot.CustomizationSetup.Valid {
+	if snapshot.Customizations.Bool && !snapshot.CustomizationSetup.Valid {
 		missingFields = append(missingFields, "customization_setup")
 	}
 	if !snapshot.FaxPortSubmitted.Valid || snapshot.FaxPortSubmitted.String() == "" {
@@ -225,7 +229,7 @@ func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 
 	if missingFields == nil {
 		return ""
-	} else {
-		return strings.Join(missingFields[:], ", ")
 	}
+
+	return strings.Join(missingFields, ", ")
 }

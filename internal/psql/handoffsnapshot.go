@@ -3,6 +3,7 @@ package psql
 import (
 	"context"
 	"database/sql"
+
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
@@ -17,7 +18,6 @@ type HandoffSnapshotService struct {
 }
 
 func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot app.HandoffSnapshot) (app.HandoffSnapshot, error) {
-
 	var result app.HandoffSnapshot
 
 	query := `
@@ -158,7 +158,7 @@ func (hos HandoffSnapshotService) CreateOrUpdate(ctx context.Context, snapshot a
 	return result, nil
 }
 
-func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
+func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context, onboardersLocationID uuid.UUID) (app.HandoffSnapshot, error) {
 	var result app.HandoffSnapshot
 	query := `
 		SELECT 
@@ -185,7 +185,7 @@ func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context
 			WHERE onboarders_location_id = $1
 		`
 
-	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String())
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationID.String())
 
 	err := row.StructScan(&result)
 	if err != nil {
@@ -198,7 +198,7 @@ func (hos HandoffSnapshotService) ReadByOnboardersLocationID(ctx context.Context
 	return result, nil
 }
 
-func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserEmail string) (app.HandoffSnapshot, error) {
+func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLocationID uuid.UUID, csatRecipientUserEmail string) (app.HandoffSnapshot, error) {
 	var result app.HandoffSnapshot
 
 	query := `
@@ -228,7 +228,7 @@ func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLoca
 			notes
 		`
 
-	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String(), csatRecipientUserEmail)
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationID.String(), csatRecipientUserEmail)
 
 	err := row.StructScan(&result)
 	if err != nil {
@@ -241,7 +241,7 @@ func (hos HandoffSnapshotService) SubmitCSAT(ctx context.Context, onboardersLoca
 	return result, nil
 }
 
-func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
+func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersLocationID uuid.UUID) (app.HandoffSnapshot, error) {
 	var result app.HandoffSnapshot
 
 	query := `
@@ -270,7 +270,7 @@ func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersL
 			notes
 		`
 
-	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationId.String())
+	row := hos.DB.QueryRowxContext(ctx, query, onboardersLocationID.String())
 
 	err := row.StructScan(&result)
 	if err != nil {
@@ -282,4 +282,3 @@ func (hos HandoffSnapshotService) SubmitHandoff(ctx context.Context, onboardersL
 
 	return result, nil
 }
-
