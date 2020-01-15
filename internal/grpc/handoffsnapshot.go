@@ -191,33 +191,14 @@ func validateCsatSubmit(snapshot app.HandoffSnapshot) string {
 func validateHandoffSubmit(snapshot app.HandoffSnapshot) string {
 	var missingFields []string
 
+	if !snapshot.CSATSentAt.Valid {
+		missingFields = append(missingFields, "csat_sent_at")
+	}
 	if !snapshot.PointOfContactEmail.Valid || snapshot.PointOfContactEmail.String() == "" {
 		missingFields = append(missingFields, "point_of_contact_email")
 	}
 	if !snapshot.ReasonForPurchase.Valid || snapshot.ReasonForPurchase.String() == "" {
 		missingFields = append(missingFields, "reason_for_purchase")
-	}
-	if !snapshot.Customizations.Valid || snapshot.Customizations.String() == "" {
-		missingFields = append(missingFields, "customizations")
-	}
-	// CustomizationSetup only needed if Customizations is true
-	if snapshot.Customizations.Bool && !snapshot.CustomizationSetup.Valid {
-		missingFields = append(missingFields, "customization_setup")
-	}
-	if !snapshot.FaxPortSubmitted.Valid || snapshot.FaxPortSubmitted.String() == "" {
-		missingFields = append(missingFields, "fax_port_submitted")
-	}
-	if !snapshot.RouterType.Valid || snapshot.RouterType.String() == "" {
-		missingFields = append(missingFields, "router_type")
-	}
-	if !snapshot.DisclaimerTypeSent.Valid || snapshot.DisclaimerTypeSent.String() == "" {
-		missingFields = append(missingFields, "disclaimer_type_sent")
-	}
-	if !snapshot.RouterMakeAndModel.Valid || snapshot.RouterMakeAndModel.String() == "" {
-		missingFields = append(missingFields, "router_make_and_model")
-	}
-	if !snapshot.NetworkDecision.Valid || snapshot.NetworkDecision.String() == "" {
-		missingFields = append(missingFields, "network_decision")
 	}
 	if !snapshot.BillingNotes.Valid || snapshot.BillingNotes.String() == "" {
 		missingFields = append(missingFields, "billing_notes")
