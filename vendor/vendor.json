@@ -1069,10 +1069,10 @@
 			"revisionTime": "2020-01-07T17:49:53Z"
 		},
 		{
-			"checksumSHA1": "qli9bYGUaDNce4fjJtVszdEmmsc=",
+			"checksumSHA1": "QuO41fq1yaRm2KAf8S22pV2mamk=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
-			"revision": "281649cc1269c0bd813de2c944026828bcff423b",
-			"revisionTime": "2020-01-07T17:49:53Z"
+			"revision": "1fb94ed26402f2a6623f6053819aa4d233e5f692",
+			"revisionTime": "2020-01-13T23:05:55Z"
 		},
 		{
 			"checksumSHA1": "ulLWJUjuizDBUYTaHG0UoGUygoI=",

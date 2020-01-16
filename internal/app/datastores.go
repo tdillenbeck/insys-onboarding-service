@@ -18,6 +18,7 @@ type ChiliPiperScheduleEventService interface {
 	Cancel(ctx context.Context, eventID string) (*ChiliPiperScheduleEvent, error)
 	CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
+	ReadRescheduleTracking()
 	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
 }
 
@@ -37,6 +38,7 @@ type OnboardersLocationService interface {
 
 type RescheduleTrackingService interface {
 	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*RescheduleTracking, error)
+	ReadRescheduleTracking(insys.RescheduleTrackingRequest) onboardingproto.RescheduleTrackingResponse
 }
 
 // TaskInstanceService defines the actions for the database related to TaskInstances
