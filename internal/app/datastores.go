@@ -5,6 +5,7 @@ import (
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
@@ -18,7 +19,6 @@ type ChiliPiperScheduleEventService interface {
 	Cancel(ctx context.Context, eventID string) (*ChiliPiperScheduleEvent, error)
 	CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
-	ReadRescheduleTracking()
 	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
 }
 
@@ -36,9 +36,9 @@ type OnboardersLocationService interface {
 	RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error
 }
 
-type RescheduleTrackingService interface {
+type RescheduleTrackingEventService interface {
 	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*RescheduleTracking, error)
-	ReadRescheduleTracking(insys.RescheduleTrackingRequest) onboardingproto.RescheduleTrackingResponse
+	ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error)
 }
 
 // TaskInstanceService defines the actions for the database related to TaskInstances

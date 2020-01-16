@@ -85,13 +85,14 @@ func main() {
 	// setup grpc
 	categoryService := &psql.CategoryService{DB: db}
 	chiliPiperScheduleEventsService := &psql.ChiliPiperScheduleEventService{DB: db}
-	rescheduleTrackingService := &psql.RescheduleTrackingService{DB: db}
+	rescheduleTrackingService := &psql.RescheduleTrackingEventService{DB: db}
 	taskInstanceService := &psql.TaskInstanceService{DB: db}
 	onboarderService := &psql.OnboarderService{DB: db}
 	onboardersLocationService := &psql.OnboardersLocationService{DB: db}
 	handoffSnapshotService := &psql.HandoffSnapshotService{DB: db}
 
 	chiliPiperScheduleEventServer := grpc.NewChiliPiperScheduleEventServer(chiliPiperScheduleEventCreatedPublisher, chiliPiperScheduleEventsService)
+	rescheduleTrackingEventServer := grpc.NewRescheduleEventServer(rescheduleTrackingService)
 	onboardingServer := grpc.NewOnboardingServer(categoryService, taskInstanceService, portingDataClient)
 	onboarderServer := grpc.NewOnboarderServer(onboarderService)
 	onboardersLocationServer := grpc.NewOnboardersLocationServer(onboardersLocationService, taskInstanceService)
@@ -106,7 +107,7 @@ func main() {
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
 	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, authClient, featureFlagsClient, onboardersLocationService, provisioningClient, zapierClient)
 
-	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer, handoffSnapshotServer))
+	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer, handoffSnapshotServer, rescheduleTrackingEventServer))
 
 	wapp.ProbesAddr = ":4444"
 	wapp.Up(
@@ -126,6 +127,7 @@ func grpcBootstrap(
 	onboardingServer *grpc.OnboardingServer, onboarderServer *grpc.OnboarderServer,
 	onboardersLocationServer *grpc.OnboardersLocationServer,
 	handoffSnapshotServer *grpc.HandoffSnapshotServer,
+	rescheduleTrackingEventServer *grpc.RescheduleTrackingEventServer,
 ) grpcwapp.BootstrapFunc {
 	return func() (*cgrpc.Server, error) {
 		gs, err := wgrpcserver.NewDefault()

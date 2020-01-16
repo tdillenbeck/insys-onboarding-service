@@ -4,16 +4,17 @@ import (
 	"context"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
-type RescheduleTrackingService struct {
+type RescheduleTrackingEventService struct {
 	DB *wsql.PG
 }
 
-func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
+func (s *RescheduleTrackingEventService) CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
 	var resultEvent app.RescheduleTracking
 	query := `INSERT INTO insys_onboarding.reschedule_tracking
 				(id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at)
@@ -39,4 +40,9 @@ func (s *RescheduleTrackingService) CreateOrUpdate(ctx context.Context, location
 	}
 
 	return &resultEvent, nil
+}
+
+func (r *RescheduleTrackingEventService) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
+
+	return nil, nil
 }

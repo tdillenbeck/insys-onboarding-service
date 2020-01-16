@@ -1,13 +1,34 @@
 package grpc
 
 import (
-"weavelab.xyz/monorail/shared/wlib/uuid"
-"weavelab.xyz/monorail/shared/dist/go/messages/insysproto"
-"weavelab.xyz/monorail/shared/dist/go/services/insys"
+	"context"
+	"fmt"
+
+	"weavelab.xyz/insys-onboarding-service/internal/app"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
+	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
-func (s *ChiliPiperScheduleEventServer) ReadRescheduleTracking(req *onboardingproto.RescheduleTrackingRequest) *onboardingproto.RescheduleTrackingResponse {
+var _ insys.RescheduleTrackingEventServer = &RescheduleTrackingEventServer{}
 
-	locationID, err := uuid.Parse(req.LocationID)
+type RescheduleTrackingEventServer struct {
+	rescheduleTrackingService app.RescheduleTrackingEventService
+}
 
+func NewRescheduleEventServer(rescheduleTrackingService app.RescheduleTrackingEventService) *RescheduleTrackingEventServer {
+	return &RescheduleTrackingEventServer{
+		rescheduleTrackingService: rescheduleTrackingService,
+	}
+}
+
+func (r *RescheduleTrackingEventServer) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
+
+	locationID, err := uuid.Parse(in.LocationId)
+	if err != nil {
+		return &insysproto.RescheduleTrackingResponse{}, nil
+	}
+	fmt.Println(locationID)
+
+	return &insysproto.RescheduleTrackingResponse{}, nil
 }
