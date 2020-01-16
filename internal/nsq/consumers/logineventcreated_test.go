@@ -20,7 +20,6 @@ import (
 )
 
 func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
-
 	locationWithPreviousLoginA := uuid.NewV4()
 	locationWithPreviousLoginB := uuid.NewV4()
 	locationWithPreviousLoginC := uuid.NewV4()
@@ -65,13 +64,13 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 							Username:  "JackFrost@gmail.com",
 							Type:      authclient.UserTypePractice,
 							Locations: []authclient.Location{
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginA,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginB,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginC,
 								},
 							},
@@ -81,15 +80,15 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				featureFlagsClient: &mock.FeatureFlagsClient{
 					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
 						return []featureflagsclient.Flag{
-							featureflagsclient.Flag{
+							{
 								Name:  "onboardingBetaEnabled",
 								Value: true,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "otherflag",
 								Value: false,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "anotherflag",
 								Value: true,
 							},
@@ -139,11 +138,11 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 					PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
 						return &insysproto.PreProvisionsByLocationIDResponse{
 							PreProvisions: []*insysproto.PreProvision{
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "older opportunityID",
 									UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
 								},
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "opportunityID",
 									UpdatedAt:               time.Now().String(),
 								},
@@ -172,13 +171,13 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 							Username:  "JackFrost@gmail.com",
 							Type:      authclient.UserTypePractice,
 							Locations: []authclient.Location{
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginA,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginB,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithNoLoginsA,
 								},
 							},
@@ -188,15 +187,15 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				featureFlagsClient: &mock.FeatureFlagsClient{
 					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
 						return []featureflagsclient.Flag{
-							featureflagsclient.Flag{
+							{
 								Name:  "onboardingBetaEnabled",
 								Value: true,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "otherflag",
 								Value: false,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "anotherflag",
 								Value: true,
 							},
@@ -246,11 +245,11 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 					PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
 						return &insysproto.PreProvisionsByLocationIDResponse{
 							PreProvisions: []*insysproto.PreProvision{
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "older opportunityID",
 									UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
 								},
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "opportunityID",
 									UpdatedAt:               time.Now().String(),
 								},
@@ -286,13 +285,13 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 							Username:  "JackFrost@gmail.com",
 							Type:      authclient.UserTypePractice,
 							Locations: []authclient.Location{
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginA,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithPreviousLoginB,
 								},
-								authclient.Location{
+								{
 									LocationID: locationWithNoLoginsA,
 								},
 							},
@@ -302,15 +301,15 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				featureFlagsClient: &mock.FeatureFlagsClient{
 					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
 						return []featureflagsclient.Flag{
-							featureflagsclient.Flag{
+							{
 								Name:  "onboardingBetaEnabled",
 								Value: false,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "otherflag",
 								Value: false,
 							},
-							featureflagsclient.Flag{
+							{
 								Name:  "anotherflag",
 								Value: true,
 							},
@@ -360,11 +359,11 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 					PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
 						return &insysproto.PreProvisionsByLocationIDResponse{
 							PreProvisions: []*insysproto.PreProvision{
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "older opportunityID",
 									UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
 								},
-								&insysproto.PreProvision{
+								{
 									SalesforceOpportunityId: "opportunityID",
 									UpdatedAt:               time.Now().String(),
 								},

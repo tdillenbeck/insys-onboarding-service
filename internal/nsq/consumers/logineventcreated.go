@@ -99,10 +99,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
-	onboardingLocationsWithoutFirstLogin, err := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
-	if err != nil {
-		return err
-	}
+	onboardingLocationsWithoutFirstLogin := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
 	if len(onboardingLocationsWithoutFirstLogin) == 0 {
 		return nil
 	}
@@ -126,7 +123,6 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 }
 
 func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForUser(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
-
 	var locationsWithoutFirstLogin []uuid.UUID
 
 	for _, locationID := range locationIDs {
@@ -148,7 +144,7 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 	return locationsWithoutFirstLogin, nil
 }
 
-func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
+func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) []uuid.UUID {
 	var result []uuid.UUID
 
 	for _, locationID := range locationIDs {
@@ -160,20 +156,19 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx cont
 
 		// we need to ensure that the location is in the onboarding process, so loop through in search of the feature that indicates that it is
 		for _, feature := range features {
-			if feature.Name == "onboardingBetaEnabled" && feature.Value == true {
+			if feature.Name == "onboardingBetaEnabled" && feature.Value {
 				result = append(result, locationID)
 			}
 		}
 	}
 
-	return result, nil
+	return result
 }
 
 func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
 	var salesforceOpportunityID string
 
 	for _, locationID := range locationIDs {
-
 		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
@@ -189,7 +184,6 @@ func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx 
 					wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
 				}
 			}
-
 		} else {
 			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 		}

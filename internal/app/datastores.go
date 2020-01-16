@@ -52,7 +52,7 @@ type TaskInstanceService interface {
 
 type HandoffSnapshotService interface {
 	CreateOrUpdate(ctx context.Context, snapshot HandoffSnapshot) (HandoffSnapshot, error)
-	ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (HandoffSnapshot, error)
-	SubmitCSAT(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserEmail string) (HandoffSnapshot, error)
+	ReadByOnboardersLocationID(ctx context.Context, onboardersLocationID uuid.UUID) (HandoffSnapshot, error)
+	SubmitCSAT(ctx context.Context, onboardersLocationID uuid.UUID, csatRecipientUserEmail string) (HandoffSnapshot, error)
 	SubmitHandoff(ctx context.Context, handoffSnapshot uuid.UUID) (HandoffSnapshot, error)
 }

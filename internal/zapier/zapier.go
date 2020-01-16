@@ -9,7 +9,7 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/whttp/whttpclient"
 )
 
-type ZapierClient struct {
+type Client struct {
 	url string
 }
 
@@ -19,11 +19,11 @@ type FirstLoginEventPayload struct {
 	SalesforceOpportunityID string `json:"salesforce_opportunity_id"`
 }
 
-func New(url string) *ZapierClient {
-	return &ZapierClient{url: url}
+func New(url string) *Client {
+	return &Client{url: url}
 }
 
-func (zc *ZapierClient) Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
+func (zc *Client) Send(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
 	contentType := "application/json"
 	payload := FirstLoginEventPayload{
 		Username:                username,
