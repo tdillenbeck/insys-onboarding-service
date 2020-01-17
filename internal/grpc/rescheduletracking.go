@@ -4,31 +4,66 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/golang/protobuf/ptypes"
+
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys"
-	"weavelab.xyz/monorail/shared/wlib/uuid"
+	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 )
 
 var _ insys.RescheduleTrackingEventServer = &RescheduleTrackingEventServer{}
 
 type RescheduleTrackingEventServer struct {
-	rescheduleTrackingService app.RescheduleTrackingEventService
+	rescheduleTrackingEventService app.RescheduleTrackingEventService
 }
 
 func NewRescheduleEventServer(rescheduleTrackingService app.RescheduleTrackingEventService) *RescheduleTrackingEventServer {
 	return &RescheduleTrackingEventServer{
-		rescheduleTrackingService: rescheduleTrackingService,
+		rescheduleTrackingEventService: rescheduleTrackingService,
 	}
 }
 
-func (r *RescheduleTrackingEventServer) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
+func (r *RescheduleTrackingEventServer) ReadRescheduleTracking(ctx context.Context, req *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
 
-	locationID, err := uuid.Parse(in.LocationId)
+	rescheduleResponse, err := r.rescheduleTrackingEventService.ReadRescheduleTracking(ctx, req)
 	if err != nil {
-		return &insysproto.RescheduleTrackingResponse{}, nil
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error reading reschedule tracking event"))
 	}
-	fmt.Println(locationID)
+	fmt.Println(rescheduleResponse)
 
 	return &insysproto.RescheduleTrackingResponse{}, nil
+}
+
+func convertRescheduleTrackingToProto(r *app.RescheduleTracking) (*insysproto.RescheduleTrackingResponse, error) {
+
+	if r == nil {
+		return nil, werror.New("could not convert nil to reschedule tracking")
+	}
+
+	rescheduledAt, err := ptypes.TimestampProto(r.RescheuleEventsCalculatedAt)
+	if err != nil {
+		return nil, werror.New("could not convert reschedule tracking rescheduled at time")
+	}
+
+	createdAt, err := ptypes.TimestampProto(r.CreatedAt)
+	if err != nil {
+		return nil, werror.New("could not convert reschedule tracking created at time")
+	}
+	updatedAt, err := ptypes.TimestampProto(r.UpdatedAt)
+	if err != nil {
+		return nil, werror.New("could not convert reschedule tracking updated at time")
+	}
+
+	return &insysproto.RescheduleTrackingResponse{
+		LocationId:                    sharedproto.UUIDToProto(r.LocationID),
+		EventType:                     r.EventType,
+		RescheduledEventsCount:        0, //r.RescheduledEventsCount,
+		RescheduledEventsCalculatedAt: rescheduledAt,
+		CreatedAt:                     createdAt,
+		UpdatedAt:                     updatedAt,
+	}, nil
+
 }

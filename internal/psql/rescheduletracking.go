@@ -2,11 +2,13 @@ package psql
 
 import (
 	"context"
+	"database/sql"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 	"weavelab.xyz/monorail/shared/wlib/werror"
+	"weavelab.xyz/monorail/shared/wlib/wgrpc"
 	"weavelab.xyz/monorail/shared/wlib/wsql"
 )
 
@@ -42,7 +44,29 @@ func (s *RescheduleTrackingEventService) CreateOrUpdate(ctx context.Context, loc
 	return &resultEvent, nil
 }
 
-func (r *RescheduleTrackingEventService) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
+func (r *RescheduleTrackingEventService) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*app.RescheduleTracking, error) {
 
-	return nil, nil
+	var rescheduleTracking app.RescheduleTracking
+	query := `SELECT COUNT(*) FROM insys_onboarding.reschedule_tracking
+				WHERE location_id = $1
+				AND event_type = $2`
+
+	row := r.DB.QueryRowContext(ctx, query, in.LocationId, in.EventType)
+	err := row.Scan(
+		&rescheduleTracking.ID,
+		&rescheduleTracking.LocationID,
+		&rescheduleTracking.EventType,
+		&rescheduleTracking.RescheduledEventsCount,
+		&rescheduleTracking.RescheuleEventsCalculatedAt,
+		&rescheduleTracking.CreatedAt,
+		&rescheduleTracking.UpdatedAt,
+	)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, werror.Wrap(err).SetCode(wgrpc.CodeNotFound)
+		}
+		return nil, werror.Wrap(err, "error selecting onboarders location by location id")
+	}
+
+	return &rescheduleTracking, nil
 }

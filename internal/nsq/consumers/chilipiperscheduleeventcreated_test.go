@@ -27,7 +27,7 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 		CreateOrUpdateFn: func(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
 			return nil, nil
 		},
-		ReadRescheduleTrackingFn: func(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*insysproto.RescheduleTrackingResponse, error) {
+		ReadRescheduleTrackingFn: func(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*app.RescheduleTracking, error) {
 			return nil, nil
 		},
 	}
