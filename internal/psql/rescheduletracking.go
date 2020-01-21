@@ -47,7 +47,8 @@ func (s *RescheduleTrackingEventService) CreateOrUpdate(ctx context.Context, loc
 func (r *RescheduleTrackingEventService) ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*app.RescheduleTracking, error) {
 
 	var rescheduleTracking app.RescheduleTracking
-	query := `SELECT COUNT(*) FROM insys_onboarding.reschedule_tracking
+	query := `SELECT id, location_id, event_type, rescheduled_events_count, rescheduled_events_calculated_at, created_at, updated_at
+	FROM insys_onboarding.reschedule_tracking
 				WHERE location_id = $1
 				AND event_type = $2`
 
