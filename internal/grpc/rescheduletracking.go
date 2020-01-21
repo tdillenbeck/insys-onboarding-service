@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/golang/protobuf/ptypes"
 
@@ -32,9 +31,13 @@ func (r *RescheduleTrackingEventServer) ReadRescheduleTracking(ctx context.Conte
 	if err != nil {
 		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error reading reschedule tracking event"))
 	}
-	fmt.Println(rescheduleResponse)
 
-	return &insysproto.RescheduleTrackingResponse{}, nil
+	rescheduleCountResponse, err := convertRescheduleTrackingToProto(rescheduleResponse)
+	if err != nil {
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error converting reschedule tracking response to response proto type"))
+	}
+
+	return rescheduleCountResponse, nil
 }
 
 func convertRescheduleTrackingToProto(r *app.RescheduleTracking) (*insysproto.RescheduleTrackingResponse, error) {
@@ -60,7 +63,7 @@ func convertRescheduleTrackingToProto(r *app.RescheduleTracking) (*insysproto.Re
 	return &insysproto.RescheduleTrackingResponse{
 		LocationId:                    sharedproto.UUIDToProto(r.LocationID),
 		EventType:                     r.EventType,
-		RescheduledEventsCount:        0, //r.RescheduledEventsCount,
+		RescheduledEventsCount:        int32(r.RescheduledEventsCount),
 		RescheduledEventsCalculatedAt: rescheduledAt,
 		CreatedAt:                     createdAt,
 		UpdatedAt:                     updatedAt,
