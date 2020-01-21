@@ -23,8 +23,11 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 		},
 	}
 
-	successfulRescheduleTrackingService := &mock.RescheduleTrackingService{
+	successfulRescheduleTrackingService := &mock.RescheduleTrackingEventService{
 		CreateOrUpdateFn: func(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*app.RescheduleTracking, error) {
+			return nil, nil
+		},
+		ReadRescheduleTrackingFn: func(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*app.RescheduleTracking, error) {
 			return nil, nil
 		},
 	}
@@ -39,7 +42,7 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 	type fields struct {
 		chiliPiperScheduleEventService app.ChiliPiperScheduleEventService
 		onboarderService               app.OnboarderService
-		rescheduleTrackingService      app.RescheduleTrackingService
+		rescheduleTrackingEventService app.RescheduleTrackingEventService
 		featureFlagsClient             FeatureFlagsClient
 		onboardersLocationServer       insys.OnboardersLocationServer
 		onboardingServer               insys.OnboardingServer
@@ -58,7 +61,7 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 			name: "successfully create reschedule event",
 			fields: fields{
 				chiliPiperScheduleEventService: successfulChiliPiperScheduleEventService,
-				rescheduleTrackingService:      successfulRescheduleTrackingService,
+				rescheduleTrackingEventService: successfulRescheduleTrackingService,
 			},
 			args: args{
 				ctx: context.Background(),
@@ -73,7 +76,7 @@ func TestChiliPiperScheduleEventCreatedSubscriber_HandleMessage(t *testing.T) {
 			c := ChiliPiperScheduleEventCreatedSubscriber{
 				chiliPiperScheduleEventService: tt.fields.chiliPiperScheduleEventService,
 				onboarderService:               tt.fields.onboarderService,
-				rescheduleTrackingService:      tt.fields.rescheduleTrackingService,
+				rescheduleTrackingEventService: tt.fields.rescheduleTrackingEventService,
 				featureFlagsClient:             tt.fields.featureFlagsClient,
 				onboardersLocationServer:       tt.fields.onboardersLocationServer,
 				onboardingServer:               tt.fields.onboardingServer,

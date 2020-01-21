@@ -126,11 +126,11 @@ type HandoffSnapshot struct {
 }
 
 type RescheduleTracking struct {
-	ID                          uuid.UUID
-	LocationID                  uuid.UUID `db:"location_id"`
-	EventType                   string    `db:"event_type"`
-	RescheduledEventsCount      int       `db:"rescheduled_events_count"`
-	RescheuleEventsCalculatedAt time.Time `db:"rescheduled_events_calculated_at"`
-	CreatedAt                   time.Time `db:"created_at"`
-	UpdatedAt                   time.Time `db:"updated_at"`
+	ID                          uuid.UUID `json:"id,omitempty"`
+	LocationID                  uuid.UUID `db:"location_id" json:"location_id,omitempty"`
+	EventType                   string    `db:"event_type" json:"event_type,omitempty"`
+	RescheduledEventsCount      int       `db:"rescheduled_events_count" json:"rescheduled_events_count,omitempty"`
+	RescheuleEventsCalculatedAt time.Time `db:"rescheduled_events_calculated_at" json:"rescheule_events_calculated_at,omitempty"`
+	CreatedAt                   time.Time `db:"created_at" json:"created_at,omitempty"`
+	UpdatedAt                   time.Time `db:"updated_at" json:"updated_at,omitempty"`
 }

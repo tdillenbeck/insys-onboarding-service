@@ -5,6 +5,7 @@ import (
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
@@ -35,8 +36,9 @@ type OnboardersLocationService interface {
 	RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error
 }
 
-type RescheduleTrackingService interface {
+type RescheduleTrackingEventService interface {
 	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*RescheduleTracking, error)
+	ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*RescheduleTracking, error)
 }
 
 // TaskInstanceService defines the actions for the database related to TaskInstances
