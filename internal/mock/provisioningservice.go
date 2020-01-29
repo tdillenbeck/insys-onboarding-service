@@ -8,12 +8,13 @@ import (
 )
 
 type ProvisioningService struct {
-	CreateOrUpdatePreProvisionFn  func(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts []grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error)
-	InitialProvisionFn            func(ctx context.Context, req *insysproto.InitialProvisionRequest, opts []grpc.CallOption) (*insysproto.InitialProvisionResponse, error)
-	PortDayProvisionFn            func(ctx context.Context, req *insysproto.PortDayProvisionRequest, opts []grpc.CallOption) (*insysproto.PortDayProvisionResponse, error)
-	PreProvisionByOpportunityIDFn func(ctx context.Context, req *insysproto.PreProvisionByOpportunityIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionByOpportunityIDResponse, error)
-	PreProvisionsByLocationIDFn   func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error)
-	ProvisionUserFn               func(ctx context.Context, req *insysproto.ProvisionUserRequest, opts []grpc.CallOption) (*insysproto.ProvisionUserResponse, error)
+	CreateOrUpdatePreProvisionFn     func(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts []grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error)
+	InitialProvisionFn               func(ctx context.Context, req *insysproto.InitialProvisionRequest, opts []grpc.CallOption) (*insysproto.InitialProvisionResponse, error)
+	PortDayProvisionFn               func(ctx context.Context, req *insysproto.PortDayProvisionRequest, opts []grpc.CallOption) (*insysproto.PortDayProvisionResponse, error)
+	PreProvisionByOpportunityIDFn    func(ctx context.Context, req *insysproto.PreProvisionByOpportunityIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionByOpportunityIDResponse, error)
+	PreProvisionsByLocationIDFn      func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error)
+	ProvisionUserFn                  func(ctx context.Context, req *insysproto.ProvisionUserRequest, opts []grpc.CallOption) (*insysproto.ProvisionUserResponse, error)
+	PreProvisionsByParentAccountIDFn func(ctx context.Context, req *insysproto.PreProvisionsByParentAccountIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByParentAccountIDResponse, error)
 }
 
 func (s *ProvisioningService) CreateOrUpdatePreProvision(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts ...grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
@@ -38,4 +39,8 @@ func (s *ProvisioningService) PreProvisionByOpportunityID(ctx context.Context, r
 
 func (s *ProvisioningService) ProvisionUser(ctx context.Context, req *insysproto.ProvisionUserRequest, opts ...grpc.CallOption) (*insysproto.ProvisionUserResponse, error) {
 	return s.ProvisionUserFn(ctx, req, opts)
+}
+
+func (s *ProvisioningService) PreProvisionsByParentAccountID(ctx context.Context, req *insysproto.PreProvisionsByParentAccountIDRequest, opts ...grpc.CallOption) (*insysproto.PreProvisionsByParentAccountIDResponse, error) {
+	return s.PreProvisionsByParentAccountIDFn(ctx, req, opts)
 }
