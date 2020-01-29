@@ -140,6 +140,7 @@ func grpcBootstrap(
 		insys.RegisterOnboarderServer(gs, onboarderServer)
 		insys.RegisterOnboardersLocationServer(gs, onboardersLocationServer)
 		insys.RegisterHandoffSnapshotServer(gs, handoffSnapshotServer)
+		insys.RegisterRescheduleTrackingEventServer(gs, rescheduleTrackingEventServer)
 
 		return gs, nil
 	}

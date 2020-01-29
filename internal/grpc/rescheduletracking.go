@@ -19,9 +19,9 @@ type RescheduleTrackingEventServer struct {
 	rescheduleTrackingEventService app.RescheduleTrackingEventService
 }
 
-func NewRescheduleEventServer(rescheduleTrackingService app.RescheduleTrackingEventService) *RescheduleTrackingEventServer {
+func NewRescheduleEventServer(r app.RescheduleTrackingEventService) *RescheduleTrackingEventServer {
 	return &RescheduleTrackingEventServer{
-		rescheduleTrackingEventService: rescheduleTrackingService,
+		rescheduleTrackingEventService: r,
 	}
 }
 
