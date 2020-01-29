@@ -1051,10 +1051,10 @@
 			"revisionTime": "2020-01-07T17:49:53Z"
 		},
 		{
-			"checksumSHA1": "3fglUjNvWilRbW2i2WudgbD5qvs=",
+			"checksumSHA1": "e8UwOIkvJyeLvhGbyrEwrTjLEvc=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "d80770ac6cf26fdf76d196463acc38e5e151f6d1",
-			"revisionTime": "2020-01-16T17:34:56Z"
+			"revision": "279d15a49362ae88bb744a21d1d413dc0c59b922",
+			"revisionTime": "2020-01-28T23:34:11Z"
 		},
 		{
 			"checksumSHA1": "UNSlkYu7SHitPNgeKq92ebZnhSw=",
@@ -1069,10 +1069,10 @@
 			"revisionTime": "2020-01-07T17:49:53Z"
 		},
 		{
-			"checksumSHA1": "7Cra3xPL6s3LIhb6YJNVpEOAeTA=",
+			"checksumSHA1": "S2QIxGj8S4IPu5d80Mzx4YkHmPw=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/services/insys",
-			"revision": "d80770ac6cf26fdf76d196463acc38e5e151f6d1",
-			"revisionTime": "2020-01-16T17:34:56Z"
+			"revision": "279d15a49362ae88bb744a21d1d413dc0c59b922",
+			"revisionTime": "2020-01-28T23:34:11Z"
 		},
 		{
 			"checksumSHA1": "ulLWJUjuizDBUYTaHG0UoGUygoI=",
