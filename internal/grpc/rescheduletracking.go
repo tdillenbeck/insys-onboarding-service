@@ -29,7 +29,10 @@ func (r *RescheduleTrackingEventServer) ReadRescheduleTracking(ctx context.Conte
 
 	rescheduleResponse, err := r.rescheduleTrackingEventService.ReadRescheduleTracking(ctx, req)
 	if err != nil {
-		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error reading reschedule tracking event"))
+		if werror.HasCode(err, werror.CodeNotFound) {
+			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "error in finding reschedule event with location id and event type ").Add("location id", req.LocationId).Add("event_type", req.EventType))
+		}
+		return nil, wgrpc.Error(wgrpc.CodeInternal, werror.Wrap(err, "error reading reschedule event type and getting count from location ID").Add("locationID", req.LocationId))
 	}
 
 	rescheduleCountResponse, err := convertRescheduleTrackingToProto(rescheduleResponse)
