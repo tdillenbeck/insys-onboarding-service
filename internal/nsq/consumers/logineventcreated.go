@@ -91,6 +91,8 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		locationIDs = append(locationIDs, location.LocationID)
 	}
 
+	wlog.InfoC(ctx, fmt.Sprintf("received login event message for user %v. locations: %v", userUUID, locationIDs))
+
 	locationsWithoutFirstLogin, err := s.filterLocationsToThoseWithoutFirstLoginForUser(ctx, locationIDs)
 	if err != nil {
 		return err
