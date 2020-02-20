@@ -5,12 +5,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
+
 	"google.golang.org/grpc"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
+	"weavelab.xyz/insys-onboarding-service/internal/zapier"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
 	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/client/clientproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/sharedproto"
@@ -24,6 +26,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 	locationWithPreviousLoginB := uuid.NewV4()
 	locationWithPreviousLoginC := uuid.NewV4()
 	locationWithNoLoginsA := uuid.NewV4()
+	locationWithNoLoginsB := uuid.NewV4()
 	nonExistantLocationID := uuid.NewV4()
 
 	onboarderA := uuid.NewV4()
@@ -44,14 +47,12 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 		event clientproto.LoginEvent
 	}
 	tests := []struct {
-		name                            string
-		fields                          fields
-		args                            args
-		wantErr                         bool
-		wantZapierCalled                bool
-		usernameToBeSent                string
-		locationIDToBeSent              string
-		salesforceOpportunityIDToBeSent string
+		name                   string
+		fields                 fields
+		args                   args
+		wantErr                bool
+		wantZapierCalled       bool
+		zapierPayloadsToBeSent []zapier.FirstLoginEventPayload
 	}{
 		{
 			name: "when all the locations for a user have a login event already recorded don't send a message to Zapier",
@@ -73,24 +74,6 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 								{
 									LocationID: locationWithPreviousLoginC,
 								},
-							},
-						}, nil
-					},
-				},
-				featureFlagsClient: &mock.FeatureFlagsClient{
-					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
-						return []featureflagsclient.Flag{
-							{
-								Name:  "onboardingBetaEnabled",
-								Value: true,
-							},
-							{
-								Name:  "otherflag",
-								Value: false,
-							},
-							{
-								Name:  "anotherflag",
-								Value: true,
 							},
 						}, nil
 					},
@@ -127,7 +110,6 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 								return nil, werror.New("Location Not found")
 							}
 						}
-
 						return nil, nil
 					},
 					RecordFirstLoginFn: func(ctx context.Context, locationID uuid.UUID) error {
@@ -161,7 +143,7 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 			wantZapierCalled: false,
 		},
 		{
-			name: "when there is a location without first login event associated with user and it's in onboarding, call zapier",
+			name: "when there are multiple locations without first login event associated with user, call zapier",
 			fields: fields{
 				authClient: &mock.Auth{
 					UserLocationsFn: func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
@@ -175,29 +157,11 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 									LocationID: locationWithPreviousLoginA,
 								},
 								{
-									LocationID: locationWithPreviousLoginB,
+									LocationID: locationWithNoLoginsB,
 								},
 								{
 									LocationID: locationWithNoLoginsA,
 								},
-							},
-						}, nil
-					},
-				},
-				featureFlagsClient: &mock.FeatureFlagsClient{
-					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
-						return []featureflagsclient.Flag{
-							{
-								Name:  "onboardingBetaEnabled",
-								Value: true,
-							},
-							{
-								Name:  "otherflag",
-								Value: false,
-							},
-							{
-								Name:  "anotherflag",
-								Value: true,
 							},
 						}, nil
 					},
@@ -213,12 +177,12 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 									UserFirstLoggedInAt: null.Time{},
 								}, nil
 							}
-						case locationWithPreviousLoginB:
+						case locationWithNoLoginsB:
 							{
 								return &app.OnboardersLocation{
-									LocationID:          locationWithPreviousLoginB,
+									LocationID:          locationWithNoLoginsB,
 									OnboarderID:         onboarderB,
-									UserFirstLoggedInAt: null.NewTime(time.Now()),
+									UserFirstLoggedInAt: null.Time{},
 								}, nil
 							}
 						case locationWithPreviousLoginA:
@@ -269,117 +233,19 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 					UserID: userID,
 				},
 			},
-			wantZapierCalled:                true,
-			usernameToBeSent:                "JackFrost@gmail.com",
-			locationIDToBeSent:              locationWithNoLoginsA.String(),
-			salesforceOpportunityIDToBeSent: "opportunityID",
-		},
-		{
-			name: "when there are no locations are in onboarding associated with user, don't call zapier",
-			fields: fields{
-				authClient: &mock.Auth{
-					UserLocationsFn: func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
-						return &authclient.UserAccess{
-							FirstName: "Jack",
-							LastName:  "Frost",
-							Username:  "JackFrost@gmail.com",
-							Type:      authclient.UserTypePractice,
-							Locations: []authclient.Location{
-								{
-									LocationID: locationWithPreviousLoginA,
-								},
-								{
-									LocationID: locationWithPreviousLoginB,
-								},
-								{
-									LocationID: locationWithNoLoginsA,
-								},
-							},
-						}, nil
-					},
+			wantZapierCalled: true,
+			zapierPayloadsToBeSent: []zapier.FirstLoginEventPayload{
+				zapier.FirstLoginEventPayload{
+					LocationID:              locationWithNoLoginsB.String(),
+					SalesforceOpportunityID: "opportunityID",
+					Username:                "JackFrost@gmail.com",
 				},
-				featureFlagsClient: &mock.FeatureFlagsClient{
-					ListFn: func(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error) {
-						return []featureflagsclient.Flag{
-							{
-								Name:  "onboardingBetaEnabled",
-								Value: false,
-							},
-							{
-								Name:  "otherflag",
-								Value: false,
-							},
-							{
-								Name:  "anotherflag",
-								Value: true,
-							},
-						}, nil
-					},
-				},
-				onboardersLocationService: &mock.OnboarderLocationService{
-					ReadByLocationIDFn: func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
-						switch locationID {
-						case locationWithNoLoginsA:
-							{
-								return &app.OnboardersLocation{
-									LocationID:          locationWithNoLoginsA,
-									OnboarderID:         onboarderA,
-									UserFirstLoggedInAt: null.Time{},
-								}, nil
-							}
-						case locationWithPreviousLoginB:
-							{
-								return &app.OnboardersLocation{
-									LocationID:          locationWithPreviousLoginB,
-									OnboarderID:         onboarderB,
-									UserFirstLoggedInAt: null.NewTime(time.Now()),
-								}, nil
-							}
-						case locationWithPreviousLoginA:
-							{
-								return &app.OnboardersLocation{
-									LocationID:          locationWithPreviousLoginA,
-									OnboarderID:         onboarderC,
-									UserFirstLoggedInAt: null.NewTime(time.Now()),
-								}, nil
-							}
-						case nonExistantLocationID:
-							{
-								return nil, werror.New("Location Not found")
-							}
-						}
-
-						return nil, nil
-					},
-					RecordFirstLoginFn: func(ctx context.Context, locationID uuid.UUID) error {
-						return nil
-					},
-				},
-				provisioningClient: &mock.ProvisioningService{
-					PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
-						return &insysproto.PreProvisionsByLocationIDResponse{
-							PreProvisions: []*insysproto.PreProvision{
-								{
-									SalesforceOpportunityId: "older opportunityID",
-									UpdatedAt:               time.Now().Add(time.Hour * -10).String(),
-								},
-								{
-									SalesforceOpportunityId: "opportunityID",
-									UpdatedAt:               time.Now().String(),
-								},
-							},
-						}, nil
-					},
-				},
-				zapierClient: nil,
-			},
-			args: args{
-				ctx: context.Background(),
-				event: clientproto.LoginEvent{
-					UserID: userID,
+				zapier.FirstLoginEventPayload{
+					LocationID:              locationWithNoLoginsA.String(),
+					SalesforceOpportunityID: "opportunityID",
+					Username:                "JackFrost@gmail.com",
 				},
 			},
-			wantZapierCalled: false,
 		},
 	}
 	for _, tt := range tests {
@@ -397,17 +263,8 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 			if tt.wantZapierCalled && tt.fields.zapierClient.SendCalled != tt.wantZapierCalled {
 				t.Error("LogInEventCreatedSubscriber.processLoginEventMessage() Zapier called erroneously")
 			}
-
-			if tt.wantZapierCalled && tt.locationIDToBeSent != tt.fields.zapierClient.LocationIDSent {
-				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage() provided wrong locationID to zapier. \nwant: %s \ngot:  %s", tt.locationIDToBeSent, tt.fields.zapierClient.LocationIDSent)
-			}
-
-			if tt.wantZapierCalled && tt.usernameToBeSent != tt.fields.zapierClient.UsernameSent {
-				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage(): provided wrong username to zapier. \nwant: %s \ngot:  %s", tt.usernameToBeSent, tt.fields.zapierClient.UsernameSent)
-			}
-
-			if tt.wantZapierCalled && tt.salesforceOpportunityIDToBeSent != tt.fields.zapierClient.SalesforceOpportunityIDSent {
-				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage(): provided wrong salesforce oppportunity id to zapier. \nwant: %s \ngot:  %s", tt.salesforceOpportunityIDToBeSent, tt.fields.zapierClient.SalesforceOpportunityIDSent)
+			if tt.wantZapierCalled && !cmp.Equal(tt.zapierPayloadsToBeSent, tt.fields.zapierClient.PayloadsSent) {
+				t.Errorf("LogInEventCreatedSubscriber.processLoginEventMessage() unexpected zapier payloads. %v", cmp.Diff(tt.zapierPayloadsToBeSent, tt.fields.zapierClient.PayloadsSent))
 			}
 		})
 	}
