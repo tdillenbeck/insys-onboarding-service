@@ -101,14 +101,9 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
-	onboardingLocationsWithoutFirstLogin := s.filterLocationsToThoseInOnboarding(ctx, locationsWithoutFirstLogin)
-	if len(onboardingLocationsWithoutFirstLogin) == 0 {
-		return nil
-	}
+	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, locationsWithoutFirstLogin)
 
-	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, onboardingLocationsWithoutFirstLogin)
-
-	for _, locationID := range onboardingLocationsWithoutFirstLogin {
+	for _, locationID := range locationsWithoutFirstLogin {
 		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
@@ -144,27 +139,6 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 	}
 
 	return locationsWithoutFirstLogin, nil
-}
-
-func (s LogInEventCreatedSubscriber) filterLocationsToThoseInOnboarding(ctx context.Context, locationIDs []uuid.UUID) []uuid.UUID {
-	var result []uuid.UUID
-
-	for _, locationID := range locationIDs {
-		features, err := s.featureFlagsClient.List(ctx, locationID)
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get features for location with id: %s. error message: %v", locationID.String(), err))
-			continue
-		}
-
-		// we need to ensure that the location is in the onboarding process, so loop through in search of the feature that indicates that it is
-		for _, feature := range features {
-			if feature.Name == "onboardingBetaEnabled" && feature.Value {
-				result = append(result, locationID)
-			}
-		}
-	}
-
-	return result
 }
 
 func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
