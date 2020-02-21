@@ -102,8 +102,13 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, locationsWithoutFirstLogin)
+	if opportunityID == "" {
+		wlog.InfoC(ctx, fmt.Sprintf("no opportunties for location with ID: %s", event.LocationID.String()))
+		return nil
+	}
 
 	for _, locationID := range locationsWithoutFirstLogin {
+		wlog.InfoC(ctx, fmt.Sprintf("fired off zap: username %s location id %s opportunity id %s", userAccess.Username, locationID.String(), opportunityID))
 		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
