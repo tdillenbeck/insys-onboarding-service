@@ -247,6 +247,90 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "if no salesforce opp, don't call zapier",
+			fields: fields{
+				authClient: &mock.Auth{
+					UserLocationsFn: func(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error) {
+						return &authclient.UserAccess{
+							FirstName: "Jack",
+							LastName:  "Frost",
+							Username:  "JackFrost@gmail.com",
+							Type:      authclient.UserTypePractice,
+							Locations: []authclient.Location{
+								{
+									LocationID: locationWithPreviousLoginA,
+								},
+								{
+									LocationID: locationWithNoLoginsB,
+								},
+								{
+									LocationID: locationWithNoLoginsA,
+								},
+							},
+						}, nil
+					},
+				},
+				onboardersLocationService: &mock.OnboarderLocationService{
+					ReadByLocationIDFn: func(ctx context.Context, locationID uuid.UUID) (*app.OnboardersLocation, error) {
+						switch locationID {
+						case locationWithNoLoginsA:
+							{
+								return &app.OnboardersLocation{
+									LocationID:          locationWithNoLoginsA,
+									OnboarderID:         onboarderA,
+									UserFirstLoggedInAt: null.Time{},
+								}, nil
+							}
+						case locationWithNoLoginsB:
+							{
+								return &app.OnboardersLocation{
+									LocationID:          locationWithNoLoginsB,
+									OnboarderID:         onboarderB,
+									UserFirstLoggedInAt: null.Time{},
+								}, nil
+							}
+						case locationWithPreviousLoginA:
+							{
+								return &app.OnboardersLocation{
+									LocationID:          locationWithPreviousLoginA,
+									OnboarderID:         onboarderC,
+									UserFirstLoggedInAt: null.NewTime(time.Now()),
+								}, nil
+							}
+						case nonExistantLocationID:
+							{
+								return nil, werror.New("Location Not found")
+							}
+						}
+
+						return nil, nil
+					},
+					RecordFirstLoginFn: func(ctx context.Context, locationID uuid.UUID) error {
+						return nil
+					},
+				},
+				provisioningClient: &mock.ProvisioningService{
+					PreProvisionsByLocationIDFn: func(ctx context.Context, req *insysproto.PreProvisionsByLocationIDRequest, opts []grpc.CallOption) (*insysproto.PreProvisionsByLocationIDResponse, error) {
+						return &insysproto.PreProvisionsByLocationIDResponse{
+							PreProvisions: []*insysproto.PreProvision{},
+						}, nil
+					},
+				},
+				zapierClient: &mock.ZapierClient{
+					SendFn: func(ctx context.Context, username, locationID, salesforceOpportunityID string) error {
+						return nil
+					},
+				},
+			},
+			args: args{
+				ctx: context.Background(),
+				event: clientproto.LoginEvent{
+					UserID: userID,
+				},
+			},
+			wantZapierCalled: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
