@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.5
--- Dumped by pg_dump version 11.5
+-- Dumped from database version 11.6
+-- Dumped by pg_dump version 11.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -86,21 +86,22 @@ ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboardin
 CREATE TABLE insys_onboarding.handoff_snapshots (
     id uuid NOT NULL,
     onboarders_location_id uuid NOT NULL,
-    csat_recipient_user_id uuid,
-    csat_sent_at timestamp with time zone,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL,
-    handed_off_at timestamp with time zone,
-    point_of_contact uuid,
-    reason_for_purchase text,
-    customizations boolean,
-    customization_setup text,
-    fax_port_submitted text,
-    router_type text,
-    router_make_and_model text,
-    network_decision text,
     billing_notes text,
-    notes text
+    csat_recipient_user_email text,
+    csat_sent_at timestamp with time zone,
+    customization_setup text,
+    customizations boolean,
+    disclaimer_type_sent text,
+    fax_port_submitted text,
+    handed_off_at timestamp with time zone,
+    network_decision text,
+    notes text,
+    point_of_contact_email text,
+    reason_for_purchase text,
+    router_make_and_model text,
+    router_type text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
 );
 
 
@@ -201,6 +202,21 @@ CREATE TABLE insys_onboarding.onboarding_tasks (
 
 
 --
+-- Name: reschedule_tracking; Type: TABLE; Schema: insys_onboarding; Owner: -
+--
+
+CREATE TABLE insys_onboarding.reschedule_tracking (
+    id uuid NOT NULL,
+    location_id uuid NOT NULL,
+    event_type text NOT NULL,
+    rescheduled_events_count integer NOT NULL,
+    rescheduled_events_calculated_at timestamp with time zone NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: goose_db_version id; Type: DEFAULT; Schema: insys_onboarding; Owner: -
 --
 
@@ -280,6 +296,14 @@ ALTER TABLE ONLY insys_onboarding.onboarding_tasks
 
 
 --
+-- Name: reschedule_tracking reschedule_tracking_pkey; Type: CONSTRAINT; Schema: insys_onboarding; Owner: -
+--
+
+ALTER TABLE ONLY insys_onboarding.reschedule_tracking
+    ADD CONSTRAINT reschedule_tracking_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: index_chili_piper_schedule_events_on_event_id; Type: INDEX; Schema: insys_onboarding; Owner: -
 --
 
@@ -312,6 +336,13 @@ CREATE UNIQUE INDEX index_onboarders_on_user_id ON insys_onboarding.onboarders U
 --
 
 CREATE INDEX index_onboarding_task_instances_on_location_id ON insys_onboarding.onboarding_task_instances USING btree (location_id);
+
+
+--
+-- Name: index_reschedule_event_tracking_on_location_id_and_event_type; Type: INDEX; Schema: insys_onboarding; Owner: -
+--
+
+CREATE UNIQUE INDEX index_reschedule_event_tracking_on_location_id_and_event_type ON insys_onboarding.reschedule_tracking USING btree (location_id, event_type);
 
 
 --

@@ -4,9 +4,8 @@ import (
 	"context"
 
 	"weavelab.xyz/monorail/shared/go-utilities/null"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/authclient"
-	"weavelab.xyz/monorail/shared/grpc-clients/client-grpc-clients/featureflagsclient"
 	"weavelab.xyz/monorail/shared/protorepo/dist/go/enums/insysenums"
+	"weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto"
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
@@ -18,6 +17,7 @@ type CategoryService interface {
 type ChiliPiperScheduleEventService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]ChiliPiperScheduleEvent, error)
 	Cancel(ctx context.Context, eventID string) (*ChiliPiperScheduleEvent, error)
+	CanceledCountByLocationIDAndEventType(ctx context.Context, locationID uuid.UUID, eventType string) (int, error)
 	Create(ctx context.Context, scheduleEvent *ChiliPiperScheduleEvent) (*ChiliPiperScheduleEvent, error)
 	Update(ctx context.Context, eventID, assigneeID string, startAt, endAt null.Time) (*ChiliPiperScheduleEvent, error)
 }
@@ -36,6 +36,11 @@ type OnboardersLocationService interface {
 	RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error
 }
 
+type RescheduleTrackingEventService interface {
+	CreateOrUpdate(ctx context.Context, locationID uuid.UUID, count int, eventType string) (*RescheduleTracking, error)
+	ReadRescheduleTracking(ctx context.Context, in *insysproto.RescheduleTrackingRequest) (*RescheduleTracking, error)
+}
+
 // TaskInstanceService defines the actions for the database related to TaskInstances
 type TaskInstanceService interface {
 	ByLocationID(ctx context.Context, locationID uuid.UUID) ([]TaskInstance, error)
@@ -47,16 +52,7 @@ type TaskInstanceService interface {
 
 type HandoffSnapshotService interface {
 	CreateOrUpdate(ctx context.Context, snapshot HandoffSnapshot) (HandoffSnapshot, error)
-	ReadByOnboardersLocationID(ctx context.Context, onboardersLocationId uuid.UUID) (HandoffSnapshot, error)
-	SubmitCSAT(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserId uuid.UUID) (HandoffSnapshot, error)
+	ReadByOnboardersLocationID(ctx context.Context, onboardersLocationID uuid.UUID) (HandoffSnapshot, error)
+	SubmitCSAT(ctx context.Context, onboardersLocationID uuid.UUID, csatRecipientUserEmail string) (HandoffSnapshot, error)
 	SubmitHandoff(ctx context.Context, handoffSnapshot uuid.UUID) (HandoffSnapshot, error)
-}
-
-type AuthClient interface {
-	UserLocations(ctx context.Context, userID uuid.UUID) (*authclient.UserAccess, error)
-}
-
-type FeatureFlagsClient interface {
-	List(ctx context.Context, locationID uuid.UUID) ([]featureflagsclient.Flag, error)
-	Update(ctx context.Context, locationID uuid.UUID, name string, enable bool) error
 }

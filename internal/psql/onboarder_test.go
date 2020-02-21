@@ -223,7 +223,6 @@ func TestOnboarderService_Delete(t *testing.T) {
 			if !gotDeletedAt.Valid {
 				t.Errorf("OnboarderService.Delete(). Did not delete onboarder. id = %v", tt.args.id)
 			}
-
 		})
 	}
 }

@@ -81,7 +81,7 @@ fi
 
 # - Do not import math/rand for real library code.  Use internal/grpcrand for
 #   thread safety.
-git grep -l '"math/rand"' -- "*.go" 2>&1 | (! grep -v '^examples\|^stress\|grpcrand\|wrr_test')
+git grep -l '"math/rand"' -- "*.go" 2>&1 | (! grep -v '^examples\|^stress\|grpcrand\|^benchmark\|wrr_test')
 
 # - Ensure all ptypes proto packages are renamed when importing.
 (! git grep "\(import \|^\s*\)\"github.com/golang/protobuf/ptypes/" -- "*.go")
@@ -117,7 +117,7 @@ fi
 # TODO(dfawley): don't use deprecated functions in examples or first-party
 # plugins.
 SC_OUT="$(mktemp)"
-staticcheck -go 1.9 -checks 'inherit,-ST1015' ./... > "${SC_OUT}" || true
+staticcheck -go 1.9 -checks 'inherit,-ST1015,-SA6002' ./... > "${SC_OUT}" || true
 # Error if anything other than deprecation warnings are printed.
 (! grep -v "is deprecated:.*SA1019" "${SC_OUT}")
 # Only ignore the following deprecated types/fields/functions.

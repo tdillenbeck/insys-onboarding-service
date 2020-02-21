@@ -167,7 +167,6 @@ func convertToCategoryProto(oc *app.Category) (*insysproto.Category, error) {
 }
 
 func convertToTaskInstanceProto(t app.TaskInstance) (*insysproto.TaskInstance, error) {
-
 	completedAt, err := ptypes.TimestampProto(t.CompletedAt.Time)
 	if err != nil {
 		return nil, werror.Wrap(err, "could not convert task completed at time")

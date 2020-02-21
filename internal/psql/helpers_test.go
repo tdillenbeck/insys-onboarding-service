@@ -57,4 +57,7 @@ func clearExistingData(db *wsql.PG) {
 
 	clearHandoffSnapshotsQuery := "DELETE FROM insys_onboarding.handoff_snapshots;"
 	_, _ = db.ExecContext(context.Background(), clearHandoffSnapshotsQuery)
+
+	clearRescheduleTrackingQuery := "DELETE FROM insys_onboarding.reschedule_tracking;"
+	_, _ = db.ExecContext(context.Background(), clearRescheduleTrackingQuery)
 }

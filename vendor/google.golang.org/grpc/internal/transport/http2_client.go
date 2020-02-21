@@ -45,6 +45,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// clientConnectionCounter counts the number of connections a client has
+// initiated (equal to the number of http2Clients created). Must be accessed
+// atomically.
+var clientConnectionCounter uint64
+
 // http2Client implements the ClientTransport interface with HTTP2.
 type http2Client struct {
 	lastRead   int64 // Keep this field 64-bit aligned. Accessed atomically.
@@ -126,6 +131,8 @@ type http2Client struct {
 	onClose  func()
 
 	bufferPool *bufferPool
+
+	connectionID uint64
 }
 
 func dial(ctx context.Context, fn func(context.Context, string) (net.Conn, error), addr string) (net.Conn, error) {
@@ -328,6 +335,8 @@ func newHTTP2Client(connectCtx, ctx context.Context, addr TargetInfo, opts Conne
 			return nil, connectionErrorf(true, err, "transport: failed to write window update: %v", err)
 		}
 	}
+
+	t.connectionID = atomic.AddUint64(&clientConnectionCounter, 1)
 
 	if err := t.framer.writer.Flush(); err != nil {
 		return nil, err
@@ -837,6 +846,7 @@ func (t *http2Client) Write(s *Stream, hdr []byte, data []byte, opts *Options) e
 	df := &dataFrame{
 		streamID:  s.id,
 		endStream: opts.Last,
+		rb:        opts.ReturnBuffer,
 	}
 	if hdr != nil || data != nil { // If it's not an empty data frame.
 		// Add some data to grpc message header so that we can equally
@@ -852,6 +862,9 @@ func (t *http2Client) Write(s *Stream, hdr []byte, data []byte, opts *Options) e
 		if err := s.wq.get(int32(len(hdr) + len(data))); err != nil {
 			return err
 		}
+	}
+	if df.rb != nil {
+		df.rb.Add(1)
 	}
 	return t.controlBuf.put(df)
 }

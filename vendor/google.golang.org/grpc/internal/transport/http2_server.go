@@ -62,6 +62,10 @@ var (
 	statusRawProto = internal.StatusRawProto.(func(*status.Status) *spb.Status)
 )
 
+// serverConnectionCounter counts the number of connections a server has seen
+// (equal to the number of http2Servers created). Must be accessed atomically.
+var serverConnectionCounter uint64
+
 // http2Server implements the ServerTransport interface with HTTP2.
 type http2Server struct {
 	lastRead    int64 // Keep this field 64-bit aligned. Accessed atomically.
@@ -121,6 +125,8 @@ type http2Server struct {
 	channelzID int64 // channelz unique identification number
 	czData     *channelzData
 	bufferPool *bufferPool
+
+	connectionID uint64
 }
 
 // newHTTP2Server constructs a ServerTransport based on HTTP2. ConnectionError is
@@ -250,6 +256,9 @@ func newHTTP2Server(conn net.Conn, config *ServerConfig) (_ ServerTransport, err
 	if channelz.IsOn() {
 		t.channelzID = channelz.RegisterNormalSocket(t, config.ChannelzParentID, fmt.Sprintf("%s -> %s", t.remoteAddr, t.localAddr))
 	}
+
+	t.connectionID = atomic.AddUint64(&serverConnectionCounter, 1)
+
 	t.framer.writer.Flush()
 
 	defer func() {
@@ -914,6 +923,7 @@ func (t *http2Server) Write(s *Stream, hdr []byte, data []byte, opts *Options) e
 		h:           hdr,
 		d:           data,
 		onEachWrite: t.setResetPingStrikes,
+		rb:          opts.ReturnBuffer,
 	}
 	if err := s.wq.get(int32(len(hdr) + len(data))); err != nil {
 		select {
@@ -922,6 +932,9 @@ func (t *http2Server) Write(s *Stream, hdr []byte, data []byte, opts *Options) e
 		default:
 		}
 		return ContextErr(s.ctx.Err())
+	}
+	if df.rb != nil {
+		df.rb.Add(1)
 	}
 	return t.controlBuf.put(df)
 }

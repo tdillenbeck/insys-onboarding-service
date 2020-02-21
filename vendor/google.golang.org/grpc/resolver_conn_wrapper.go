@@ -34,7 +34,7 @@ import (
 )
 
 // ccResolverWrapper is a wrapper on top of cc for resolvers.
-// It implements resolver.ClientConnection interface.
+// It implements resolver.ClientConn interface.
 type ccResolverWrapper struct {
 	cc         *ClientConn
 	resolverMu sync.Mutex
@@ -105,11 +105,11 @@ func newCCResolverWrapper(cc *ClientConn) (*ccResolverWrapper, error) {
 	// rb.Build-->ccr.ReportError-->ccr.poll-->ccr.resolveNow, would end up
 	// accessing ccr.resolver which is being assigned here.
 	ccr.resolverMu.Lock()
+	defer ccr.resolverMu.Unlock()
 	ccr.resolver, err = rb.Build(cc.parsedTarget, ccr, rbo)
 	if err != nil {
 		return nil, err
 	}
-	ccr.resolverMu.Unlock()
 	return ccr, nil
 }
 

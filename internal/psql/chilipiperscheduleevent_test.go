@@ -229,12 +229,12 @@ func TestChiliPiperScheduleEventService_Cancel(t *testing.T) {
 			}
 
 			// a canceled event will have its UpdatedAt and CanceledAt fields set to the current time
-			updatedDiff := time.Now().Sub(got.UpdatedAt)
+			updatedDiff := time.Since(got.UpdatedAt)
 			if updatedDiff > (500 * time.Millisecond) {
 				t.Errorf("Updated at is not within the range. Diff: %v", updatedDiff)
 			}
 
-			canceledDiff := time.Now().Sub(got.CanceledAt.Time)
+			canceledDiff := time.Since(got.CanceledAt.Time)
 			if canceledDiff > (500 * time.Millisecond) {
 				t.Errorf("Canceled at is not within the range. Diff: %v", canceledDiff)
 			}
@@ -460,6 +460,78 @@ func TestChiliPiperScheduleEventService_Update(t *testing.T) {
 			}
 			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("ChiliPiperScheduleEventService.Update(). Diff: %v", cmp.Diff(got, tt.want, opts...))
+			}
+		})
+	}
+}
+
+func TestChiliPiperScheduleService_CanceledCountByLocationIDAndEventType(t *testing.T) {
+	db := initDBConnection(t)
+	clearExistingData(db)
+
+	locationID := uuid.NewV4()
+	currentTime := time.Now()
+	eventID := uuid.NewV4()
+
+	eventService := ChiliPiperScheduleEventService{DB: db}
+
+	_, err := eventService.Create(
+		context.Background(),
+		&app.ChiliPiperScheduleEvent{
+			LocationID: locationID,
+			EventID:    eventID.String(),
+			EventType:  null.NewString("software_install_call"),
+			CanceledAt: null.NewTime(currentTime),
+		},
+	)
+	if err != nil {
+		t.Fatal("could not create ChilipiperScheduleEvent for reassignment in setupf for cancel -> id = 2")
+	}
+
+	type fields struct {
+		DB *wsql.PG
+	}
+
+	type args struct {
+		ctx        context.Context
+		locationID uuid.UUID
+		eventType  string
+	}
+
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name:   "successfully retrieve total cancel count",
+			fields: fields{DB: db},
+			args: args{
+				context.Background(),
+				locationID,
+				"software_install_call",
+			},
+			want:    1,
+			wantErr: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &ChiliPiperScheduleEventService{
+				DB: tt.fields.DB,
+			}
+
+			got, err := s.CanceledCountByLocationIDAndEventType(tt.args.ctx, tt.args.locationID, tt.args.eventType)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ChiliPiperEventService.CanceledCountByLocationIDAndEventType() error = %v", cmp.Diff(got, tt.want))
+				return
+			}
+
+			if !cmp.Equal(got, tt.want) {
+				t.Errorf("ChiliPiperScheduleEventsService.CanceledCountByLocationIDAndEventType() Diff: %v", cmp.Diff(got, tt.want))
 			}
 		})
 	}

@@ -2,10 +2,11 @@ package grpc
 
 import (
 	"context"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"weavelab.xyz/insys-onboarding-service/internal/app"
 	"weavelab.xyz/insys-onboarding-service/internal/mock"
 	"weavelab.xyz/monorail/shared/go-utilities/null"
@@ -13,18 +14,18 @@ import (
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 )
 
-// TestHandoffSnapshotServer_SubmitCSAT, tests create, update, submit full cycle.  Note: order and timing matters in this test.
+// TestHandoffSnapshotServer_HandoffCycle, tests create, update, submit full cycle.  Note: order and timing matters in this test.
 func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
-
 	userID := uuid.NewV4()
 	onboardersLocationID := uuid.NewV4()
 
-	pointOfContact := uuid.NewV4()
+	pointOfContactEmail := null.NewString("client@example.com")
 	reasonForPurchase := "reason"
 	customizations := true
 	customizationSetup := "notes about setup"
 	faxPortSubmitted := "yes"
 	routerType := "Red"
+	disclaimerTypeSent := "email"
 	routerMakeAndModel := "make and model"
 	networkDecision := "notes about network"
 	billingNotes := "notes about billing"
@@ -36,11 +37,11 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 		handoffSnapshotService app.HandoffSnapshotService
 	}
 	type args struct {
-		ctx context.Context
-		req *insysproto.HandoffSnapshotCreateOrUpdateRequest
+		ctx                        context.Context
+		req                        *insysproto.HandoffSnapshotCreateOrUpdateRequest
 		handoffSnapshotReadRequest *insysproto.HandoffSnapshotReadRequest
-		submitCsatParams *insysproto.SubmitCSATRequest
-		submitHandoffRequest *insysproto.SubmitHandoffRequest
+		submitCsatParams           *insysproto.SubmitCSATRequest
+		submitHandoffRequest       *insysproto.SubmitHandoffRequest
 	}
 	tests := []struct {
 		name    string
@@ -59,24 +60,25 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 						testSnapshot.UpdatedAt = time.Now()
 
 						testSnapshot.OnboardersLocationID = snapshot.OnboardersLocationID
-						testSnapshot.PointOfContact =       snapshot.PointOfContact
-						testSnapshot.ReasonForPurchase =    snapshot.ReasonForPurchase
-						testSnapshot.Customizations =       snapshot.Customizations
-						testSnapshot.CustomizationSetup =   snapshot.CustomizationSetup
-						testSnapshot.FaxPortSubmitted =     snapshot.FaxPortSubmitted
-						testSnapshot.RouterType =           snapshot.RouterType
-						testSnapshot.RouterMakeAndModel =   snapshot.RouterMakeAndModel
-						testSnapshot.NetworkDecision =      snapshot.NetworkDecision
-						testSnapshot.BillingNotes =         snapshot.BillingNotes
-						testSnapshot.Notes =                snapshot.Notes
+						testSnapshot.PointOfContactEmail = snapshot.PointOfContactEmail
+						testSnapshot.ReasonForPurchase = snapshot.ReasonForPurchase
+						testSnapshot.Customizations = snapshot.Customizations
+						testSnapshot.CustomizationSetup = snapshot.CustomizationSetup
+						testSnapshot.FaxPortSubmitted = snapshot.FaxPortSubmitted
+						testSnapshot.RouterType = snapshot.RouterType
+						testSnapshot.DisclaimerTypeSent = snapshot.DisclaimerTypeSent
+						testSnapshot.RouterMakeAndModel = snapshot.RouterMakeAndModel
+						testSnapshot.NetworkDecision = snapshot.NetworkDecision
+						testSnapshot.BillingNotes = snapshot.BillingNotes
+						testSnapshot.Notes = snapshot.Notes
 						return testSnapshot, nil
 					},
 					ReadByOnboardersLocationIDFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
 						return testSnapshot, nil
 					},
-					SubmitCSATFn: func(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserId uuid.UUID) (app.HandoffSnapshot, error) {
+					SubmitCSATFn: func(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserEmail string) (app.HandoffSnapshot, error) {
 						testSnapshot.CSATSentAt = null.NewTime(time.Now())
-						testSnapshot.CSATRecipientUserID = null.NewUUIDUUID(csatRecipientUserId)
+						testSnapshot.CsatRecipientUserEmail = null.NewString(csatRecipientUserEmail)
 						return testSnapshot, nil
 					},
 					SubmitHandoffFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
@@ -90,12 +92,13 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 				req: &insysproto.HandoffSnapshotCreateOrUpdateRequest{
 					HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 						OnboardersLocationId: onboardersLocationID.String(),
-						PointOfContact:       pointOfContact.String(),
+						PointOfContactEmail:  pointOfContactEmail.String(),
 						ReasonForPurchase:    reasonForPurchase,
 						Customizations:       customizations,
 						CustomizationSetup:   customizationSetup,
 						FaxPortSubmitted:     faxPortSubmitted,
 						RouterType:           routerType,
+						DisclaimerTypeSent:   disclaimerTypeSent,
 						RouterMakeAndModel:   routerMakeAndModel,
 						NetworkDecision:      networkDecision,
 						BillingNotes:         billingNotes,
@@ -103,8 +106,8 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 					},
 				},
 				submitCsatParams: &insysproto.SubmitCSATRequest{
-					OnboardersLocationId: onboardersLocationID.String(),
-					CsatRecipientUserId:  userID.String(),
+					OnboardersLocationId:   onboardersLocationID.String(),
+					CsatRecipientUserEmail: userID.String(),
 				},
 				handoffSnapshotReadRequest: &insysproto.HandoffSnapshotReadRequest{
 					OnboardersLocationId: onboardersLocationID.String(),
@@ -116,12 +119,13 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 			want: &insysproto.HandoffSnapshotResponse{
 				HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 					OnboardersLocationId: onboardersLocationID.String(),
-					PointOfContact:       pointOfContact.String(),
+					PointOfContactEmail:  pointOfContactEmail.String(),
 					ReasonForPurchase:    reasonForPurchase,
 					Customizations:       customizations,
 					CustomizationSetup:   customizationSetup,
 					FaxPortSubmitted:     faxPortSubmitted,
 					RouterType:           routerType,
+					DisclaimerTypeSent:   disclaimerTypeSent,
 					RouterMakeAndModel:   routerMakeAndModel,
 					NetworkDecision:      networkDecision,
 					BillingNotes:         billingNotes,
@@ -140,18 +144,18 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 						testSnapshot.UpdatedAt = time.Now()
 
 						testSnapshot.OnboardersLocationID = snapshot.OnboardersLocationID
-						testSnapshot.PointOfContact =       snapshot.PointOfContact
-						testSnapshot.ReasonForPurchase =    snapshot.ReasonForPurchase
-						testSnapshot.Customizations =       snapshot.Customizations
-						testSnapshot.CustomizationSetup =   snapshot.CustomizationSetup
+						testSnapshot.PointOfContactEmail = snapshot.PointOfContactEmail
+						testSnapshot.ReasonForPurchase = snapshot.ReasonForPurchase
+						testSnapshot.Customizations = snapshot.Customizations
+						testSnapshot.CustomizationSetup = snapshot.CustomizationSetup
 						return testSnapshot, nil
 					},
 					ReadByOnboardersLocationIDFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
 						return testSnapshot, nil
 					},
-					SubmitCSATFn: func(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserId uuid.UUID) (app.HandoffSnapshot, error) {
+					SubmitCSATFn: func(ctx context.Context, onboardersLocationId uuid.UUID, csatRecipientUserEmail string) (app.HandoffSnapshot, error) {
 						testSnapshot.CSATSentAt = null.NewTime(time.Now())
-						testSnapshot.CSATRecipientUserID = null.NewUUIDUUID(csatRecipientUserId)
+						testSnapshot.CsatRecipientUserEmail = null.NewString(csatRecipientUserEmail)
 						return testSnapshot, nil
 					},
 					SubmitHandoffFn: func(ctx context.Context, onboardersLocationId uuid.UUID) (app.HandoffSnapshot, error) {
@@ -165,15 +169,15 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 				req: &insysproto.HandoffSnapshotCreateOrUpdateRequest{
 					HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 						OnboardersLocationId: onboardersLocationID.String(),
-						PointOfContact:       pointOfContact.String(),
+						PointOfContactEmail:  pointOfContactEmail.String(),
 						ReasonForPurchase:    reasonForPurchase,
 						Customizations:       customizations,
 						CustomizationSetup:   customizationSetup,
 					},
 				},
 				submitCsatParams: &insysproto.SubmitCSATRequest{
-					OnboardersLocationId: onboardersLocationID.String(),
-					CsatRecipientUserId:  userID.String(),
+					OnboardersLocationId:   onboardersLocationID.String(),
+					CsatRecipientUserEmail: userID.String(),
 				},
 				handoffSnapshotReadRequest: &insysproto.HandoffSnapshotReadRequest{
 					OnboardersLocationId: onboardersLocationID.String(),
@@ -185,7 +189,7 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 			want: &insysproto.HandoffSnapshotResponse{
 				HandoffSnapshot: &insysproto.HandoffSnapshotRecord{
 					OnboardersLocationId: onboardersLocationID.String(),
-					PointOfContact:       pointOfContact.String(),
+					PointOfContactEmail:  pointOfContactEmail.String(),
 					ReasonForPurchase:    reasonForPurchase,
 					Customizations:       customizations,
 					CustomizationSetup:   customizationSetup,
@@ -218,6 +222,10 @@ func TestHandoffSnapshotServer_HandoffCycle(t *testing.T) {
 
 			// Test the read function
 			read, err := s.ReadByOnboardersLocationID(tt.args.ctx, tt.args.handoffSnapshotReadRequest)
+			if err != nil {
+				t.Errorf("HandoffSnapshotServer.ReadByOnboardersLocationID() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
 			if !cmp.Equal(read, tt.want, opts...) {
 				t.Errorf("HandoffSnapshotService.ReadByOnboardersLocationID() = %v", cmp.Diff(read, tt.want, opts...))
 			}
