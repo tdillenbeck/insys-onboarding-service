@@ -101,13 +101,14 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		return nil
 	}
 
-	opportunityID := s.getMostRecentOpportunityIDForLocations(ctx, locationsWithoutFirstLogin)
-	if opportunityID == "" {
-		wlog.InfoC(ctx, fmt.Sprintf("no opportunties for location with ID: %s", event.LocationID.String()))
-		return nil
-	}
-
 	for _, locationID := range locationsWithoutFirstLogin {
+
+		opportunityID := s.getMostRecentOpportunityIDForLocation(ctx, locationID)
+		if opportunityID == "" {
+			wlog.InfoC(ctx, fmt.Sprintf("no opportunties for location with ID: %s", event.LocationID.String()))
+			return nil
+		}
+
 		wlog.InfoC(ctx, fmt.Sprintf("fired off zap: username %s location id %s opportunity id %s", userAccess.Username, locationID.String(), opportunityID))
 		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)
 		if err != nil {
@@ -146,28 +147,26 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 	return locationsWithoutFirstLogin, nil
 }
 
-func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocations(ctx context.Context, locationIDs []uuid.UUID) string {
+func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationID uuid.UUID) string {
 	var salesforceOpportunityID string
 
-	for _, locationID := range locationIDs {
-		provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
-		}
+	provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
+	if err != nil {
+		wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
+	}
 
-		if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
-			pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
+	if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
+		pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
 
-			for _, record := range pps {
-				if record.SalesforceOpportunityId != "" {
-					salesforceOpportunityID = record.SalesforceOpportunityId
-				} else {
-					wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
-				}
+		for _, record := range pps {
+			if record.SalesforceOpportunityId != "" {
+				salesforceOpportunityID = record.SalesforceOpportunityId
+			} else {
+				wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
 			}
-		} else {
-			wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 		}
+	} else {
+		wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
 	}
 
 	return salesforceOpportunityID
