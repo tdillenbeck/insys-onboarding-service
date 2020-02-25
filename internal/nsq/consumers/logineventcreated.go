@@ -148,35 +148,27 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 }
 
 func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationID uuid.UUID) string {
-	var salesforceOpportunityID string
 
 	provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 	if err != nil {
 		wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
 	}
 
-	if provisionResponse != nil && len(provisionResponse.PreProvisions) > 0 {
-		pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
-
-		for _, record := range pps {
-			if record.SalesforceOpportunityId != "" {
-				salesforceOpportunityID = record.SalesforceOpportunityId
-			} else {
-				wlog.InfoC(ctx, fmt.Sprintf("no opportunity id for location with id: %s", locationID.String()))
-			}
-		}
-	} else {
+	if provisionResponse == nil || len(provisionResponse.PreProvisions) == 0 {
 		wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
+		return ""
 	}
 
-	return salesforceOpportunityID
+	pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
+
+	return pps[0].SalesforceOpportunityId
 }
 
 func sortPreProvisionsByUpdatedDateDescending(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
 	result := pps
 	// only send the most recent one, so sort by updated date
 	sort.Slice(result, func(i, j int) bool {
-		return result[i].UpdatedAt < result[j].UpdatedAt
+		return result[i].UpdatedAt > result[j].UpdatedAt
 	})
 	return result
 }
