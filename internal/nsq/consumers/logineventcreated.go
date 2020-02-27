@@ -125,13 +125,13 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 		}
 		// END DEPRECATION
 
-		err = s.setUserFirstLoggedInAtOnPreProvisionRecord(ctx, locationID)
+		err = s.setUserFirstLoggedInAtOnPreProvisionRecords(ctx, locationID)
 	}
 
 	return nil
 }
 
-func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecord(ctx context.Context, locationID uuid.UUID) error {
+func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords(ctx context.Context, locationID uuid.UUID) error {
 	preprovisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 	if err != nil {
 		return fmt.Errorf("failed to fetch preprovision for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
