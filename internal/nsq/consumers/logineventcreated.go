@@ -127,7 +127,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 		err = s.setUserFirstLoggedInAtOnPreProvisionRecords(ctx, locationID)
 		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
+			wlog.InfoC(ctx, fmt.Sprintf("failed to log user first logged in at in preprovisioning with location ID: %s. Error Message: %v", locationID.String(), err))
 		}
 	}
 
@@ -141,7 +141,7 @@ func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords
 	}
 
 	if len(preprovisionResponse.PreProvisions) == 0 {
-		return fmt.Errorf("no preprovisions for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
+		return nil
 	}
 
 	for _, preprovision := range preprovisionResponse.PreProvisions {
