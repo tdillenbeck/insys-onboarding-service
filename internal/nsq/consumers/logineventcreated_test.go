@@ -131,6 +131,9 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 							},
 						}, nil
 					},
+					CreateOrUpdatePreProvisionFn: func(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts []grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
+						return nil, nil
+					},
 				},
 				zapierClient: nil,
 			},
@@ -219,6 +222,9 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 								},
 							},
 						}, nil
+					},
+					CreateOrUpdatePreProvisionFn: func(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts []grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
+						return nil, nil
 					},
 				},
 				zapierClient: &mock.ZapierClient{
@@ -315,6 +321,9 @@ func TestLogInEventCreatedSubscriber_processLoginEventMessage(t *testing.T) {
 						return &insysproto.PreProvisionsByLocationIDResponse{
 							PreProvisions: []*insysproto.PreProvision{},
 						}, nil
+					},
+					CreateOrUpdatePreProvisionFn: func(ctx context.Context, req *insysproto.CreateOrUpdatePreProvisionRequest, opts []grpc.CallOption) (*insysproto.CreateOrUpdatePreProvisionResponse, error) {
+						return nil, nil
 					},
 				},
 				zapierClient: &mock.ZapierClient{
