@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 
 	"github.com/gogo/protobuf/proto"
 	nsq "github.com/nsqio/go-nsq"
@@ -115,10 +116,36 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
 			continue
 		}
+
+		// DEPRECATED 2/26/2020.  Use setUserFirstLoggedInAtOnPreProvisionRecord instead
 		err = s.onboardersLocationService.RecordFirstLogin(ctx, locationID)
 		if err != nil {
 			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
 			continue
+		}
+		// END DEPRECATION
+
+		err = s.setUserFirstLoggedInAtOnPreProvisionRecord(ctx, locationID)
+	}
+
+	return nil
+}
+
+func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecord(ctx context.Context, locationID uuid.UUID) error {
+	preprovisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
+	if err != nil {
+		return fmt.Errorf("failed to fetch preprovision for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
+	}
+
+	if len(preprovisionResponse.PreProvisions) == 0 {
+		return fmt.Errorf("no preprovisions for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
+	}
+
+	for _, preprovision := range preprovisionResponse.PreProvisions {
+		preprovision.UserFirstLoggedInAt = time.Now().Format(time.RFC3339)
+		_, err = s.provisioningClient.CreateOrUpdatePreProvision(ctx, &insysproto.CreateOrUpdatePreProvisionRequest{PreProvision: preprovision})
+		if err != nil {
+			return fmt.Errorf("failed to update preprovision user_first_logged_in_at for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
 		}
 	}
 
