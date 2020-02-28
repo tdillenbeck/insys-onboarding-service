@@ -26,7 +26,7 @@ pipeline {
           // Log into Weave container registry
           docker.withRegistry("${env.WEAVEREGISTRY}", "${env.WEAVEREGISTRYCREDS}") {
             // Bootstrap our sidecar
-            docker.image('postgres:11-alpine').withRun("--env POSTGRES_DB=${env.POSTGRES_DB} --env POSTGRES_USER=${env.POSTGRES_USER}") { psql ->
+            docker.image('postgres:11-alpine').withRun("--env POSTGRES_DB=${env.POSTGRES_DB} --env 'POSTGRES_HOST_AUTH_METHOD=trust' --env POSTGRES_USER=${env.POSTGRES_USER}") { psql ->
               // Resolve IP address for our service container since we can't rely on /etc/hosts modifications
               psqlIP = sh(script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${psql.id}", returnStdout: true).trim()
                 // Test network connectivity / wait for sidecar to be ready (optional)
