@@ -137,6 +137,28 @@
 
 -- Phone Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
+    '7b15e061-8002-4edc-9bf4-f38c6eec6364',
+    'Check your office network to ensure compatibility',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
+    3,
+    default,
+    default,
+    'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
+    'Schedule Call',
+    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365'
+  )
+  ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
+    'Check your office network to ensure compatibility',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will remotely access your workstation to check your office network and make recommendations to have the best experience with Weave.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 15 minutes</div>',
+    3,
+    default,
+    default,
+    'Schedule Call',
+    'https://app.acuityscheduling.com/schedule.php?owner=14911380&appointmentType=5221365'
+  );
+
+
+  INSERT INTO insys_onboarding.onboarding_tasks VALUES (
     'fd4f656c-c9f1-47b8-96ad-3080b999a843',
     'Install your new phones',
     '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which a Weave technician will work with you (or your IT professional) to guide you through physically connecting the new phones to internet and power.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 60 minutes</div><div class="insys-content-body"><span class="insys-content-bold">Anything else?</span> Typically, we will want to help you connect the new phones side-by-side with the old phones while we work with your current phone company for a few days to transition your phones service to Weave.</div>',
@@ -178,6 +200,29 @@
     'Watch Videos',
     'http://www.weavehelp.com/webinar-on-demand/'
   );
+
+
+  INSERT INTO insys_onboarding.onboarding_tasks VALUES (
+    '2d2df285-9211-48fc-a057-74f7dee2d9a4',
+    'Customize your phone system',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    10,
+    default,
+    default,
+    'ebc72a11-f1b3-40d5-888e-5b6aba66e871',
+    'Schedule Call',
+    'https://getweave.chilipiper.com/book/customization-calls'
+  )
+  ON CONFLICT(id) DO UPDATE SET (title, content, display_order, created_at, updated_at, button_content, button_external_url) = (
+    'Customize your phone system',
+    '<div class="insys-content-body"><span class="insys-content-bold">What is this?</span> A scheduled call during which your onboarding agent will help customize various features of your phone system - like which phones ring on inbound calls, the name and extension of each phone, and any advanced call routing or auto attendant.</div><div class="insys-content-body"><span class="insys-content-bold">How long will this take?</span> 30 minutes</div>',
+    10,
+    default,
+    default,
+    'Schedule Call',
+    'https://getweave.chilipiper.com/book/customization-calls'
+  );
+
 
 -- Porting Tasks
   INSERT INTO insys_onboarding.onboarding_tasks VALUES (
