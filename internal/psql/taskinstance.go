@@ -108,6 +108,15 @@ INSERT INTO insys_onboarding.onboarding_task_instances
 		onboarding_category_id,
 		id
 	FROM insys_onboarding.onboarding_tasks
+	WHERE id IN (
+		'16a6dc91-ec6b-4b09-b591-a5b0dfa92932', -- sync patient data
+		'720af494-38a4-499f-8633-9c8d5169cd43', -- install weave on other workstations
+		'1120842a-a24b-40e8-b29e-0e05e89af99f', -- install the weave mobile app
+		'47743fae-c775-45d5-8a51-dc7e3371dfa4', -- watch helpful phone training videos
+		'c20b65d8-e281-4e62-98f0-4aebf83e0bee', -- watch our helpful software training
+		'fd4f656c-c9f1-47b8-96ad-3080b999a843', -- install your new phones
+		'9aec502b-f8b8-4f10-9748-1fe4050eacde'  -- provide current phone account info
+	)
 RETURNING id, location_id, onboarding_category_id, onboarding_task_id, completed_at, completed_by, verified_at, verified_by, button_content, button_external_url, button_internal_url, content, display_order, status, status_updated_at, status_updated_by, title, explanation, created_at, updated_at;
 `
 	rows, err := t.DB.QueryContext(ctx, query, locationID.String())
