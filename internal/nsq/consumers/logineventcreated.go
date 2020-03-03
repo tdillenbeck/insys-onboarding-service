@@ -94,50 +94,38 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 	wlog.InfoC(ctx, fmt.Sprintf("received login event message for user %v. locations: %v", userUUID, locationIDs))
 
-	locationsWithoutFirstLogin, err := s.filterLocationsToThoseWithoutFirstLoginForUser(ctx, locationIDs)
+	preprovisions, err := s.getPreprovisionsByLocationID(ctx, locationIDs)
 	if err != nil {
 		return err
 	}
-	if len(locationsWithoutFirstLogin) == 0 {
+	if len(preprovisions) == 0 {
+		return nil
+	}
+	preprovisionsWithoutFirstLogin, err := s.filterPreprovisionsToThoseWithoutFirstLogin(ctx, preprovisions)
+
+	if len(preprovisionsWithoutFirstLogin) == 0 {
 		return nil
 	}
 
-	for _, locationID := range locationsWithoutFirstLogin {
+	for _, preprovision := range preprovisionsWithoutFirstLogin {
 
-		opportunityID := s.getMostRecentOpportunityIDForLocation(ctx, locationID)
-		if opportunityID == "" {
-			wlog.InfoC(ctx, fmt.Sprintf("no opportunties for location with ID: %s", event.LocationID.String()))
-			return nil
+		zapierSendErr := s.zapierClient.Send(ctx, userAccess.Username, preprovision.LocationId, preprovision.SalesforceOpportunityId)
+		if zapierSendErr != nil {
+			return werror.Wrap(err, "failed to fire off zapier call").Add("Username", userAccess.Username).Add("locationId", preprovision.LocationId).Add("SalesforceOpportunityId", preprovision.SalesforceOpportunityId)
 		}
-
-		wlog.InfoC(ctx, fmt.Sprintf("fired off zap: username %s location id %s opportunity id %s", userAccess.Username, locationID.String(), opportunityID))
-		err = s.zapierClient.Send(ctx, userAccess.Username, locationID.String(), opportunityID)
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to fire off zapier call to mark Opportunity as `Closed-Won` for location with ID: %s. Error Message: %v", locationID.String(), err))
-			continue
-		}
-
-		// DEPRECATED 2/26/2020.  Use setUserFirstLoggedInAtOnPreProvisionRecord instead
-		err = s.onboardersLocationService.RecordFirstLogin(ctx, locationID)
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to record first login for location with ID: %s. Error Message: %v", locationID.String(), err))
-			continue
-		}
-		// END DEPRECATION
-
-		err = s.setUserFirstLoggedInAtOnPreProvisionRecords(ctx, locationID)
-		if err != nil {
-			wlog.InfoC(ctx, fmt.Sprintf("failed to log user first logged in at in preprovisioning with location ID: %s. Error Message: %v", locationID.String(), err))
+		updatePreProvErr := s.setUserFirstLoggedInAtOnPreProvisionRecords(ctx, preprovision.LocationId)
+		if updatePreProvErr != nil {
+			wlog.InfoC(ctx, fmt.Sprintf("failed to log user first logged in at in preprovisioning with location ID: %s. Error Message: %v", preprovision.LocationId, err))
 		}
 	}
 
 	return nil
 }
 
-func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords(ctx context.Context, locationID uuid.UUID) error {
-	preprovisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
+func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords(ctx context.Context, locationID string) error {
+	preprovisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID})
 	if err != nil {
-		return fmt.Errorf("failed to fetch preprovision for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
+		return fmt.Errorf("failed to fetch preprovision for location with ID %s from provisioning service. Error Message: %v", locationID, err)
 	}
 
 	if len(preprovisionResponse.PreProvisions) == 0 {
@@ -148,18 +136,18 @@ func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords
 		preprovision.UserFirstLoggedInAt = time.Now().Format(time.RFC3339)
 		_, err = s.provisioningClient.CreateOrUpdatePreProvision(ctx, &insysproto.CreateOrUpdatePreProvisionRequest{PreProvision: preprovision})
 		if err != nil {
-			return fmt.Errorf("failed to update preprovision user_first_logged_in_at for location with ID %s from provisioning service. Error Message: %v", locationID.String(), err)
+			return fmt.Errorf("failed to update preprovision user_first_logged_in_at for location with ID %s from provisioning service. Error Message: %v", locationID, err)
 		}
 	}
 
 	return nil
 }
 
-func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForUser(ctx context.Context, locationIDs []uuid.UUID) ([]uuid.UUID, error) {
-	var locationsWithoutFirstLogin []uuid.UUID
+func (s LogInEventCreatedSubscriber) getPreprovisionsByLocationID(ctx context.Context, locationIDs []uuid.UUID) ([]insysproto.PreProvision, error) {
+	var preprovisions []insysproto.PreProvision
 
 	for _, locationID := range locationIDs {
-		location, err := s.onboardersLocationService.ReadByLocationID(ctx, locationID)
+		preprovisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
 		if err != nil {
 			if werror.HasCode(err, wgrpc.CodeNotFound) {
 				wlog.InfoC(ctx, fmt.Sprintf("no location with id: %s", locationID))
@@ -168,13 +156,24 @@ func (s LogInEventCreatedSubscriber) filterLocationsToThoseWithoutFirstLoginForU
 				return nil, werror.Wrap(err, "could not read location for location by id ").Add("locationID", locationID)
 			}
 		}
-
-		if !location.UserFirstLoggedInAt.Valid {
-			locationsWithoutFirstLogin = append(locationsWithoutFirstLogin, location.LocationID)
+		for _, preprovision := range preprovisionResponse.PreProvisions {
+			preprovisions = append(preprovisions, *preprovision)
 		}
 	}
 
-	return locationsWithoutFirstLogin, nil
+	return preprovisions, nil
+}
+
+func (s LogInEventCreatedSubscriber) filterPreprovisionsToThoseWithoutFirstLogin(ctx context.Context, preprovisions []insysproto.PreProvision) ([]insysproto.PreProvision, error) {
+	var preprovisionsWithoutFirstLogin []insysproto.PreProvision
+
+	for _, preprovision := range preprovisions {
+		if preprovision.UserFirstLoggedInAt != "" && preprovision.LocationId != "" {
+			preprovisionsWithoutFirstLogin = append(preprovisionsWithoutFirstLogin, preprovision)
+		}
+	}
+
+	return preprovisionsWithoutFirstLogin, nil
 }
 
 func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationID uuid.UUID) string {
