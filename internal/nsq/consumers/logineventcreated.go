@@ -94,7 +94,7 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 	wlog.InfoC(ctx, fmt.Sprintf("received login event message for user %v. locations: %v", userUUID, locationIDs))
 
-	preprovisions, err := s.getPreprovisionsByLocationID(ctx, locationIDs)
+	preprovisions, err := s.getPreprovisionsByLocationIDs(ctx, locationIDs)
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,6 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 	}
 
 	for _, preprovision := range preprovisionsWithoutFirstLogin {
-
 		zapierSendErr := s.zapierClient.Send(ctx, userAccess.Username, preprovision.LocationId, preprovision.SalesforceOpportunityId)
 		if zapierSendErr != nil {
 			return werror.Wrap(err, "failed to fire off zapier call").Add("Username", userAccess.Username).Add("locationId", preprovision.LocationId).Add("SalesforceOpportunityId", preprovision.SalesforceOpportunityId)
@@ -143,7 +142,7 @@ func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords
 	return nil
 }
 
-func (s LogInEventCreatedSubscriber) getPreprovisionsByLocationID(ctx context.Context, locationIDs []uuid.UUID) ([]insysproto.PreProvision, error) {
+func (s LogInEventCreatedSubscriber) getPreprovisionsByLocationIDs(ctx context.Context, locationIDs []uuid.UUID) ([]insysproto.PreProvision, error) {
 	var preprovisions []insysproto.PreProvision
 
 	for _, locationID := range locationIDs {
@@ -168,7 +167,7 @@ func (s LogInEventCreatedSubscriber) filterPreprovisionsToThoseWithoutFirstLogin
 	var preprovisionsWithoutFirstLogin []insysproto.PreProvision
 
 	for _, preprovision := range preprovisions {
-		if preprovision.UserFirstLoggedInAt != "" && preprovision.LocationId != "" {
+		if preprovision.UserFirstLoggedInAt == "" {
 			preprovisionsWithoutFirstLogin = append(preprovisionsWithoutFirstLogin, preprovision)
 		}
 	}
