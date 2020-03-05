@@ -1051,10 +1051,10 @@
 			"revisionTime": "2020-01-07T17:49:53Z"
 		},
 		{
-			"checksumSHA1": "W6tN/GYkjuMimWX2EH6VPKsFd8g=",
+			"checksumSHA1": "hfkU9ltrsx04PRs9Qkm+XFxIVTI=",
 			"path": "weavelab.xyz/monorail/shared/protorepo/dist/go/messages/insysproto",
-			"revision": "417de2daf36db8f06f38a00161eddd41c9d00fb8",
-			"revisionTime": "2020-02-26T23:35:24Z"
+			"revision": "80aa56041a2f56d955c44062e405f32e3e21b029",
+			"revisionTime": "2020-03-02T17:18:31Z"
 		},
 		{
 			"checksumSHA1": "UNSlkYu7SHitPNgeKq92ebZnhSw=",
