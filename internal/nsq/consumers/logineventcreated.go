@@ -3,7 +3,6 @@ package consumers
 import (
 	"context"
 	"fmt"
-	"sort"
 	"time"
 
 	"github.com/gogo/protobuf/proto"
@@ -73,7 +72,8 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event clientproto.LoginEvent) error {
 	userUUID, err := event.UserID.UUID()
 	if err != nil {
-		return werror.Wrap(err, "could not unmarshal LoginEvent User UUID").Add("UserID", event.UserID)
+		wlog.ErrorC(ctx, "could not unmarshal LoginEvent User UUID:"+event.UserID.String())
+		return nil
 	}
 
 	userAccess, err := s.authClient.UserLocations(ctx, userUUID)
@@ -173,30 +173,4 @@ func (s LogInEventCreatedSubscriber) filterPreprovisionsToThoseWithoutFirstLogin
 	}
 
 	return preprovisionsWithoutFirstLogin, nil
-}
-
-func (s LogInEventCreatedSubscriber) getMostRecentOpportunityIDForLocation(ctx context.Context, locationID uuid.UUID) string {
-
-	provisionResponse, err := s.provisioningClient.PreProvisionsByLocationID(ctx, &insysproto.PreProvisionsByLocationIDRequest{LocationId: locationID.String()})
-	if err != nil {
-		wlog.InfoC(ctx, fmt.Sprintf("failed to get preprovisions for location with id: %s. error message: %v", locationID, err))
-	}
-
-	if provisionResponse == nil || len(provisionResponse.PreProvisions) == 0 {
-		wlog.InfoC(ctx, fmt.Sprintf("no preprovisions for location with id: %s", locationID.String()))
-		return ""
-	}
-
-	pps := sortPreProvisionsByUpdatedDateDescending(provisionResponse.PreProvisions)
-
-	return pps[0].SalesforceOpportunityId
-}
-
-func sortPreProvisionsByUpdatedDateDescending(pps []*insysproto.PreProvision) []*insysproto.PreProvision {
-	result := pps
-	// only send the most recent one, so sort by updated date
-	sort.Slice(result, func(i, j int) bool {
-		return result[i].UpdatedAt > result[j].UpdatedAt
-	})
-	return result
 }
