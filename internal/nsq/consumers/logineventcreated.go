@@ -96,14 +96,17 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 	preprovisions, err := s.getPreprovisionsByLocationIDs(ctx, locationIDs)
 	if err != nil {
-		return err
+		wlog.ErrorC(ctx, fmt.Sprintf("could not fetch preprovisions with location ids: %+v", locationIDs))
+		return nil
 	}
 	if len(preprovisions) == 0 {
+		wlog.ErrorC(ctx, fmt.Sprintf("no preprovisions with location ids: %+v", locationIDs))
 		return nil
 	}
 	preprovisionsWithoutFirstLogin, err := s.filterPreprovisionsToThoseWithoutFirstLogin(ctx, preprovisions)
 
 	if len(preprovisionsWithoutFirstLogin) == 0 {
+		wlog.InfoC(ctx, fmt.Sprintf("no preprovisions with without first login for locations ids %v", locationIDs))
 		return nil
 	}
 
@@ -128,6 +131,7 @@ func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords
 	}
 
 	if len(preprovisionResponse.PreProvisions) == 0 {
+		wlog.ErrorC(ctx, fmt.Sprintf("no preprovisions with location id: %+v", locationID))
 		return nil
 	}
 
