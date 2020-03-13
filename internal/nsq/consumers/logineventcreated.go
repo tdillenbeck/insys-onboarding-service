@@ -62,7 +62,7 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 
 	err := proto.Unmarshal(m.Body, &le)
 	if err != nil {
-		wlog.ErrorC(ctx, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct")
+		wlog.WErrorC(ctx, werror.Wrap(err, "could not unmarshal LoginEvent message body into proto for clientproto.LoginEvent struct"))
 		return nil
 	}
 
@@ -72,7 +72,7 @@ func (s LogInEventCreatedSubscriber) HandleMessage(ctx context.Context, m *nsq.M
 func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Context, event clientproto.LoginEvent) error {
 	userUUID, err := event.UserID.UUID()
 	if err != nil {
-		wlog.ErrorC(ctx, "could not unmarshal LoginEvent User UUID:"+event.UserID.String())
+		wlog.WErrorC(ctx, werror.Wrap(err, "could not unmarshal LoginEvent User UUID:").Add("userID", event.UserID.String()))
 		return nil
 	}
 
@@ -96,11 +96,11 @@ func (s LogInEventCreatedSubscriber) processLoginEventMessage(ctx context.Contex
 
 	preprovisions, err := s.getPreprovisionsByLocationIDs(ctx, locationIDs)
 	if err != nil {
-		wlog.ErrorC(ctx, fmt.Sprintf("could not fetch preprovisions with location ids: %+v", locationIDs))
+		wlog.WErrorC(ctx, werror.Wrap(err, fmt.Sprintf("could not fetch preprovisions with location ids: %+v", locationIDs)))
 		return nil
 	}
 	if len(preprovisions) == 0 {
-		wlog.ErrorC(ctx, fmt.Sprintf("no preprovisions with location ids: %+v", locationIDs))
+		wlog.WErrorC(ctx, werror.New(fmt.Sprintf("no preprovisions with location ids: %+v", locationIDs)))
 		return nil
 	}
 	preprovisionsWithoutFirstLogin, err := s.filterPreprovisionsToThoseWithoutFirstLogin(ctx, preprovisions)
@@ -131,7 +131,7 @@ func (s LogInEventCreatedSubscriber) setUserFirstLoggedInAtOnPreProvisionRecords
 	}
 
 	if len(preprovisionResponse.PreProvisions) == 0 {
-		wlog.ErrorC(ctx, fmt.Sprintf("no preprovisions with location id: %+v", locationID))
+		wlog.WErrorC(ctx, werror.New(fmt.Sprintf("no preprovisions with location id: %+v", locationID)))
 		return nil
 	}
 
