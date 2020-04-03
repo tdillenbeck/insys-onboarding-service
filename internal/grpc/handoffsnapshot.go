@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"strings"
+	"weavelab.xyz/monorail/shared/wlib/wlog"
+	"weavelab.xyz/monorail/shared/wlib/wlog/tag"
 
 	"weavelab.xyz/monorail/shared/wlib/uuid"
 
@@ -82,6 +84,7 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 		return nil, wgrpc.Error(wgrpc.CodeInvalidArgument, werror.Wrap(err, "error parsing: ").Add("req.OnboardersLocationId", req.OnboardersLocationId))
 	}
 
+	wlog.InfoC(ctx, "submitting CSAT", tag.String("OnboardersLocationId", req.OnboardersLocationId), tag.String("CsatRecipientUserEmail", req.CsatRecipientUserEmail))
 	result, err := s.handoffSnapshotService.ReadByOnboardersLocationID(ctx, onboardersLocationID)
 	if err != nil {
 		if err == sql.ErrNoRows {
