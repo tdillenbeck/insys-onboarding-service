@@ -93,10 +93,9 @@ make migrateprod
 
 ## Deployment
 
-This service uses [helm](https://github.com/helm/charts) to manage our kubernetes deploys. The help charts can be found in the `charts/` folder.
+This service uses [bart](https://github.com/weave-lab/bart) to manage our kubernetes deploys. 
 
 [Kubernetes](https://kubernetes.io/) - System for automating deployment, scaling, and management of containerized applications
-[Helm](https://github.com/helm/helm) - Kubernetes Package Manager
 [Jenkins](https://jenkins.io/) - Automated build server
 [Weave Jenkins Build Server](https://builds.weavelab.xyz/) - UI to view Weave builds.
 
@@ -110,10 +109,8 @@ $ bart builds
 
 If you have added database migrations, make sure to use the `make migratedev` task before deploying.
 
-Update the build tag value in `charts/insys-onboarding/values-dev.yaml` file.
-
 ```bash
-make deploydev
+bart deploy [build sha] dev-ut
 ```
 
 View the kubernetes dashboard for the dev environment at http://dev-dashboard.weave.local/.
@@ -122,10 +119,8 @@ View the kubernetes dashboard for the dev environment at http://dev-dashboard.we
 
 If you have added database migrations, make sure to use the `make migrateprod` task before deploying.
 
-Update the build tag in `charts/insys-onboarding/values.yaml` file.
-
 ```bash
-make deployprod
+bart deploy [build sha] prod-ut
 ```
 View the kubernetes dashboard for the prod environment at http://dashboard-ut.weave.local/.
 
