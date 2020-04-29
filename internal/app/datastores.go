@@ -33,7 +33,6 @@ type OnboarderService interface {
 type OnboardersLocationService interface {
 	CreateOrUpdate(ctx context.Context, onboardersLocation *OnboardersLocation) (*OnboardersLocation, error)
 	ReadByLocationID(ctx context.Context, locationID uuid.UUID) (*OnboardersLocation, error)
-	RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error
 }
 
 type RescheduleTrackingEventService interface {

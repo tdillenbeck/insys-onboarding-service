@@ -72,7 +72,6 @@ type OnboardersLocation struct {
 	LocationID              uuid.UUID
 	Region                  null.String
 	SalesforceOpportunityID null.String
-	UserFirstLoggedInAt     null.Time
 	CreatedAt               time.Time
 	UpdatedAt               time.Time
 }
