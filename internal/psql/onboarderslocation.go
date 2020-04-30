@@ -25,7 +25,7 @@ INSERT INTO insys_onboarding.onboarders_location
 VALUES ($1, $2, $3, $4, $5, now(), now())
 ON CONFLICT(location_id) DO UPDATE SET
 	(onboarder_id, region, salesforce_opportunity_id, updated_at) = ($2, $4, $5, now())
-RETURNING id, onboarder_id, location_id, region, salesforce_opportunity_id, user_first_logged_in_at, created_at, updated_at;
+RETURNING id, onboarder_id, location_id, region, salesforce_opportunity_id, created_at, updated_at;
 `
 
 	row := s.DB.QueryRowContext(
@@ -44,7 +44,6 @@ RETURNING id, onboarder_id, location_id, region, salesforce_opportunity_id, user
 		&onboardersLocation.LocationID,
 		&onboardersLocation.Region,
 		&onboardersLocation.SalesforceOpportunityID,
-		&onboardersLocation.UserFirstLoggedInAt,
 		&onboardersLocation.CreatedAt,
 		&onboardersLocation.UpdatedAt,
 	)
@@ -60,7 +59,7 @@ func (s *OnboardersLocationService) ReadByLocationID(ctx context.Context, locati
 
 	query := `
 SELECT
-	id, onboarder_id, location_id, region, salesforce_opportunity_id, user_first_logged_in_at, created_at, updated_at
+	id, onboarder_id, location_id, region, salesforce_opportunity_id, created_at, updated_at
 FROM insys_onboarding.onboarders_location
 WHERE location_id = $1
 `
@@ -72,7 +71,6 @@ WHERE location_id = $1
 		&onboardersLocation.LocationID,
 		&onboardersLocation.Region,
 		&onboardersLocation.SalesforceOpportunityID,
-		&onboardersLocation.UserFirstLoggedInAt,
 		&onboardersLocation.CreatedAt,
 		&onboardersLocation.UpdatedAt,
 	)
@@ -84,38 +82,4 @@ WHERE location_id = $1
 	}
 
 	return &onboardersLocation, nil
-}
-
-func (s *OnboardersLocationService) RecordFirstLogin(ctx context.Context, locationID uuid.UUID) error {
-	onboardersLocation, err := s.ReadByLocationID(ctx, locationID)
-	if err != nil {
-		return werror.Wrap(err, "error selecting onboarders location by location id")
-	}
-
-	if onboardersLocation.UserFirstLoggedInAt.Valid {
-		return nil
-	}
-
-	query := `
-	UPDATE insys_onboarding.onboarders_location
-	SET 
-		user_first_logged_in_at = now(),
-		updated_at = now()
-	WHERE location_id = $1;`
-
-	result, err := s.DB.ExecContext(ctx, query, locationID.String())
-	if err != nil {
-		return werror.Wrap(err, "error setting first user_first_logged_in_at")
-	}
-
-	rowsEffected, err := result.RowsAffected()
-	if err != nil {
-		return werror.Wrap(err, "error reading number of rows affected")
-	}
-
-	if rowsEffected == 0 {
-		return werror.New("could not find location by locationID").SetCode(wgrpc.CodeNotFound).Add("locationID", locationID.String())
-	}
-
-	return nil
 }

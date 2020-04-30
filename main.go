@@ -105,7 +105,7 @@ func main() {
 
 	chiliPiperScheduleEventCreatedSubscriber := consumers.NewChiliPiperScheduleEventCreatedSubscriber(chiliPiperScheduleEventsService, onboarderService, rescheduleTrackingService, onboardersLocationServer, onboardingServer, featureFlagsClient)
 	portingDataRecordCreatedSubscriber := consumers.NewPortingDataRecordCreatedSubscriber(ctx, taskInstanceService)
-	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, authClient, featureFlagsClient, onboardersLocationService, provisioningClient, zapierClient)
+	loginEventCreatedSubscriber := consumers.NewLogInEventCreatedSubscriber(ctx, authClient, featureFlagsClient, provisioningClient, zapierClient)
 
 	grpcStarter := grpcwapp.Bootstrap(grpcBootstrap(chiliPiperScheduleEventServer, onboardingServer, onboarderServer, onboardersLocationServer, handoffSnapshotServer, rescheduleTrackingEventServer))
 

@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.6
--- Dumped by pg_dump version 11.3
+-- Dumped from database version 11.5
+-- Dumped by pg_dump version 12.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -24,8 +24,6 @@ CREATE SCHEMA insys_onboarding;
 
 
 SET default_tablespace = '';
-
-SET default_with_oids = false;
 
 --
 -- Name: chili_piper_schedule_events; Type: TABLE; Schema: insys_onboarding; Owner: -
@@ -86,22 +84,22 @@ ALTER SEQUENCE insys_onboarding.goose_db_version_id_seq OWNED BY insys_onboardin
 CREATE TABLE insys_onboarding.handoff_snapshots (
     id uuid NOT NULL,
     onboarders_location_id uuid NOT NULL,
-    billing_notes text,
     csat_recipient_user_email text,
     csat_sent_at timestamp with time zone,
-    customization_setup text,
-    customizations boolean,
-    disclaimer_type_sent text,
-    fax_port_submitted text,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
     handed_off_at timestamp with time zone,
-    network_decision text,
-    notes text,
     point_of_contact_email text,
     reason_for_purchase text,
-    router_make_and_model text,
+    customizations boolean,
+    customization_setup text,
+    fax_port_submitted text,
     router_type text,
-    created_at timestamp with time zone DEFAULT now() NOT NULL,
-    updated_at timestamp with time zone DEFAULT now() NOT NULL
+    router_make_and_model text,
+    network_decision text,
+    billing_notes text,
+    notes text,
+    disclaimer_type_sent text
 );
 
 
@@ -136,7 +134,6 @@ CREATE TABLE insys_onboarding.onboarders_location (
     location_id uuid NOT NULL,
     created_at timestamp without time zone DEFAULT now() NOT NULL,
     updated_at timestamp without time zone DEFAULT now() NOT NULL,
-    user_first_logged_in_at timestamp with time zone,
     region text,
     salesforce_opportunity_id text
 );
