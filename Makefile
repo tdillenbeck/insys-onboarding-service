@@ -18,19 +18,6 @@ govet:
 goerror:
 	./dev/errcheck.sh
 
-deploydev:
-	helm upgrade --kube-context dev-ut  insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-dev.yaml --namespace=insys
-
-deployprod:
-	make deployprodut
-	make deployprodca1
-
-deployprodca1:
-	helm upgrade --kube-context gke_weave-canada_northamerica-northeast1_ca1 insys-onboarding ./charts/insys-onboarding --reset-values -f ./charts/insys-onboarding/values-ca.yaml --namespace=insys --install
-
-deployprodut:
-	helm upgrade --kube-context prod-ut insys-onboarding ./charts/insys-onboarding --reset-values --namespace=insys
-
 migratelocalup:
 	goose -dir ./dbconfig/migrations postgres "postgres://postgres@localhost:5432/insys_onboarding_local?search_path=insys_onboarding&sslmode=disable" up && pg_dump -O -n insys_onboarding -f ./dbconfig/dump.sql --schema-only postgres://localhost:5432/insys_onboarding_local?&sslmode=disable
 

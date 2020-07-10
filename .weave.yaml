@@ -1,93 +1,74 @@
-schema: "1"
-
-slug: "insys-onboarding-service" # No spaces or special characters and must be unique. This is used as the identifier
-name: "insys onboarding service"
-owner: "squad-insys@getweave.com"
-repo: "gcr.io/weave-lab/insys/insys-onboarding-service"
-domain: "insys"
+schema: 1
+name: insys onboarding service
+slug: insys-onboarding-service
+owner: squad-insys@getweave.com
+repo: gcr.io/weave-lab/insys/insys-onboarding-service
+domain: insys
 slack: "#squad-insys-alerts"
-
-#############################
-# Radioactive Man!!!
-#############################
-# radioactive:
-#   state: alpha  # alpha | private (private beta) | beta | ga
-  # excludes: # Exclude some default radioactive templates
-  # - database
-  # - scale
-  # requirements:
-  #   network-diagram: http://my-network-diagram-check-it-out
-  #   metrics-dashboard: http://grafana.devs/my-app-dashboard
-  #   metrics-alerts: http://prometheus.devs/my-app-alerts
-  #   pagerduty-schedule: http://pagerduty.com/my-app-schedule-setup
-
-#############################
-# Ports 
-#############################
-
-# ports:
-# - name: main-port
-#   protocol: TCP
-#   number: 9000
-# - name: health-check 
-#   protocol: TCP
-#   number: 7777
-
-#############################
-# Resources
-#############################
-
-# resources:
-#   ram: 100m
-#   cpu: .5u
-#   replicas: 3
-#   maxReplicas: 10
-
-#############################
-# Environment Variables 
-#############################
-
-# env:
-# - name: THIS_PORT
-#   value: 9000
-# - name: PROPERTY_TWO
-#   configMapName: myConfigMap
-#   key: propertytwo
-# - name: PRIVATE_STUFF
-#   secretName: mySecret
-#   key: propertythree
-
-# overrides:
-#   dev:
-#   - name: THIS_PORT
-#     value: 9001
-#   - name: local
-#     env:
-#   local:
-#   - name: THIS_PORT
-#     value: 8080
-    
-
-#############################
-# Outside Access
-#############################
-
-# expose:
-# - name: http
-#   domain: api.getweave.com
-#   paths:
-#   - "/hi"
-#   - "/hello"
-#   destination: main-port
-# - name: diagnostics
-#   nodeport: 30211
-#   destination: health-check
-
-#############################
-# Sidecars
-#############################
-# sidecars:
-# - wsql:v1
-# - wcache-redis
-# - wmetrics
-
+k8sNamespace: insys
+k8sName: insys-onboarding
+deploy:
+  base:
+    ports:
+    - name: grpc
+      number: 9000
+    env:
+    - name: VAULT_ADDR
+      value: http://vault.ops:8200
+    - name: MAX_OPEN_CONNECTIONS
+      value: "2"
+    service:
+    - name: insys-onboarding
+      type: NodePort
+      ports:
+      - name: grpc
+        number: 9000
+        targetPort: grpc
+        nodePort: 30704
+    resources:
+      limits:
+        cpu: 100m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      scaling:
+        maxSurge: 2
+  dev-ut:
+    env:
+    - name: DB_PRIMARY_ADDR
+      value: dev-pgsql-service-1a:5432
+    - name: DB_REPLICA_ADDR
+      value: dev-pgsql-service-1a:5432
+    - name: DB_NAME
+      value: services
+    - name: MAX_IDLE_CONNECTIONS
+      value: "1"
+    - name: MAX_CONNECTION_LIFETIME
+      value: 10m
+    - name: LOG_QUERIES
+      value: "true"
+    - name: LOG_LEVEL
+      value: debug
+    resources:
+      scaling:
+        replicas: 1
+  prod-ut:
+    env:
+    - name: PG_PRIMARY_CONNECT_STRING
+      value: vault:insys-onboarding-db#PG_PRIMARY_CONNECT_STRING#1
+    - name: PG_REPLICA_CONNECT_STRING
+      value: vault:insys-onboarding-db#PG_REPLICA_CONNECT_STRING#1
+    - name: DB_PRIMARY_ADDR
+      value: pgsql-service-1a:5432
+    - name: DB_REPLICA_ADDR
+      value: pgsql-service-1b:5432
+    - name: MAX_IDLE_CONNECTIONS
+      value: "2"
+    - name: MAX_CONNECTION_LIFETIME
+      value: 30m
+    - name: LOG_QUERIES
+      value: "false"
+    - name: LOG_LEVEL
+      value: info
+    resources: {}
