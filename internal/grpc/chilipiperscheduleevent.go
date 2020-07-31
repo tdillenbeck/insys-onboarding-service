@@ -84,7 +84,7 @@ func (s *ChiliPiperScheduleEventServer) Create(ctx context.Context, req *insyspr
 	err = s.chiliPiperScheduleEventPublisher.PublishCreated(ctx, result)
 	if err != nil {
 		// Do not fail RPC request if NSQ publisher doesn't work. we still want the chili piper created rpc call to return
-		wlog.ErrorC(ctx, "could not publish chili piper created event to NSQ")
+		wlog.WErrorC(ctx, werror.New("could not publish chili piper created event to NSQ"))
 	}
 
 	return result, nil

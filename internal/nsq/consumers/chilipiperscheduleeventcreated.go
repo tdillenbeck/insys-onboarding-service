@@ -52,7 +52,7 @@ func (c ChiliPiperScheduleEventCreatedSubscriber) HandleMessage(ctx context.Cont
 
 	err := proto.Unmarshal(m.Body, &chiliPiperScheduleEventResponse)
 	if err != nil {
-		wlog.ErrorC(ctx, "could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct")
+		wlog.WErrorC(ctx, werror.New("could not unmarshal ChiliPiperScheduleEventCreated message body into proto for insysproto.ChiliPiperScheduleEventResponse struct"))
 		return nil
 	}
 

@@ -31,13 +31,13 @@ func (p PortingDataRecordCreatedSubscriber) HandleMessage(ctx context.Context, m
 	var pd insysproto.PortingData
 	err := proto.Unmarshal(m.Body, &pd)
 	if err != nil {
-		wlog.ErrorC(ctx, "could not parse porting data proto mesage for porting data record created event")
+		wlog.WErrorC(ctx, werror.New("could not parse porting data proto mesage for porting data record created event"))
 		return nil
 	}
 
 	locationUUID, err := uuid.Parse(pd.LocationId)
 	if err != nil {
-		wlog.ErrorC(ctx, "could not parse location id from porting data")
+		wlog.WErrorC(ctx, werror.New("could not parse location id from porting data"))
 		return nil
 	}
 
