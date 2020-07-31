@@ -91,6 +91,8 @@ func (s *HandoffSnapshotServer) SubmitCSAT(ctx context.Context, req *insysproto.
 			return nil, wgrpc.Error(wgrpc.CodeNotFound, werror.Wrap(err, "no handoff snapshot found for onboarders location id").Add("onboardersLocationID", onboardersLocationID))
 		}
 		return nil, werror.Wrap(err, "failed to get porting data")
+		wlog.InfoC(ctx, "submitting CSAT", tag.String("OnboardersLocationId", req.OnboardersLocationId), tag.String("CsatRecipientUserEmail", req.CsatRecipientUserEmail))
+
 	}
 
 	missingFields := validateCsatSubmit(result)
