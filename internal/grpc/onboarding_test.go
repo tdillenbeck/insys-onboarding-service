@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"google.golang.org/grpc"
 
 	"weavelab.xyz/insys-onboarding-service/internal/app"
@@ -80,6 +81,10 @@ func TestOnboardingServer_Category(t *testing.T) {
 		},
 	}
 
+	opts := []cmp.Option{
+		cmpopts.IgnoreFields(insysproto.Category{}, "CreatedAt"),
+	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &OnboardingServer{
@@ -91,7 +96,7 @@ func TestOnboardingServer_Category(t *testing.T) {
 				t.Errorf("OnboardingServer.Category() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !cmp.Equal(got, tt.want) {
+			if !cmp.Equal(got, tt.want, opts...) {
 				t.Errorf("OnboardingServer.Category() = %v, want %v", got, tt.want)
 			}
 		})

@@ -6,9 +6,9 @@ require (
 	cloud.google.com/go v0.51.1-0.20200107165111-3871eeee47c1 // indirect
 	github.com/GoogleCloudPlatform/cloudsql-proxy v1.16.1-0.20191204003823-eaca70f0c07c // indirect
 	github.com/gogo/protobuf v1.3.1
-	github.com/golang/protobuf v1.4.1
+	github.com/golang/protobuf v1.4.2
 	github.com/golang/snappy v0.0.2-0.20190904063534-ff6b7dc882cf // indirect
-	github.com/google/go-cmp v0.5.0
+	github.com/google/go-cmp v0.5.1
 	github.com/grpc-ecosystem/go-grpc-middleware v1.1.1-0.20200105103219-6f8030a0b4ee // indirect
 	github.com/jmoiron/sqlx v1.2.1-0.20191203222853-2ba0fc60eb4a // indirect
 	github.com/lib/pq v1.3.0 // indirect
