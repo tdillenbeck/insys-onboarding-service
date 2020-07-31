@@ -29,12 +29,22 @@ pipeline {
           POSTGRES_SEARCH_PATH = "insys_onboarding"
           POSTGRES_USER = "postgres"
         }
+
       steps {
         script {
           // Log into Weave container registry
           docker.withRegistry("${env.WEAVEREGISTRY}", "${env.WEAVEREGISTRYCREDS}") {
             // Bootstrap our sidecar
             docker.image('postgres:11-alpine').withRun("--env POSTGRES_HOST_AUTH_METHOD=trust --env POSTGRES_DB=${env.POSTGRES_DB} --env POSTGRES_USER=${env.POSTGRES_USER}") { psql ->
+              // Guard against dependent container failing.
+              sh(script: "docker inspect -f '{{ .State.Running }}' ${psql.id}")
+              up = sh(script: "docker inspect -f '{{ .State.Running }}' ${psql.id}", returnStdout: true).trim().toBoolean()
+              if (!up) {
+                // if we fail, pump the container logs into stdout so we aren't failing silently
+                sh(script: "docker logs ${psql.id}")
+                error("Build failed because postgres did not start correctly. See logs for output.")
+              }
+
               // Resolve IP address for our service container since we can't rely on /etc/hosts modifications
               psqlIP = sh(script: "docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' ${psql.id}", returnStdout: true).trim()
                 // Test network connectivity / wait for sidecar to be ready (optional)
