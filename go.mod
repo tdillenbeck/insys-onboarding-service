@@ -30,5 +30,5 @@ require (
 	google.golang.org/appengine v1.6.6-0.20191219230319-b6ce0843b556 // indirect
 	google.golang.org/grpc v1.29.1
 	gopkg.in/square/go-jose.v2 v2.4.1 // indirect
-	weavelab.xyz/monorail v0.1.192
+	weavelab.xyz/monorail v0.1.263
 )
