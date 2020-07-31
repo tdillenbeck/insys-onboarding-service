@@ -28,6 +28,7 @@ pipeline {
           POSTGRES_DB = "insys_onboarding_test"
           POSTGRES_SEARCH_PATH = "insys_onboarding"
           POSTGRES_USER = "postgres"
+          POSTGRES_SCHEMA = "insys_onboarding"
         }
 
       steps {
